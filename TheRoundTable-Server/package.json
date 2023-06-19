@@ -4,7 +4,8 @@
   "description": "back end for TheRoundTable",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "initDB": "psql -d postgres -f TheRoundTable.sql"
   },
   "author": "",
   "license": "ISC",
