@@ -1,10 +1,7 @@
-import { FC, useState } from "react";
+import { FC } from "react";
 
-interface LandingPageProps {
 
-}
-
-const LandingPage:FC = ({}:LandingPageProps) => {
+const LandingPage:FC = ({}) => {
 
   return (
     <div>

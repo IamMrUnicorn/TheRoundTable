@@ -1,10 +1,7 @@
-import { FC, useState } from "react";
+import { FC } from "react";
 
-interface RoomPageProps {
 
-}
-
-const RoomPage:FC = ({}:RoomPageProps) => {
+const RoomPage:FC = ({}) => {
 
   return (
     <div>

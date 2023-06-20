@@ -1,14 +1,14 @@
-import { useState } from "react";
+import { FC } from "react";
+import { UserProfile } from '@clerk/clerk-react'
 
-interface AccountPageProps {
-  clerkProfile: unknown
-}
 
-const AccountPage = ({}:AccountPageProps) => {
+
+const AccountPage:FC = ({}) => {
 
   return (
     <div>
       Account page
+      <UserProfile/>
     </div>
   )
 }
