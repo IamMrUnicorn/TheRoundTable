@@ -12,7 +12,7 @@ const PartySection = ({party}:PartyProps) => {
 
 
   return (
-    <div className="bg-primary max-h-[600px] overflow-y-scroll flex flex-col">
+    <div className="bg-primary max-h-[550px] overflow-y-scroll flex flex-col">
       {party.map((player:Player, index) => (
         <PlayerCard key={index} player={player}/>
       ))}

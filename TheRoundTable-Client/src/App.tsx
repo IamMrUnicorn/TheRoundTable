@@ -1,4 +1,4 @@
-import { useContext, FC } from 'react'
+import { useContext, FC, useState } from 'react'
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import {AccountPage, CalendarPage, CharacterImportPage, CharactersPage, DMPage, ErrorPage, LandingPage, PlayerPage, RoomPage} from './Pages/Index.ts'
 import { SocketContext } from './socket.ts'
@@ -10,6 +10,7 @@ import NavBar from './Components/NavBar.tsx'
 
 const App: FC = () => {
 
+  const [theme, setTheme] = useState('coffee')
   const { user } = useUser();
   const socket = useContext(SocketContext)
 
@@ -24,9 +25,9 @@ const App: FC = () => {
 
   return (
     <SocketContext.Provider value={socket}>
-      <div data-theme={localStorage.getItem('theme') || 'coffee'} className='h-screen w-screen overflow-scroll'>
+      <div data-theme={localStorage.getItem('theme') || theme} className='h-screen w-screen overflow-clip'>
 
-        <NavBar avatar={user.profileImageUrl} />
+        <NavBar avatar={user.profileImageUrl} setTheme={setTheme}/>
 
         <BrowserRouter>
           <Routes>

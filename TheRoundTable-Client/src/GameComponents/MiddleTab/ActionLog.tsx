@@ -6,7 +6,7 @@ interface ActionLogProps {
 const ActionLog = ({Messages}:ActionLogProps) => {
 
   return (
-    <div className="bg-primary ActionLog-container">
+    <div className="bg-primary max-h-[30%] overflow-y-scroll">
       {Messages.map((message, index) => (
         <ActionLogMessage message={message} key={index} />
       ))}

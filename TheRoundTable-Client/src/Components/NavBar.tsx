@@ -1,12 +1,13 @@
 import { SignOutButton } from "@clerk/clerk-react";
-import { useEffect } from "react";
+import {Dispatch, SetStateAction} from "react";
 
 const themes = ['Stigander', 'Malarie', 'Bojack', 'Zaris', 'retro', 'dracula', 'aqua', 'cyberpunk', 'coffee']
 interface NavProps {
-  avatar: string
+  avatar: string,
+  setTheme: Dispatch<SetStateAction<string>>
 }
 
-const NavBar = ({avatar}:NavProps) => {
+const NavBar = ({avatar, setTheme}:NavProps) => {
   return (
     <nav className="flex flex-row justify-between bg-secondary Nav-Bar">
       <div className="Nav-Logo bg-accent flex flex-col justify-center w-[640px] rounded-md ">
@@ -17,9 +18,9 @@ const NavBar = ({avatar}:NavProps) => {
 
         <div className="dropdown">
           <label tabIndex={0} className="btn m-1">themes</label>
-          <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
+          <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 z-10 rounded-box w-52">
             {themes.map((theme, index) => (
-              <li onClick={() => {localStorage.setItem('theme', theme)}} key={index}><a>{theme}</a></li>
+              <li onClick={() => {localStorage.setItem('theme', theme); setTheme(theme)}} key={index}><a>{theme}</a></li>
             ))}
           </ul>
         </div>
@@ -44,9 +45,3 @@ const NavBar = ({avatar}:NavProps) => {
 }
 
 export default NavBar
-
-inital commit
-step 1 of reorganization and migration to typescript and react router
-created pages directory to organize pages
-imported the navbar component
-setup the
