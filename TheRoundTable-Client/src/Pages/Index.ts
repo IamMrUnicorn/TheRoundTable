@@ -1,6 +1,5 @@
 import LandingPage from "./LandingPage.tsx";
 import ErrorPage from "./ErrorPage.tsx";
-import AccountPage from "./AccountPage.tsx";
 import CharacterImportPage from "./CharacterImportPage.tsx";
 import CharactersPage from "./CharactersPage.tsx";
 import CalendarPage from "./CalendarPage.tsx";
@@ -11,7 +10,6 @@ import DMPage from './DMPage.tsx'
 export {
   LandingPage,
   ErrorPage,
-  AccountPage,
   CharacterImportPage,
   CharactersPage,
   CalendarPage,

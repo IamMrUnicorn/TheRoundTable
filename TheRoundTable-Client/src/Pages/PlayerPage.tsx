@@ -20,7 +20,7 @@ const GamePage: FC = () => {
   return (
     <SocketContext.Provider value={socket}>
 
-      <div className='w-full h-full overflow-hidden flex flex-row'>
+      <div className='w-full overflow-hidden flex flex-row'>
 
       {popup === 'action' ? <ActionModal setPopup={setPopup}/>
       : popup === 'bonus action' ? <BonusActionModal setPopup={setPopup} />
@@ -32,19 +32,19 @@ const GamePage: FC = () => {
       : null}
 
 
-        <div className='w-[33.3%] h-full flex flex-col'>
+        <div className='w-[33.3%] flex flex-col'>
           <LocationInfo sessionDetails={sessionDetails} />
           <PartySection party={party} />
           <SpotifyMusicPlayer />
         </div>
 
-        <div className='w-[33.3%] h-full flex flex-col'>
+        <div className='w-[33.3%] flex flex-col'>
           <PlayGround />
           <ActionLog Messages={messages} />
           <PlayerTools setPopup={setPopup}/>
         </div>
 
-        <div className='w-[33.3%] h-full flex flex-col'>
+        <div className='w-[33.3%] flex flex-col'>
           <NotesContainer />
         </div>
 

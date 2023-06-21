@@ -1,6 +1,6 @@
 import { useContext, FC, useState } from 'react'
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import {AccountPage, CalendarPage, CharacterImportPage, CharactersPage, DMPage, ErrorPage, LandingPage, PlayerPage, RoomPage} from './Pages/Index.ts'
+import { CalendarPage, CharacterImportPage, CharactersPage, DMPage, ErrorPage, LandingPage, PlayerPage, RoomPage} from './Pages/Index.ts'
 import { SocketContext } from './socket.ts'
 import { useUser } from '@clerk/clerk-react'
 
@@ -25,7 +25,7 @@ const App: FC = () => {
 
   return (
     <SocketContext.Provider value={socket}>
-      <div data-theme={localStorage.getItem('theme') || theme} className='h-screen w-screen overflow-clip'>
+      <div data-theme={localStorage.getItem('theme') || theme} className='max-h-screen max-w-screen'>
 
         <NavBar avatar={user.profileImageUrl} setTheme={setTheme}/>
 
@@ -35,7 +35,6 @@ const App: FC = () => {
             <Route path="/import" element={<CharacterImportPage />} />
             <Route path="/characters" element={<CharactersPage />} />
             <Route path="/calendar" element={<CalendarPage />} />
-            <Route path="/account" element={<AccountPage />} />
             <Route path="/rooms" element={<RoomPage />} />
             <Route path="/rooms/:roomID" element={user.publicMetadata.isDM ? <DMPage /> : <PlayerPage />} />
             <Route path="*" element={<ErrorPage />} />

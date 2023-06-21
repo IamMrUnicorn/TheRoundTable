@@ -7,7 +7,7 @@ const PlayerTools = ({setPopup}:ToolsProp) => {
 
   return (
     <div className="bg-primary flex flex-row">
-      <div className="bg-base-100 m-5 pr-5  flex flex-row">
+      <div className="bg-base-100 m-5 pr-5 rounded-2xl flex flex-row">
         <div className="m-3  flex flex-col">
           <div className="m-2 flex flex-row">
             <label htmlFor="action_modal" onClick={() => {setPopup('action')}} className="btn btn-info">Action</label>
@@ -16,7 +16,7 @@ const PlayerTools = ({setPopup}:ToolsProp) => {
           <div className="m-2 flex flex-row">
             <label htmlFor="talk_modal" onClick={() => {setPopup('talk')}} className="btn btn-warning">talk</label>
             <label htmlFor="roll_modal" onClick={() => {setPopup('roll')}} className="btn btn-error">roll</label>
-            <button className="btn btn-md self-center " >end turn</button>
+            <button className="btn btn-md btn-neutral self-center " >end turn</button>
           </div>
         </div>
       </div>
