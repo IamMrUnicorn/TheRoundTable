@@ -1,32 +1,33 @@
-import React from "react"
+import { FC } from "react"
 
 
-export interface PlayerProps {
-  player: {
-    user: string,
-    avatar: string,
-    name: string,
-    race: string,
-    class: string,
-    level: number,
-    subClass: string,
-    status: string,
-    currHP: number,
-    maxHP: number,
-    AC: number,
-    speed: number,
-    proficiency: number
-    strength: number,
-    dexterity: number,
-    consitution: number,
-    intelligence: number,
-    wisdom: number,
-    charisma: number,
-  }
+export interface Player {
+  user: string,
+  avatar: string,
+  name: string,
+  race: string,
+  class: string,
+  level: string,
+  subClass: string,
+  status: string,
+  currHP: number,
+  maxHP: number,
+  AC: number,
+  speed: number,
+  proficiency: number
+  strength: number,
+  dexterity: number,
+  consitution: number,
+  intelligence: number,
+  wisdom: number,
+  charisma: number,
+}
+interface PlayerProps {
+  player: Player
 }
 
 // player DCs and spell slots, (and character specific things like ki points or sorcery points) inspiration dice, weapon in hand, 
-const PlayerCard = ({ player }:PlayerProps) => {
+const PlayerCard:FC<PlayerProps> = ({ player }) => {
   return (
     <div className="bg-base-100 p-1 m-2 rounded-3xl justify-between flex flex-row">
 
