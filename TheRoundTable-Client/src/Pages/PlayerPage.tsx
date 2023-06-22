@@ -9,7 +9,7 @@ import { SocketContext } from "../socket";
 import { useUser } from '@clerk/clerk-react'
 
 
-const GamePage: FC = () => {
+const PlayerPage: FC = () => {
   const {user} = useUser()
   const socket = useContext(SocketContext)
   const [popup, setPopup] = useState('none')
@@ -18,33 +18,34 @@ const GamePage: FC = () => {
   if (!user) {
     return<div>loading...</div>
   }
+
   return (
     <SocketContext.Provider value={socket}>
       <div className='w-full max-h-screen overflow-hidden flex flex-row'>
 
-      {popup === 'action' ? <ActionModal setPopup={setPopup}/>
-      : popup === 'bonus action' ? <BonusActionModal setPopup={setPopup} />
-      : popup === 'spells' ? <SpellsModal setPopup={setPopup} CharacterSpells={Stigander.spells} />
-      : popup === 'weapons' ? <WeaponsModal setPopup={setPopup} CharacterWeapons={Stigander.weapons}/>
-      : popup === 'inventory' ? <InventoryModal setPopup={setPopup} CharacterInventory={Stigander.inventory} />
-      : popup === 'talk' ? <TalkModal setPopup={setPopup} />
-      : popup === 'roll' ? <RollModal setPopup={setPopup} />
-      : null}
+        {popup === 'action' ? <ActionModal setPopup={setPopup}/>
+        : popup === 'bonus action' ? <BonusActionModal setPopup={setPopup} />
+        : popup === 'spells' ? <SpellsModal setPopup={setPopup} CharacterSpells={Stigander.spells} />
+        : popup === 'weapons' ? <WeaponsModal setPopup={setPopup} CharacterWeapons={Stigander.weapons}/>
+        : popup === 'inventory' ? <InventoryModal setPopup={setPopup} CharacterInventory={Stigander.inventory} />
+        : popup === 'talk' ? <TalkModal setPopup={setPopup} />
+        : popup === 'roll' ? <RollModal setPopup={setPopup} />
+        : null}
 
 
-        <div className='w-[33.3%] flex flex-col'>
+        <div className='w-[30%] flex flex-col'>
           <LocationInfo sessionDetails={sessionDetails} />
           <PartySection party={party} />
           <SpotifyMusicPlayer />
         </div>
 
-        <div className='w-[33.3%] flex flex-col'>
+        <div className='w-[40%] flex flex-col'>
           <PlayGround />
           <ActionLog Messages={messages} />
           <PlayerTools setPopup={setPopup}/>
         </div>
 
-        <div className='w-[33.3%] flex flex-col'>
+        <div className='w-[30%] flex flex-col'>
           <NotesContainer />
         </div>
 
@@ -53,5 +54,5 @@ const GamePage: FC = () => {
   )
 }
 
-export default GamePage
+export default PlayerPage
 

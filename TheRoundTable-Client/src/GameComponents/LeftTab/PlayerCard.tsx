@@ -31,7 +31,7 @@ const PlayerCard:FC<PlayerProps> = ({ player }) => {
   return (
     <div className="bg-base-100 p-1 m-2 rounded-3xl justify-between flex flex-row">
 
-      <div className="flex flex-row">
+      <div className="flex flex-col">
 
         <div className="avatar p-2">
           <div className="w-20 self-center h-20 rounded-full ring ring-primary ring-offset-base-100">
@@ -39,9 +39,12 @@ const PlayerCard:FC<PlayerProps> = ({ player }) => {
           </div>
         </div>
 
-        <div className="flex flex-col">
+        <div className="flex flex-col  ">
           <div className="m-1 flex flex-row">
-            <p className="Party-Player-name">{player.name} | {player.race}</p>
+            <p className="Party-Player-name">{player.name}</p>
+          </div>
+          <div className="m-1 flex flex-row">
+            <p className="Party-Player-name">{player.race}</p>
           </div>
           <div className="m-1 flex flex-row">
             <p className="Party-Player-class">{player.class} | lvl{player.level}</p>
@@ -56,9 +59,9 @@ const PlayerCard:FC<PlayerProps> = ({ player }) => {
 
       </div>
 
-      <div className="flex flex-row m-1">
+      <div className="flex 2xl:flex-row xl:flex-col">
 
-        <div className="flex flex-col items-end flex-wrap m-2">
+        <div className="flex flex-col items-end m-2">
           <p className="Party-Player-HP">HP: {player.currHP}/{player.maxHP} <i className="fa-solid fa-briefcase-medical"></i></p>
           <p>AC: {player.AC} <i className="fa-solid fa-shield-halved"></i></p>
           <p>speed: {player.speed} <i className="fa-solid fa-person-skating"></i></p>

@@ -16,13 +16,11 @@ const ActionModal = ({setPopup}:ActionModalProps) => {
       <div className="modal">
         <div className="modal-box bg-info flex flex-col">
           <h3 className="font-bold text-lg">Action</h3>
-          <div className="flex flex-grow flex-row justify-evenly">
+          <div className="flex flex-grow flex-col ">
               <button className="btn btn-neutral" onClick={()=>{setPopup('weapons')}}>use weapons</button>
               <button className="btn btn-neutral" onClick={()=>{setPopup('spells')}}>use spells</button>
-          </div>
-
-          <div className="flex flex-row justify-center">
               <button className="btn btn-md btn-neutral" onClick={()=>{setPopup('items')}}>use/give items</button>
+              <button className="btn btn-md btn-neutral" onClick={()=>{setPopup('items')}}>free actions</button>
               <button className="btn  btn-accent" onClick={()=>{setPopup('other')}}>other <br/>(requires approval)</button>
           </div>
 

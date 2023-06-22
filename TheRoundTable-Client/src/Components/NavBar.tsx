@@ -3,12 +3,10 @@ import {Dispatch, SetStateAction} from "react";
 
 const themes = ['Stigander', 'Malarie', 'Bojack', 'Zaris', 'retro', 'dracula', 'aqua', 'cyberpunk', 'coffee']
 interface NavProps {
-  avatar: string,
   setTheme: Dispatch<SetStateAction<string>>
 }
 
-const NavBar = ({avatar, setTheme}:NavProps) => {
-  console.log(avatar)
+const NavBar = ({setTheme}:NavProps) => {
   return (
     <nav className="flex flex-row justify-between bg-secondary">
       <div className="bg-accent flex flex-col justify-center w-[640px] rounded-md ">
