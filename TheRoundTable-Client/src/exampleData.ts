@@ -43,9 +43,9 @@ export const party = [
     intelligence: 12,
     wisdom: 10,
     charisma: 10,
-    weapons: '{"heavy":[],"light":[],"reach":[],"thrown":[],"loading":[],"range":["bow"],"finesse":[],"special":[],"versatile":[],"twoHanded":[],"magicalWeapons":["scimitar","mustang & sally"]}',
-    spells: '{"cantrips":["light","guidance","sacred flame","mending","druid craft","spare the dying"],"lvl1":["cure wounds","guiding bolt","santuary","healing word","bless","detect magic"],"lvl2":["prayer of healing","calm emotion","hold person","bark skin","spritual weapon"],"lvl3":["beacon of hope","revivify","spirit guardians","mass healing word","plant growth"],"lvl4":["death ward","divination","dominate beast","grasping vines","banishment"],"lvl5":["commune","flame strike","mass cure wounds"," geater restoration","planar binding"],"lvl6":["heal","word of recall","true seeing","blade barrier","plannar ally"],"lvl7":["conjure celestial","diving word","regenerate","plane shift","resurrection"],"lvl8":[],"lvl9":[]}',
-    inventory: '{"everything":["mushroom pouch","bag of holding","silver dragon potion","magical cupcake","canteen of mushroom juice","a bunch of colored rocks"]}'
+    weapons: '{"heavy":[],"light":[],"reach":[],"thrown":[],"loading":[],"range":[],"finesse":[],"special":[],"versatile":[],"twoHanded":[],"magicalWeapons":[]}',
+    spells: '{"cantrips":[],"lvl1":[],"lvl2":[],"lvl3":[],"lvl4":[],"lvl5":[],"lvl6":[],"lvl7":[],"lvl8":[],"lvl9":[]}',
+    inventory: '{"everything":[]}'
   },
   {
     user: 'amanda@gmail.com',

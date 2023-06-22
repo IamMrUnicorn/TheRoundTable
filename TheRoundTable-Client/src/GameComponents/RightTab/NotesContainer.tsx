@@ -5,10 +5,10 @@ const NotesContainer = () => {
   return (
     <div className="bg-neutral h-full">
 
-      <div className="bg-neutral h-96 Notes-Table ">
+      <div className="bg-neutral h-[50%] Notes-Table ">
       </div>
 
-      <div className="Notes-Personal">
+      <div className="h-[50%]">
         <div className="bg-primary Notes-Buttons-Container flex flex-row justify-center items-center">
           
           <div className="dropdown">
@@ -25,7 +25,7 @@ const NotesContainer = () => {
           <button className="btn btn-sm btn-accent Notes-Buttons-PushToTable" onClick={() => {console.log('activate a popup over the table notes with this current player canvas state')}}>push to table</button>
 
         </div>
-        <div className="bg-neutral h-96">
+        <div className="bg-neutral">
         </div>
 
       </div>
