@@ -1,14 +1,10 @@
-import { FC, useState } from "react";
+import { FC } from "react";
 
-interface CalendarPageProps {
-
-}
-
-const CalendarPage:FC = ({}:CalendarPageProps) => {
+const CalendarPage:FC = ({}) => {
 
   return (
     <div>
-      CalendarPage page
+      Calendar page
     </div>
   )
 }

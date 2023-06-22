@@ -1,10 +1,6 @@
-import { FC, useState } from "react";
+import { FC } from "react";
 
-interface CharactersPageProps {
-
-}
-
-const CharactersPage:FC = ({}:CharactersPageProps) => {
+const CharactersPage:FC = ({}) => {
 
   return (
     <div>

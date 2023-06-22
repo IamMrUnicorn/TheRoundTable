@@ -1,14 +1,13 @@
-import { FC, useState } from "react";
+import { FC } from "react";
 
-interface LandingPageProps {
 
-}
-
-const LandingPage:FC = ({}:LandingPageProps) => {
+const LandingPage:FC = ({}) => {
 
   return (
     <div>
       Landing page
+      <br/>
+      <a href="/rooms/123">go to game</a>
     </div>
   )
 }
