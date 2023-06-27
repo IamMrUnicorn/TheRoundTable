@@ -8,7 +8,7 @@ interface NavProps {
 
 const NavBar = ({setTheme}:NavProps) => {
   return (
-    <nav className="flex flex-row justify-between bg-secondary">
+    <nav className="flex flex-row justify-between bg-secondary h-[5vh]">
       <div className="bg-accent flex flex-col justify-center w-[640px] rounded-md ">
         <p className="text-neutral text-3xl font-bold">THE ROUND TABLE <i className="fa-solid fa-dungeon"></i> <i className="fa-solid fa-dragon"></i></p>
       </div>

@@ -21,7 +21,7 @@ const PlayerPage: FC = () => {
 
   return (
     <SocketContext.Provider value={socket}>
-      <div className='w-full max-h-screen overflow-hidden flex flex-row'>
+      <div className='w-full max-h-[95vh] flex flex-row'>
 
         {popup === 'action' ? <ActionModal setPopup={setPopup}/>
         : popup === 'bonus action' ? <BonusActionModal setPopup={setPopup} />
@@ -32,20 +32,21 @@ const PlayerPage: FC = () => {
         : popup === 'roll' ? <RollModal setPopup={setPopup} />
         : null}
 
+{/* need to make a separate mobile page for screens smaller than lg size */}
 
-        <div className='w-[30%] flex flex-col'>
+        <div className='lg:w-[30%] flex-col'>
           <LocationInfo sessionDetails={sessionDetails} />
           <PartySection party={party} />
           <SpotifyMusicPlayer />
         </div>
 
-        <div className='w-[40%] flex flex-col'>
+        <div className='lg:w-[40%] flex flex-col'>
           <PlayGround />
           <ActionLog Messages={messages} />
           <PlayerTools setPopup={setPopup}/>
         </div>
 
-        <div className='w-[30%] flex flex-col'>
+        <div className='lg:w-[30%] flex flex-col'>
           <NotesContainer />
         </div>
 
