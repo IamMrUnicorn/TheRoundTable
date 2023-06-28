@@ -1,15 +1,178 @@
-import { useForm, Controller } from 'react-hook-form';
+import React, { useState } from 'react';
 import axios from 'axios';
+import { useForm, Controller } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
+import { Chips } from "primereact/chips";
 
-interface CharacterImportProps{
-  username:string,
+interface CharacterImportProps {
+  username: string | null,
+}
+const schema = yup.object().shape({
+  name: yup.string().required('Character name is required'),
+  race: yup.string().required('Character race is required'),
+  background: yup.string().required('Character background is required'),
+  class: yup.string().required('Character class is required'),
+  subclass: yup.string().required('Character subclass is required'),
+  level: yup.number().max(30, 'Level can\'t be over 30').required('Level is required'),
+  alignment: yup.string().matches(/(lawful|neutral|chaotic) (good|neutral|evil)/, 'Alignment must be one of lawful, neutral, chaotic combined with one of good, neutral, evil'),
+  strength: yup.number().max(30, 'Strength can\'t be over 30'),
+  dexterity: yup.number().max(30, 'Dexterity can\'t be over 30'),
+  constitution: yup.number().max(30, 'Constitution can\'t be over 30'),
+  intelligence: yup.number().max(30, 'Intelligence can\'t be over 30'),
+  wisdom: yup.number().max(30, 'Wisdom can\'t be over 30'),
+  charisma: yup.number().max(30, 'Charisma can\'t be over 30'),
+  maxHP: yup.number().max(9999, 'maxHP can\'t be over 9999'),
+  AC: yup.number().max(60, 'AC can\'t be over 60'),
+  proficiency: yup.number().max(10, 'proficiency can\'t be over 10'),
+  initiative: yup.number().max(10, 'initiative can\'t be over 10'),
+  speed: yup.number().max(999, 'speed can\'t be over 999'),
+  spellDC: yup.number().max(60, 'spellDC can\'t be over 60'),
+  hitDice: yup.string().required('hit dice is required'),
+  strengthProficient: yup.boolean(),
+  dexterityProficient: yup.boolean(),
+  constitutionProficient: yup.boolean(),
+  intelligenceProficient: yup.boolean(),
+  wisdomProficient: yup.boolean(),
+  charismaProficient: yup.boolean(),
+  athleticsProficient: yup.boolean(),
+  acrobaticsProficient: yup.boolean(),
+  sleightOfHandProficient: yup.boolean(),
+  intimidationProficient: yup.boolean(),
+  performanceProficient: yup.boolean(),
+  investigationProficient: yup.boolean(),
+  animalHandlingProficient: yup.boolean(),
+  natureProficient: yup.boolean(),
+  religionProficient: yup.boolean(),
+  historyProficient: yup.boolean(),
+  insightProficient: yup.boolean(),
+  medicineProficient: yup.boolean(),
+  perceptionProficient: yup.boolean(),
+  survivalProficient: yup.boolean(),
+  deceptionProficient: yup.boolean(),
+  stealthProficient: yup.boolean(),
+  arcanaProficient: yup.boolean(),
+  persuasionProficient: yup.boolean(),
+  copper: yup.number().max(60, 'copper can\'t be over 60'),
+  silver: yup.number().max(60, 'silver can\'t be over 60'),
+  gold: yup.number().max(60, 'gold can\'t be over 60'),
+  platinum: yup.number().max(60, 'platinum can\'t be over 60'),
+  feats: yup.array(),
+  inventory: yup.array(),
+  cantrips: yup.array(),
+  lvl1: yup.array(),
+  lvl2: yup.array(),
+  lvl3: yup.array(),
+  lvl4: yup.array(),
+  lvl5: yup.array(),
+  lvl6: yup.array(),
+  lvl7: yup.array(),
+  lvl8: yup.array(),
+  lvl9: yup.array(),
+  heavy: yup.array(),
+  light: yup.array(),
+  reach: yup.array(),
+  range: yup.array(),
+  thrown: yup.array(),
+  loading: yup.array(),
+  finesse: yup.array(),
+  special: yup.array(),
+  versatile: yup.array(),
+  twoHanded: yup.array(),
+  magicalWeapons: yup.array(),
+});
+
+
+interface CharacterFormData {
+  name: string;
+  race: string;
+  class: string;
+  subclass: string;
+  level: number;
+  background: string;
+  alignment: string;
+  maxHP: number;
+  AC: number;
+  proficiency: number;
+  initiative: number;
+  speed: number;
+  strength: number;
+  dexterity: number;
+  constitution: number;
+  intelligence: number;
+  wisdom: number;
+  charisma: number;
+  spellDC: number;
+  feats: string[];
+  strengthProficient: boolean;
+  dexterityProficient: boolean;
+  constitutionProficient: boolean;
+  intelligenceProficient: boolean;
+  wisdomProficient: boolean;
+  charismaProficient: boolean;
+  athleticsProficient: boolean;
+  acrobaticsProficient: boolean;
+  sleightOfHandProficient: boolean;
+  intimidationProficient: boolean;
+  performanceProficient: boolean;
+  investigationProficient: boolean;
+  animalHandlingProficient: boolean;
+  natureProficient: boolean;
+  religionProficient: boolean;
+  historyProficient: boolean;
+  insightProficient: boolean;
+  medicineProficient: boolean;
+  perceptionProficient: boolean;
+  survivalProficient: boolean;
+  deceptionProficient: boolean;
+  stealthProficient: boolean;
+  arcanaProficient: boolean;
+  persuasionProficient: boolean;
+  copper: number;
+  silver: number;
+  gold: number;
+  platinum: number;
+  hitDice: string;
+  inventory: string[];
+  cantrips: string[];
+  lvl1: string[];
+  lvl2: string[];
+  lvl3: string[];
+  lvl4: string[];
+  lvl5: string[];
+  lvl6: string[];
+  lvl7: string[];
+  lvl8: string[];
+  lvl9: string[];
+  heavy: string[];
+  light: string[];
+  reach: string[];
+  range: string[];
+  thrown: string[];
+  loading: string[];
+  finesse: string[];
+  special: string[];
+  versatile: string[];
+  twoHanded: string[];
+  magicalWeapons: string[];
 }
 
-const CharacterForm = ({ username }:CharacterImportProps) => {
-  const { handleSubmit, control } = useForm();
+const CharacterForm = ({ username }: CharacterImportProps) => {
+  const { control, handleSubmit, formState: { errors } } = useForm({
+    resolver: yupResolver(schema),
+  });
+  const [confirmation, setConfirmation] = useState(false)
 
-  const onSubmit = (data) => {
-    console.log(data);
+  const onSubmit = (_data: unknown, e?: React.BaseSyntheticEvent) => {
+    e?.preventDefault();
+    if (Object.keys(errors).length === 0) {
+      setConfirmation(true);
+    }
+  };
+
+  const onConfirm = async (data: unknown) => {
+    const formData = data as CharacterFormData
+    console.log(formData);
     axios.post(`http://localhost:5174/characters/${username}/import`, data)
       .then((response) => {
         console.log(response)
@@ -17,38 +180,120 @@ const CharacterForm = ({ username }:CharacterImportProps) => {
       .catch((err) => {
         console.log('err from server -> ', err)
       })
+    // Redirect to a different page
+    window.location.href = "/characters";
+  };
+
+  const customChip = (item:string) => {
+    return (
+      <div className='bg-secondary'>
+        <span>{item}</span>
+      </div>
+    );
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <div className='flex flex-row'>
-        <div className='flex flex-col items-end'>
-          <p>character details & skills</p>
-          <label>
-            Name:
-            <Controller name="name" control={control} defaultValue="" render={({ field }) => <input type="text" {...field} />} />
-          </label>
-          {/* Repeat this pattern for the rest of your form fields... */}
+    <form className='flex flex-col' onSubmit={handleSubmit(onSubmit)}>
+      <p className='bg-secondary rounded-full w-max m-2 p-3 text-neutral self-center'>enter everything as it appears on your character sheet</p>
+      <div className='flex flex-row gap-1 justify-center'>
 
+        <div className='flex flex-col gap-1 w-min items-end '>
+          <p className='self-center'>character name</p>
+          <label>  Name:  <Controller name="name" control={control} defaultValue="" render={({ field }) => <input type="text" {...field} />} />  {errors.name && <p>Character name is required</p>} </label>
+          <label>  Race:  <Controller name="race" control={control} defaultValue="" render={({ field }) => <input type="text" {...field} />} /> {errors.race && <p>Character race is required</p>} </label>
+          <label>  Class:  <Controller name="class" control={control} defaultValue="" render={({ field }) => <input type="text" {...field} />} /> {errors.class && <p>Character class is required</p>} </label>
+          <label>  Subclass:  <Controller name="subclass" control={control} defaultValue="" render={({ field }) => <input type="text" {...field} />} /> {errors.subclass && <p>Character subclass is required</p>} </label>
+          <label>  Level:  <Controller name="level" control={control} defaultValue={0} render={({ field }) => <input type="number" {...field} />} /> {errors.level && <p>Level is required and can't be over 30</p>} </label>
+          <label>  Background:  <Controller name="background" control={control} defaultValue="" render={({ field }) => <input type="text" {...field} />} /> {errors.background && <p>Character background is required</p>} </label>
+          <label>  Alignment:  <Controller name="alignment" control={control} defaultValue="" render={({ field }) => <input type="text" {...field} />} /> {errors.alignment && <p>Alignment must be one of lawful, neutral, chaotic combined with one of good, neutral, evil</p>} </label>
+          <label>  hit Dice:  <Controller name="hitDice" control={control} defaultValue="" render={({ field }) => <input type="text" {...field} />} /> {errors.hitDice && <p> Character hit dice are required </p>} </label>
+        </div>
+        <div className='flex flex-col items-end w-min flex-wrap gap-1'>
+          <p className='self-center'>character details & skills</p>
+          <label>   MaxHP:   <Controller name="maxHP" control={control} defaultValue={0} render={({ field }) => <input type="number" {...field} />} /> {errors.maxHP && <p>maxHP can't be over 9999</p>} </label>
+          <label>   AC:   <Controller name="AC" control={control} defaultValue={0} render={({ field }) => <input type="number" {...field} />} /> {errors.AC && <p>AC can't be over 60</p>} </label>
+          <label>   Proficiency bonus:   <Controller name="proficiency" control={control} defaultValue={0} render={({ field }) => <input type="number" {...field} />} /> {errors.proficiency && <p>Proficiency bonus can't be over 10</p>} </label>
+          <label>   Initiative:   <Controller name="initiative" control={control} defaultValue={0} render={({ field }) => <input type="number" {...field} />} /> {errors.initiative && <p>Initiative can't be over 10</p>} </label>
+          <label>   Speed:   <Controller name="speed" control={control} defaultValue={0} render={({ field }) => <input type="number" {...field} />} /> {errors.speed && <p>Speed can't be over 999</p>} </label>
+          <label>   Strength:   <Controller name="strength" control={control} defaultValue={0} render={({ field }) => <input type="number" {...field} />} /> {errors.strength && <p>Strength can't be over 30</p>} </label>
+          <label>   Dexterity:   <Controller name="dexterity" control={control} defaultValue={0} render={({ field }) => <input type="number" {...field} />} /> {errors.dexterity && <p>Dexterity can't be over 30</p>} </label>
+          <label>   Constitution:   <Controller name="constitution" control={control} defaultValue={0} render={({ field }) => <input type="number" {...field} />} /> {errors.constitution && <p>Constitution can't be over 30</p>} </label>
+          <label>   Intelligence:   <Controller name="intelligence" control={control} defaultValue={0} render={({ field }) => <input type="number" {...field} />} /> {errors.intelligence && <p>Intelligence can't be over 30</p>} </label>
+          <label>   Wisdom:   <Controller name="wisdom" control={control} defaultValue={0} render={({ field }) => <input type="number" {...field} />} /> {errors.wisdom && <p>Wisdom can't be over 30</p>} </label>
+          <label>   Charisma:   <Controller name="charisma" control={control} defaultValue={0} render={({ field }) => <input type="number" {...field} />} /> {errors.charisma && <p>Charisma can't be over 30</p>} </label>
+          <label>   SpellDC:   <Controller name="spellDC" control={control} defaultValue={0} render={({ field }) => <input type="number" {...field} />} /> {errors.spellDC && <p>spellDC can't be over 60</p>} </label>
+          <label>   Feats: <Controller name="feats" control={control} defaultValue={[]} render={({ field }) => (<Chips value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
+        </div>
+        <div className='flex flex-col items-end w-min flex-wrap gap-1'>
+          <p className='self-center'>proficiencies</p>
+          <label>  strength:   <Controller name="strengthProficient" control={control} defaultValue={false} render={({ field: { ref, value, ...restField } }) => <input type="checkbox" {...restField} ref={ref} checked={!!value} />} /> </label>
+          <label>  dexterity:   <Controller name="dexterityProficient" control={control} defaultValue={false} render={({ field: { ref, value, ...restField } }) => <input type="checkbox" {...restField} ref={ref} checked={!!value} />} /> </label>
+          <label>  constitution:  <Controller name="constitutionProficient" control={control} defaultValue={false} render={({ field: { ref, value, ...restField } }) => <input type="checkbox" {...restField} ref={ref} checked={!!value} />} /></label>
+          <label>  intelligence:  <Controller name="intelligenceProficient" control={control} defaultValue={false} render={({ field: { ref, value, ...restField } }) => <input type="checkbox" {...restField} ref={ref} checked={!!value} />} /></label>
+          <label>  wisdom:  <Controller name="wisdomProficient" control={control} defaultValue={false} render={({ field: { ref, value, ...restField } }) => <input type="checkbox" {...restField} ref={ref} checked={!!value} />} /></label>
+          <label>  charisma:  <Controller name="charismaProficient" control={control} defaultValue={false} render={({ field: { ref, value, ...restField } }) => <input type="checkbox" {...restField} ref={ref} checked={!!value} />} /></label>
+          <label>  athletics:  <Controller name="athleticsProficient" control={control} defaultValue={false} render={({ field: { ref, value, ...restField } }) => <input type="checkbox" {...restField} ref={ref} checked={!!value} />} /></label>
+          <label>  acrobatics:  <Controller name="acrobaticsProficient" control={control} defaultValue={false} render={({ field: { ref, value, ...restField } }) => <input type="checkbox" {...restField} ref={ref} checked={!!value} />} /></label>
+          <label>  sleightOfHand:  <Controller name="sleightOfHandProficient" control={control} defaultValue={false} render={({ field: { ref, value, ...restField } }) => <input type="checkbox" {...restField} ref={ref} checked={!!value} />} /></label>
+          <label>  intimidation:  <Controller name="intimidationProficient" control={control} defaultValue={false} render={({ field: { ref, value, ...restField } }) => <input type="checkbox" {...restField} ref={ref} checked={!!value} />} /></label>
+          <label>  performance:  <Controller name="performanceProficient" control={control} defaultValue={false} render={({ field: { ref, value, ...restField } }) => <input type="checkbox" {...restField} ref={ref} checked={!!value} />} /></label>
+          <label>  investigation:  <Controller name="investigationProficient" control={control} defaultValue={false} render={({ field: { ref, value, ...restField } }) => <input type="checkbox" {...restField} ref={ref} checked={!!value} />} /></label>
+          <label>  animalHandling:   <Controller name="animalHandlingProficient" control={control} defaultValue={false} render={({ field: { ref, value, ...restField } }) => <input type="checkbox" {...restField} ref={ref} checked={!!value} />} /> </label>
+          <label>  nature:   <Controller name="natureProficient" control={control} defaultValue={false} render={({ field: { ref, value, ...restField } }) => <input type="checkbox" {...restField} ref={ref} checked={!!value} />} /> </label>
+          <label>  religion:  <Controller name="religionProficient" control={control} defaultValue={false} render={({ field: { ref, value, ...restField } }) => <input type="checkbox" {...restField} ref={ref} checked={!!value} />} /></label>
+          <label>  history:  <Controller name="historyProficient" control={control} defaultValue={false} render={({ field: { ref, value, ...restField } }) => <input type="checkbox" {...restField} ref={ref} checked={!!value} />} /></label>
+          <label>  insight:  <Controller name="insightProficient" control={control} defaultValue={false} render={({ field: { ref, value, ...restField } }) => <input type="checkbox" {...restField} ref={ref} checked={!!value} />} /></label>
+          <label>  medicine:  <Controller name="medicineProficient" control={control} defaultValue={false} render={({ field: { ref, value, ...restField } }) => <input type="checkbox" {...restField} ref={ref} checked={!!value} />} /></label>
+          <label>  perception:  <Controller name="perceptionProficient" control={control} defaultValue={false} render={({ field: { ref, value, ...restField } }) => <input type="checkbox" {...restField} ref={ref} checked={!!value} />} /></label>
+          <label>  survival:  <Controller name="survivalProficient" control={control} defaultValue={false} render={({ field: { ref, value, ...restField } }) => <input type="checkbox" {...restField} ref={ref} checked={!!value} />} /></label>
+          <label>  deception:  <Controller name="deceptionProficient" control={control} defaultValue={false} render={({ field: { ref, value, ...restField } }) => <input type="checkbox" {...restField} ref={ref} checked={!!value} />} /></label>
+          <label>  stealth:  <Controller name="stealthProficient" control={control} defaultValue={false} render={({ field: { ref, value, ...restField } }) => <input type="checkbox" {...restField} ref={ref} checked={!!value} />} /></label>
+          <label>  arcana:  <Controller name="arcanaProficient" control={control} defaultValue={false} render={({ field: { ref, value, ...restField } }) => <input type="checkbox" {...restField} ref={ref} checked={!!value} />} /></label>
+          <label>  persuasion:  <Controller name="persuasionProficient" control={control} defaultValue={false} render={({ field: { ref, value, ...restField } }) => <input type="checkbox" {...restField} ref={ref} checked={!!value} />} /></label>
+        </div>
+        <div className='flex flex-col items-end w-min flex-wrap gap-1'>
+          <p className='self-center'>inventory</p>
+          <label>  copper pieces:  <Controller name="copper" control={control} defaultValue={0} render={({ field }) => <input type="number" {...field} />} /></label>
+          <label>  silver pieces:  <Controller name="silver" control={control} defaultValue={0} render={({ field }) => <input type="number" {...field} />} /></label>
+          <label>  gold pieces:  <Controller name="gold" control={control} defaultValue={0} render={({ field }) => <input type="number" {...field} />} /></label>
+          <label>  platinum pieces:  <Controller name="platinum" control={control} defaultValue={0} render={({ field }) => <input type="number" {...field} />} /></label>
+          <label>  inventory: <Controller name="inventory" control={control} defaultValue={[]} render={({ field }) => (<Chips value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
+        </div>
+        <div className='flex flex-col items-end w-min flex-wrap gap-1'>
+          <p className='self-center'>spells</p>
+          <label> Cantrips: <Controller name="cantrips" control={control} defaultValue={[]} render={({ field }) => (<Chips value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
+          <label> lvl1: <Controller name="lvl1" control={control} defaultValue={[]} render={({ field }) => (<Chips value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
+          <label> lvl2: <Controller name="lvl2" control={control} defaultValue={[]} render={({ field }) => (<Chips value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
+          <label> lvl3: <Controller name="lvl3" control={control} defaultValue={[]} render={({ field }) => (<Chips value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
+          <label> lvl4: <Controller name="lvl4" control={control} defaultValue={[]} render={({ field }) => (<Chips value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
+          <label> lvl5: <Controller name="lvl5" control={control} defaultValue={[]} render={({ field }) => (<Chips value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
+          <label> lvl6: <Controller name="lvl6" control={control} defaultValue={[]} render={({ field }) => (<Chips value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
+          <label> lvl7: <Controller name="lvl7" control={control} defaultValue={[]} render={({ field }) => (<Chips value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
+          <label> lvl8: <Controller name="lvl8" control={control} defaultValue={[]} render={({ field }) => (<Chips value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
+          <label> lvl9: <Controller name="lvl9" control={control} defaultValue={[]} render={({ field }) => (<Chips value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
         </div>
 
-        <div className='flex flex-col items-end'>
-          <p>proficiencies</p>
-          <label>
-            strength:
-            <Controller name="strengthChecked" control={control} defaultValue={false} render={({ field }) => <input type="checkbox" {...field} />} />
-          </label>
-          {/* Repeat this pattern for the rest of your checkboxes... */}
+
+
+        <div className='flex flex-col items-end flex-wrap gap-1'>
+          <p className='self-center'>weapons</p>
+          <label> heavy: <Controller name="heavy" control={control} defaultValue={[]} render={({ field }) => (<Chips value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
+          <label> light: <Controller name="light" control={control} defaultValue={[]} render={({ field }) => (<Chips value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
+          <label> reach: <Controller name="reach" control={control} defaultValue={[]} render={({ field }) => (<Chips value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
+          <label> range: <Controller name="range" control={control} defaultValue={[]} render={({ field }) => (<Chips value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
+          <label> thrown: <Controller name="thrown" control={control} defaultValue={[]} render={({ field }) => (<Chips value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
+          <label> loading: <Controller name="loading" control={control} defaultValue={[]} render={({ field }) => (<Chips value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
+          <label> finesse: <Controller name="finesse" control={control} defaultValue={[]} render={({ field }) => (<Chips value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
+          <label> special: <Controller name="special" control={control} defaultValue={[]} render={({ field }) => (<Chips value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
+          <label> versatile: <Controller name="versatile" control={control} defaultValue={[]} render={({ field }) => (<Chips value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
+          <label> twoHanded: <Controller name="twoHanded" control={control} defaultValue={[]} render={({ field }) => (<Chips value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
+          <label> magicalWeapons: <Controller name="magicalWeapons" control={control} defaultValue={[]} render={({ field }) => (<Chips value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
         </div>
 
-        <div className='flex flex-col items-end'>
-          <p>inventory</p>
-          <label>
-            everything you own:
-            <Controller name="inventory" control={control} defaultValue="" render={({ field }) => <textarea {...field} />} />
-          </label>
-          <button className='btn' type="submit">Submit</button>
-        </div>
+      </div>
+      <div className='flex flex-row justify-center'>
+        {!confirmation && <button className='btn' type="submit">Submit for Validation</button>}
+        {confirmation && <button className='btn' type="button" onClick={handleSubmit(onConfirm)}>Confirm Submission</button>}
       </div>
     </form>
   );
@@ -56,403 +301,5 @@ const CharacterForm = ({ username }:CharacterImportProps) => {
 
 export default CharacterForm;
 
-
-/**
- * import { useState } from 'react';
-import axios from 'axios';
-
-interface CharacterImportProps{
-  username:string,
-}
-
-const CharacterForm = ({ username }:CharacterImportProps) => {
-  const [formData, setFormData] = useState({
-    name: '',
-    race: '',
-    class: '',
-    subclass: '',
-    level: 0,
-    maxHP: 0,
-    AC: 0,
-    proficiency: 0,
-    initiative: 0,
-    speed: 0,
-    strength: 0,
-    dexterity: 0,
-    constitution: 0,
-    intelligence: 0,
-    wisdom: 0,
-    charisma: 0,
-    spellDC: 0,
-    strengthChecked: false,
-    dexterityChecked: false,
-    constitutionChecked: false,
-    intelligenceChecked: false,
-    wisdomChecked: false,
-    charismaChecked: false,
-    athleticsChecked: false,
-    acrobaticsChecked: false,
-    sleightOfHandChecked: false,
-    stealthChecked: false,
-    arcanaChecked: false,
-    historyChecked: false,
-    investigationChecked: false,
-    natureChecked: false,
-    religionChecked: false,
-    animalHandlingChecked: false,
-    insightChecked: false,
-    medicineChecked: false,
-    perceptionChecked: false,
-    survivalChecked: false,
-    deceptionChecked: false,
-    intimidationChecked: false,
-    performanceChecked: false,
-    persuasionChecked: false,
-    inventory: '',
-    cantrips: '',
-    lvl1: '',
-    lvl2: '',
-    lvl3: '',
-    lvl4: '',
-    lvl5: '',
-    lvl6: '',
-    lvl7: '',
-    lvl8: '',
-    lvl9: '',
-    heavy: '',
-    light: '',
-    reach: '',
-    thrown: '',
-    loading: '',
-    range: '',
-    finesse: '',
-    special: '',
-    versatile: '',
-    twoHanded: '',
-    magicalWeapons: ''
-  });
-  
-
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: type === 'checkbox' ? checked : value,
-    }));
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // You can perform any necessary actions with the form data here
-    console.log(formData);
-    axios.post(`http://localhost:5174/characters/${username}/import`, formData)
-      .then((response) => {
-        console.log(response)
-      })
-      .catch((err) => {
-        console.log('err from server -> ', err)
-      })
-  };
-
-  return (
-    <form onSubmit={handleSubmit}>
-      <div className='flex flex-row'>
-
-        <div className='flex flex-col items-end'>
-          <p>character details & skills</p>
-          <label>
-            Name:
-            <input type="text" name="name" value={formData.name} onChange={handleChange} />
-          </label>
-          <label>
-            race:
-            <input type="text" name="race" value={formData.race} onChange={handleChange} />
-          </label>
-          <label>
-            class:
-            <input type="text" name="class" value={formData.class} onChange={handleChange} />
-          </label>
-          <label>
-            subclass:
-            <input type="text" name="subclass" value={formData.subclass} onChange={handleChange} />
-          </label>
-          <label>
-            level:
-            <input type="number" name="level" value={formData.level} onChange={handleChange} />
-          </label>
-          <label>
-            maxHP:
-            <input type="number" name="maxHP" value={formData.maxHP} onChange={handleChange} />
-          </label>
-          <label>
-            AC:
-            <input type="number" name="AC" value={formData.AC} onChange={handleChange} />
-          </label>
-          <label>
-            proficiency bonus:
-            <input type="number" name="proficiency" value={formData.proficiency} onChange={handleChange} />
-          </label>
-          <label>
-            initiative:
-            <input type="number" name="initiative" value={formData.initiative} onChange={handleChange} />
-          </label>
-          <label>
-            movement speed:
-            <input type="number" name="speed" value={formData.speed} onChange={handleChange} />
-          </label>
-          <label>
-            strength:
-            <input type="number" name="strength" value={formData.strength} onChange={handleChange} />
-          </label>
-          <label>
-            dexterity:
-            <input type="number" name="dexterity" value={formData.dexterity} onChange={handleChange} />
-          </label>
-          <label>
-            constitution:
-            <input type="number" name="constitution" value={formData.constitution} onChange={handleChange} />
-          </label>
-          <label>
-            intelligence:
-            <input type="number" name="intelligence" value={formData.intelligence} onChange={handleChange} />
-          </label>
-          <label>
-            wisdom:
-            <input type="number" name="wisdom" value={formData.wisdom} onChange={handleChange} />
-          </label>
-          <label>
-            charisma:
-            <input type="number" name="charisma" value={formData.charisma} onChange={handleChange} />
-          </label>
-          <label>
-            spellDC:
-            <input type="number" name="spellDC" value={formData.spellDC} onChange={handleChange} />
-          </label>
-        </div>
-
-        <div className='flex flex-col items-end'>
-          <p>proficiencies</p>
-          <label>
-            strength:
-            <input type="checkbox" name="strengthChecked" checked={formData.strengthChecked} onChange={handleChange} />
-          </label>
-          <label>
-            dexterity:
-            <input type="checkbox" name="dexterityChecked" checked={formData.dexterityChecked} onChange={handleChange} />
-          </label>
-          <label>
-            constitution:
-            <input type="checkbox" name="constitutionChecked" checked={formData.constitutionChecked} onChange={handleChange} />
-          </label>
-          <label>
-            intelligence:
-            <input type="checkbox" name="intelligenceChecked" checked={formData.intelligenceChecked} onChange={handleChange} />
-          </label>
-          <label>
-            wisdom:
-            <input type="checkbox" name="wisdomChecked" checked={formData.wisdomChecked} onChange={handleChange} />
-          </label>
-          <label>
-            charisma:
-            <input type="checkbox" name="charismaChecked" checked={formData.charismaChecked} onChange={handleChange} />
-          </label>
-          <label>
-            athletics:
-            <input type="checkbox" name="athleticsChecked" checked={formData.athleticsChecked} onChange={handleChange} />
-          </label>
-          <label>
-            acrobatics:
-            <input type="checkbox" name="acrobaticsChecked" checked={formData.acrobaticsChecked} onChange={handleChange} />
-          </label>
-          <label>
-            sleightOfHand:
-            <input type="checkbox" name="sleightOfHandChecked" checked={formData.sleightOfHandChecked} onChange={handleChange} />
-          </label>
-          <label>
-            stealth:
-            <input type="checkbox" name="stealthChecked" checked={formData.stealthChecked} onChange={handleChange} />
-          </label>
-          <label>
-            arcana:
-            <input type="checkbox" name="arcanaChecked" checked={formData.arcanaChecked} onChange={handleChange} />
-          </label>
-          <label>
-            history:
-            <input type="checkbox" name="historyChecked" checked={formData.historyChecked} onChange={handleChange} />
-          </label>
-          <label>
-            investigation:
-            <input type="checkbox" name="investigationChecked" checked={formData.investigationChecked} onChange={handleChange} />
-          </label>
-          <label>
-            nature:
-            <input type="checkbox" name="natureChecked" checked={formData.natureChecked} onChange={handleChange} />
-          </label>
-          <label>
-            religion:
-            <input type="checkbox" name="religionChecked" checked={formData.religionChecked} onChange={handleChange} />
-          </label>
-          <label>
-            animalHandling:
-            <input type="checkbox" name="animalHandlingChecked" checked={formData.animalHandlingChecked} onChange={handleChange} />
-          </label>
-          <label>
-            insight:
-            <input type="checkbox" name="insightChecked" checked={formData.insightChecked} onChange={handleChange} />
-          </label>
-          <label>
-            medicine:
-            <input type="checkbox" name="medicineChecked" checked={formData.medicineChecked} onChange={handleChange} />
-          </label>
-          <label>
-            perception:
-            <input type="checkbox" name="perceptionChecked" checked={formData.perceptionChecked} onChange={handleChange} />
-          </label>
-          <label>
-            survival:
-            <input type="checkbox" name="survivalChecked" checked={formData.survivalChecked} onChange={handleChange} />
-          </label>
-          <label>
-            deception:
-            <input type="checkbox" name="deceptionChecked" checked={formData.deceptionChecked} onChange={handleChange} />
-          </label>
-          <label>
-            intimidation:
-            <input type="checkbox" name="intimidationChecked" checked={formData.intimidationChecked} onChange={handleChange} />
-          </label>
-          <label>
-            performance:
-            <input type="checkbox" name="performanceChecked" checked={formData.performanceChecked} onChange={handleChange} />
-          </label>
-          <label>
-            persuasion:
-            <input type="checkbox" name="persuasionChecked" checked={formData.persuasionChecked} onChange={handleChange} />
-          </label>
-        </div>
-
-        <div className='flex flex-col items-end'>
-          <p>inventory</p>
-          <label>
-            everything you own:
-            <textarea name="items" value={formData.inventory} onChange={handleChange} />
-          </label>
-
-          <p>weapons</p>
-          <label>
-            heavy:
-            <input type="text" name="heavy" value={formData.heavy} onChange={handleChange} />
-          </label>
-
-          <label>
-            light:
-            <input type="text" name="light" value={formData.light} onChange={handleChange} />
-          </label>
-
-          <label>
-            reach:
-            <input type="text" name="reach" value={formData.reach} onChange={handleChange} />
-          </label>
-
-          <label>
-            thrown:
-            <input type="text" name="thrown" value={formData.thrown} onChange={handleChange} />
-          </label>
-
-          <label>
-            loading:
-            <input type="text" name="loading" value={formData.loading} onChange={handleChange} />
-          </label>
-
-          <label>
-            range:
-            <input type="text" name="range" value={formData.range} onChange={handleChange} />
-          </label>
-
-          <label>
-            finesse:
-            <input type="text" name="finesse" value={formData.finesse} onChange={handleChange} />
-          </label>
-
-          <label>
-            special:
-            <input type="text" name="special" value={formData.special} onChange={handleChange} />
-          </label>
-
-          <label>
-            versatile:
-            <input type="text" name="versatile" value={formData.versatile} onChange={handleChange} />
-          </label>
-
-          <label>
-            twoHanded:
-            <input type="text" name="twoHanded" value={formData.twoHanded} onChange={handleChange} />
-          </label>
-
-          <label>
-            Magical weapons:
-            <input type="text" name="magicalWeapons" value={formData.magicalWeapons} onChange={handleChange} />
-          </label>
-
-
-          <p>spells</p>
-          <label>
-            cantrips:
-            <input type="text" name="cantrips" value={formData.cantrips} onChange={handleChange} />
-          </label>
-
-          <label>
-            lvl1:
-            <input type="text" name="lvl1" value={formData.lvl1} onChange={handleChange} />
-          </label>
-
-          <label>
-            lvl2:
-            <input type="text" name="lvl2" value={formData.lvl2} onChange={handleChange} />
-          </label>
-
-          <label>
-            lvl3:
-            <input type="text" name="lvl3" value={formData.lvl3} onChange={handleChange} />
-          </label>
-
-          <label>
-            lvl4:
-            <input type="text" name="lvl4" value={formData.lvl4} onChange={handleChange} />
-          </label>
-
-          <label>
-            lvl5:
-            <input type="text" name="lvl5" value={formData.lvl5} onChange={handleChange} />
-          </label>
-
-          <label>
-            lvl6:
-            <input type="text" name="lvl6" value={formData.lvl6} onChange={handleChange} />
-          </label>
-
-          <label>
-            lvl7:
-            <input type="text" name="lvl7" value={formData.lvl7} onChange={handleChange} />
-          </label>
-
-          <label>
-            lvl8:
-            <input type="text" name="lvl8" value={formData.lvl8} onChange={handleChange} />
-          </label>
-
-          <label>
-            lvl9:
-            <input type="text" name="lvl9" value={formData.lvl9} onChange={handleChange} />
-          </label>
-
-
-          <button className='btn' type="submit">Submit</button>
-
-        </div>
-      </div>
-    </form>
-  );
-};
-
-export default CharacterForm;
- */
+// modifier should be mathed but player can edit bc of magical item
+// hit dice
