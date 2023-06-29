@@ -11,7 +11,7 @@ export const daisyui = {
         neutral: "#f2e8cf",
         "base-100": "#a7c957",
         info: "#d4a373",
-        success: "#d9ae94",
+        success: "#edd892",
         warning: "#ffcb69",
         error: "#adc178"
       },
