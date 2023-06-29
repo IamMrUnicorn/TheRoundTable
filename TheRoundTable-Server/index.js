@@ -57,17 +57,89 @@ app.get('/characters/:username', (req, res) => {
 });
 
 app.post('/characters/:username/import', (req, res) => {
-  console.log(req.body)
+  // TODO work with the data
   res.json('got your character, working on adding to database')
 })
 
 
-
+// {
+//   name: 'a',
+//   race: 'a',
+//   class: 'a',
+//   subclass: 'a',
+//   level: 0,
+//   background: 'a',
+//   alignment: 'lawful good ',
+//   hitDice: 'a',
+//   maxHP: 0,
+//   AC: 0,
+//   proficiency: 0,
+//   initiative: 0,
+//   speed: 0,
+//   strength: 0,
+//   dexterity: 0,
+//   constitution: 0,
+//   intelligence: 0,
+//   wisdom: 0,
+//   charisma: 0,
+//   spellDC: 0,
+//   feats: [],
+//   strengthProficient: false,
+//   dexterityProficient: false,
+//   constitutionProficient: false,
+//   intelligenceProficient: false,
+//   wisdomProficient: false,
+//   charismaProficient: false,
+//   athleticsProficient: false,
+//   acrobaticsProficient: false,
+//   sleightOfHandProficient: false,
+//   intimidationProficient: false,
+//   performanceProficient: false,
+//   investigationProficient: false,
+//   animalHandlingProficient: false,
+//   natureProficient: false,
+//   religionProficient: false,
+//   historyProficient: false,
+//   insightProficient: false,
+//   medicineProficient: false,
+//   perceptionProficient: false,
+//   survivalProficient: false,
+//   deceptionProficient: false,
+//   stealthProficient: false,
+//   arcanaProficient: false,
+//   persuasionProficient: false,
+//   copper: 0,
+//   silver: 0,
+//   gold: 0,
+//   platinum: 0,
+//   inventory: [],
+//   cantrips: [],
+//   lvl1: [],
+//   lvl2: [],
+//   lvl3: [],
+//   lvl4: [],
+//   lvl5: [],
+//   lvl6: [],
+//   lvl7: [],
+//   lvl8: [],
+//   lvl9: [],
+//   heavy: [],
+//   light: [],
+//   reach: [],
+//   range: [],
+//   thrown: [],
+//   loading: [],
+//   finesse: [],
+//   special: [],
+//   versatile: [],
+//   twoHanded: [],
+//   magicalWeapons: []
+// }
 io.on('connection', (socket) => {
   console.log(`${socket.id} connected`);
   socket.emit('test', 'hello?');
 })
 
-server.listen(port, ip, () => {
+server.listen(3000, () => {
   console.log(`Server is running on`, server.address());
 });
