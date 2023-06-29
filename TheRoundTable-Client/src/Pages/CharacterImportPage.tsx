@@ -161,6 +161,7 @@ const CharacterForm = ({ username }: CharacterImportProps) => {
   const { control, handleSubmit, formState: { errors } } = useForm({
     resolver: yupResolver(schema),
   });
+  const [submitted, setSubmitted] = useState(false)
   const [confirmation, setConfirmation] = useState(false)
 
   const onSubmit = (_data: unknown, e?: React.BaseSyntheticEvent) => {
@@ -171,17 +172,16 @@ const CharacterForm = ({ username }: CharacterImportProps) => {
   };
 
   const onConfirm = async (data: unknown) => {
+    setSubmitted(true)
     const formData = data as CharacterFormData
     console.log(formData);
-    axios.post(`http://localhost:5174/characters/${username}/import`, data)
+    axios.post(`http://localhost:3000/characters/${username}/import`, formData)
       .then((response) => {
         console.log(response)
       })
       .catch((err) => {
         console.log('err from server -> ', err)
       })
-    // Redirect to a different page
-    window.location.href = "/characters";
   };
 
   const customChip = (item:string) => {
@@ -291,10 +291,10 @@ const CharacterForm = ({ username }: CharacterImportProps) => {
         </div>
 
       </div>
-      <div className='flex flex-row justify-center'>
+      {submitted ? null : (<div className='flex flex-row justify-center'>
         {!confirmation && <button className='btn' type="submit">Submit for Validation</button>}
         {confirmation && <button className='btn' type="button" onClick={handleSubmit(onConfirm)}>Confirm Submission</button>}
-      </div>
+      </div>)}
     </form>
   );
 };
