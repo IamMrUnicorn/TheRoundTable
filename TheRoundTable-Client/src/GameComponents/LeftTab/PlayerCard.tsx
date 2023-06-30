@@ -31,18 +31,15 @@ const PlayerCard:FC<PlayerProps> = ({ player }) => {
   return (
     <div className="bg-base-100 p-1 m-2 rounded-3xl justify-between flex flex-row">
 
-      <div className="flex flex-col">
+      <div className="flex flex-row bg-black">
 
-        <div className="avatar p-2">
+        <div className="avatar p-2 bg-white">
           <div className="w-20 self-center h-20 rounded-full ring ring-primary ring-offset-base-100">
             <img src={player.avatar}></img>
           </div>
         </div>
 
-        <div className="flex flex-col  ">
-          <div className="m-1 flex flex-row">
-            <p className="Party-Player-name">{player.name}</p>
-          </div>
+        <div className="flex flex-col bg-slate-600">
           <div className="m-1 flex flex-row">
             <p className="Party-Player-name">{player.race}</p>
           </div>
@@ -59,16 +56,16 @@ const PlayerCard:FC<PlayerProps> = ({ player }) => {
 
       </div>
 
-      <div className="flex 2xl:flex-row xl:flex-col">
+      <div className="flex lg:flex-col 2xl:flex-row  m-1 bg-yellow-500">
 
-        <div className="flex flex-col items-end m-2">
+        <div className="flex flex-col items-end m-1 bg-blue-500">
           <p className="Party-Player-HP">HP: {player.currHP}/{player.maxHP} <i className="fa-solid fa-briefcase-medical"></i></p>
           <p>AC: {player.AC} <i className="fa-solid fa-shield-halved"></i></p>
           <p>speed: {player.speed} <i className="fa-solid fa-person-skating"></i></p>
           <p>Proficiency: {player.proficiency} <i className="fa-solid fa-square-plus"></i></p>
         </div>
 
-        <div className="flex flex-col items-end flex-wrap m-2">
+        <div className="flex flex-col items-end m-1 bg-red-400">
           <p>str: {player.strength} <i className="fa-solid fa-hand-fist"></i></p>
           <p>dex: {player.dexterity} <i className="fa-solid fa-feather-pointed"></i></p>
           <p>con: {player.consitution} <i className="fa-solid fa-heart-pulse"></i></p>
@@ -77,20 +74,6 @@ const PlayerCard:FC<PlayerProps> = ({ player }) => {
           <p>cha: {player.charisma} <i className="fa-solid fa-masks-theater"></i></p>
         </div>
       </div>
-      {/* <div className="flex flex-col items-end">
-          <div className="m-1">
-            <p className="Party-Player-HP">HP: {player.currHP}/{player.maxHP}</p>
-          </div>
-          <div className="m-1">
-            <p>AC: {player.AC} <i class="fa-solid fa-shield-halved"></i></p>
-          </div>
-          <div className="m-1">
-            <p>speed: {player.speed} <i class="fa-solid fa-person-skating"></i></p>
-          </div>
-          <div className="m-1">
-            <p>Proficiency: {player.proficiency} <i class="fa-solid fa-square-plus"></i></p>
-          </div>
-        </div> */}
 
     </div>
   )

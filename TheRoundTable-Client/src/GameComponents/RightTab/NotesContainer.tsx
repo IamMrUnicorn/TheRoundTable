@@ -3,12 +3,12 @@ const things = ['a','b','c','d','e']
 const NotesContainer = () => {
   const [selectedNote, setSelectedNote] = useState('select a note')
   return (
-    <div className="bg-neutral h-full">
+    <div className="bg-neutral h-[95vh]">
 
-      <div className="bg-neutral h-[50%] Notes-Table ">
+      <div className="bg-neutral h-[47vh] Notes-Table">
       </div>
 
-      <div className="h-[50%]">
+      <div className="h-[47vh]">
         <div className="bg-primary Notes-Buttons-Container flex flex-row justify-center items-center">
           
           <div className="dropdown">

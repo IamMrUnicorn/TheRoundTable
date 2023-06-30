@@ -9,11 +9,11 @@ interface NavProps {
 const NavBar = ({setTheme}:NavProps) => {
   return (
     <nav className="flex flex-row justify-between bg-secondary h-[5vh]">
-      <div className="bg-accent flex flex-col justify-center w-[640px] rounded-md ">
-        <p className="text-neutral text-3xl font-bold">THE ROUND TABLE <i className="fa-solid fa-dungeon"></i> <i className="fa-solid fa-dragon"></i></p>
+      <div className="bg-accent flex flex-col justify-center w-[50vw] xl:w-[30vw] rounded-md ">
+        <p className="text-neutral md:text-3xl font-bold">THE ROUND TABLE <i className="fa-solid fa-dungeon"></i> <i className="fa-solid fa-dragon"></i></p>
       </div>
 
-      <div className=" flex flex-row justify-end gap-1 items-center mr-10 w-96">
+      <div className=" flex flex-col xl:flex-row xl:justify-end gap-1 xl:items-center xl:mr-10 ">
 
         <div className="dropdown ">
           <label tabIndex={0} className="btn btn-neutral m-1">themes</label>
