@@ -1,25 +1,26 @@
+import { Player } from "../LeftTab/PlayerCard"
 
 interface TurnOrderProps {
-  OrderedCharacters: string[],
-  selectedCharacter: string
+  OrderedCharacters: Player[],
+  selectedCharacter: Player | undefined
 }
 const TurnOrder = ({OrderedCharacters, selectedCharacter}:TurnOrderProps) => {
 
 // add status icons over player on turn order if they're frightended
   return (
-    <ol>
+    <ol className="flex flex-row gap-1 bg-primary text-neutral hiddenScroll ">
       {OrderedCharacters.map((character, index) => {
         if (selectedCharacter === character) {
           return (
-            <li key={index}> <i className="fa-solid fa-star"></i> {character}</li>
+            <li className="flex flex-row" key={index}> <i className="fa-solid fa-star"/> {character.name}</li>
           )
-        } else if (character === 'tanwyn') {
+        } else if (character.status === 'dead') {
           return (
-            <li key={index}> <i className="fa-solid fa-skull"></i> {character}</li>
+            <li className="flex flex-row" key={index}> <i className="fa-solid fa-skull"/> {character.name}</li>
           )
         } else {
           return (
-            <li key={index}>{character}</li>
+            <li className="flex flex-row" key={index}>{character.name}</li>
           )
         }
       })}

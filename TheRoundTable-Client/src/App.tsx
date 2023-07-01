@@ -34,14 +34,14 @@ const App: FC = () => {
    */
   return (
     <SocketContext.Provider value={socket}>
-      <div data-theme={localStorage.getItem('theme') || theme} className='max-h-screen max-w-screen'>
+      <div data-theme={localStorage.getItem('theme') || theme} className='max-h-screen max-w-screen overflow-x-hidden hiddenScroll '>
 
         <NavBar setTheme={setTheme}/>
 
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<LandingPage />} />
-            <Route path="/import" element={<CharacterImportPage />} />
+            <Route path="/import" element={<CharacterImportPage username={user.username}/>} />
             <Route path="/characters" element={<CharactersPage />} />
             <Route path="/calendar" element={<CalendarPage />} />
             <Route path="/rooms" element={<RoomPage />} />
