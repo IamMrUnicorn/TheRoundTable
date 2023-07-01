@@ -2,11 +2,11 @@ import {Dispatch, SetStateAction} from "react";
 interface ToolsProp {
   setPopup: Dispatch<SetStateAction<string>>
 }
-const DMTools = ({setPopup}:ToolsProp) => {
+const DMToolsMobile = ({setPopup}:ToolsProp) => {
 
 
   return (
-    <div className="bg-base-100 h-[20vh] flex flex-row justify-around">
+    <div className="bg-base-100 h-[20vh] flex flex-row">
       <div className="bg-secondary m-5 pr-5 rounded-2xl flex flex-row">
         <div className="m-3  flex flex-col">
           <div className="m-2 flex flex-row">
@@ -20,18 +20,12 @@ const DMTools = ({setPopup}:ToolsProp) => {
           </div>
         </div>
       </div>
-      <div className="self-center p-5 flex flex-col ">
-        <button className="btn m-2 btn-block btn-accent ">NPC select</button>
-        <button className="btn m-2 btn-block btn-accent ">prompt player</button>
-        <button className="btn m-2 btn-block btn-accent "></button>
-      </div>
-      <div className="self-center p-5 flex flex-col ">
-        <button className="btn m-2 btn-block btn-accent ">DM guide</button>
-        <button className="btn m-2 btn-block btn-accent ">monster manual</button>
-        <button className="btn m-2 btn-block btn-accent ">spell lookup</button>
+      <div className="self-center p-5 flex flex-row flex-wrap">
+        <button className="btn m-2 btn-block btn-accent ">monster log</button>
+        <button className="btn m-2 btn-block btn-accent ">spellbook</button>
       </div>
     </div>
   )
 }
 
-export default DMTools
+export default DMToolsMobile
