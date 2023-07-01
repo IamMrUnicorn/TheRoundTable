@@ -4,7 +4,7 @@ const SpotifyMusicPlayer = () => {
   // const [volume, setVolume] = useState(50)
 
   return (
-    <div className="bg-secondary Spotify-MetaData-Card flex flex-row h-[35vh]">
+    <div className="bg-secondary Spotify-MetaData-Card flex flex-row lg:h-[30vh]">
       
       <div className="w-52 h-52 Spotify-album-image">
         <img src='https://i.scdn.co/image/ab67616d0000b273a9b9a9b870c117c9cfbb0f65'></img>

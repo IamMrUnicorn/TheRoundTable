@@ -6,7 +6,7 @@ interface ActionLogProps {
 const ActionLog = ({Messages}:ActionLogProps) => {
 
   return (
-    <div className="bg-primary max-h-60 overflow-y-scroll">
+    <div className="bg-primary max-h-[25vh] lg:max-h-[30vh] overflow-y-scroll hiddenScroll">
       {Messages.map((message, index) => (
         <ActionLogMessage message={message} key={index} />
       ))}

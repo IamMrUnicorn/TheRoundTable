@@ -6,3 +6,27 @@
   text-align:center;
 }
 
+.hiddenScroll {
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: rgba(155, 155, 155, 0.7) transparent; /* Firefox */
+  overflow-y: auto; /* Only show the scrollbar when needed */
+}
+
+.hiddenScroll::-webkit-scrollbar { /* Chrome, Safari and Opera */
+  width: 6px;
+}
+
+.hiddenScroll::-webkit-scrollbar-track { /* Chrome, Safari and Opera */
+  background: transparent;
+}
+
+.hiddenScroll::-webkit-scrollbar-thumb { /* Chrome, Safari and Opera */
+  background-color: rgba(155, 155, 155, 0.7);
+  border-radius: 20px;
+  border: 3px solid transparent;
+}
+
+.hiddenScroll::-webkit-scrollbar-thumb:hover { /* Chrome, Safari and Opera */
+  background-color: rgba(125, 125, 125, 0.8);
+}
+

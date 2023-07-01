@@ -2,7 +2,7 @@ import {Dispatch, SetStateAction} from "react";
 interface ToolsProp {
   setPopup: Dispatch<SetStateAction<string>>
 }
-const PlayerTools = ({setPopup}:ToolsProp) => {
+const PlayerToolsMobile = ({setPopup}:ToolsProp) => {
 
 
   return (
@@ -28,4 +28,4 @@ const PlayerTools = ({setPopup}:ToolsProp) => {
   )
 }
 
-export default PlayerTools
+export default PlayerToolsMobile

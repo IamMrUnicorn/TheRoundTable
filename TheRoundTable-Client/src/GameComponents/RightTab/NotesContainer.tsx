@@ -1,31 +1,41 @@
-import {useState} from "react";
-const things = ['a','b','c','d','e']
+import { useState } from "react";
+const pages = ['goblin drawing', 'mushroom sketch', 'dragon drawing', 'attack plan','new note1']
 const NotesContainer = () => {
   const [selectedNote, setSelectedNote] = useState('select a note')
   return (
-    <div className="bg-neutral h-full">
+    <div className="bg-secondary h-[95vh]">
 
-      <div className="bg-neutral h-[50%] Notes-Table ">
+      <div className="bg-neutral h-[47vh] Notes-Table">
       </div>
 
-      <div className="h-[50%]">
-        <div className="bg-primary Notes-Buttons-Container flex flex-row justify-center items-center">
-          
-          <div className="dropdown">
-            <label tabIndex={0} className="btn m-1">pages</label>
-            <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
-              {things.map((name, index) => (
-                <li onClick={() => {setSelectedNote(name)}} key={index}><a>{name}</a></li>
+      <div className="h-[47vh]">
+
+
+        <div className="bg-primary flex flex-row ">
+
+          <div className="dropdown dropdown-start">
+            <label tabIndex={0} className="btn btn-accent btn-sm m-1"> menu</label>
+
+            <ul className="dropdown-content z-10 menu p-2 shadow bg-accent  rounded-box ">
+              <li> <button className="btn btn-sm btn-accent" onClick={() => { console.log('update the the drawing in the database') }}>save page <i className="fa-solid fa-box-archive"/></button> </li>
+              <li> <button className="btn btn-sm btn-accent" onClick={() => { console.log('create a new drop down menu option called new note and select it') }}>create new page <i className="fa-solid fa-file-circle-plus"/></button> </li>
+              <li> <button className="btn btn-sm btn-accent" onClick={() => { console.log('activate a popup over the table notes with this current player canvas state') }}>push to table <i className="fa-solid fa-arrow-up-from-bracket"/></button> </li>
+              <li> <button className="btn btn-sm btn-accent" onClick={() => { console.log('activate a popup over the table notes with this current player canvas state') }}>delete note <i className="fa-solid fa-trash"/></button> </li>
+            </ul>
+          </div>
+
+          <div className="dropdown dropdown-start">
+            <label tabIndex={0} className="btn btn-sm btn-accent m-1">{selectedNote}</label>
+            
+            <ul className="dropdown-content z-10 menu p-2 shadow bg-accent rounded-box ">
+              {pages.map((name, index) => (
+                <li key={index}><button className="btn btn-sm btn-accent" onClick={() => { setSelectedNote(name) }}>{name}</button></li>
               ))}
             </ul>
           </div>
 
-          <button className="btn btn-sm btn-accent Notes-Buttons-SavePage" onClick={() => {console.log('update the the drawing in the database')}}>save page</button>
-          <button className="btn btn-sm btn-accent Notes-Buttons-CreateNewPage" onClick={() => {console.log('create a new drop down menu option called new note and select it')}}>create new page</button>
-          <button className="btn btn-sm btn-accent Notes-Buttons-PushToTable" onClick={() => {console.log('activate a popup over the table notes with this current player canvas state')}}>push to table</button>
-
         </div>
-        <div className="bg-neutral">
+        <div className="bg-neutral h-full">
         </div>
 
       </div>
