@@ -4,7 +4,8 @@
   "description": "back end for TheRoundTable",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon index.js",
+    "dev": "npx ts-node-dev --respawn --transpile-only src/app.ts",
+    "start": "node dist/server.js",
     "initDB": "psql -d postgres -f TheRoundTable.sql"
   },
   "author": "",
@@ -18,5 +19,12 @@
     "nodemon": "^2.0.22",
     "pg": "^8.11.0",
     "socket.io": "^4.6.2"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.17",
+    "@types/node": "^20.4.0",
+    "ts-node": "^10.9.1",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.1.6"
   }
 }

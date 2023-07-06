@@ -37,6 +37,7 @@ app.use(logger(':method :url :status - :response-time ms'))
 //   res.sendFile(path.join(__dirname, '../TheRoundTable-Client/dist/index.html'))
 // })
 
+//! to get all of users characters
 app.get('/characters/:username', (req, res) => {
   const username = req.params.username;
   client
@@ -56,12 +57,13 @@ app.get('/characters/:username', (req, res) => {
     });
 });
 
+//! for users to add a new character
 app.post('/characters/:username/import', (req, res) => {
   // TODO work with the data
   res.json('got your character, working on adding to database')
 })
 
-
+//form data from submission
 // {
 //   name: 'a',
 //   race: 'a',
@@ -135,6 +137,18 @@ app.post('/characters/:username/import', (req, res) => {
 //   twoHanded: [],
 //   magicalWeapons: []
 // }
+
+//todo another route to create a new room
+
+//todo another route for a session object and session tracking
+
+//todo another route for editing current character data
+
+
+
+
+
+
 io.on('connection', (socket) => {
   console.log(`${socket.id} connected`);
   socket.emit('test', 'hello?');
@@ -143,3 +157,5 @@ io.on('connection', (socket) => {
 server.listen(3000, () => {
   console.log(`Server is running on`, server.address());
 });
+
+
