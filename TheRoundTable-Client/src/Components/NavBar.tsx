@@ -1,7 +1,7 @@
 import { UserButton, SignOutButton } from "@clerk/clerk-react";
 import { Dispatch, SetStateAction } from "react";
 
-const themes = ['Stigander', 'Malarie', 'Bojack', 'Zaris', 'retro', 'dracula', 'aqua', 'cyberpunk', 'coffee']
+const themes = ['TheRoundTable', 'Stigander', 'Malarie', 'Bojack', 'Zaris', 'retro', 'dracula', 'aqua', 'cyberpunk', 'coffee']
 interface NavProps {
   setTheme: Dispatch<SetStateAction<string>>
 }
@@ -10,7 +10,7 @@ const NavBar = ({ setTheme }: NavProps) => {
   return (
     <nav className="flex flex-row justify-between bg-secondary h-min">
       <div className="bg-accent flex flex-col justify-center w-[50vw] xl:w-[30vw] rounded-md ">
-        <p className="text-neutral md:text-3xl font-bold">THE ROUND TABLE <i className="fa-solid fa-dungeon"></i> <i className="fa-solid fa-dragon"></i></p>
+        <a href='/' className="text-neutral md:text-3xl font-bold">THE ROUND TABLE <i className="fa-solid fa-dungeon"></i> <i className="fa-solid fa-dragon"></i></a>
       </div>
 
 

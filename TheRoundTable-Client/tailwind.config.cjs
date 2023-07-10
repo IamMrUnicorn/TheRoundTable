@@ -4,6 +4,17 @@ export const plugins = [require("daisyui")];
 export const daisyui = {
   themes: [
     {
+      TheRoundTable: {
+        primary: "#aaaaaa",
+        secondary: "#39b5f6",
+        accent: "#bc4749",
+        neutral: "#f2e8cf",
+        "base-100": "#dddccc",
+        info: "#d4a373",
+        success: "#edd892",
+        warning: "#ffcb69",
+        error: "#adc178"
+      },
       Stigander: {
         primary: "#6a994e",
         secondary: "#386641",

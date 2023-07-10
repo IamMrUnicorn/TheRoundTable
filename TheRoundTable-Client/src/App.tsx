@@ -1,6 +1,6 @@
 import { useContext, FC, useState } from 'react'
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { CalendarPage, CharacterImportPage, CharactersPage, DMPage, ErrorPage, LandingPage, PlayerPage, RoomPage} from './Pages/Index.ts'
+import { CalendarPage, CharacterImportPage, CharactersPage, DMPage, ErrorPage, LandingPage, PlayerPage} from './Pages/Index.ts'
 import { SocketContext } from './socket.ts'
 import { useUser } from '@clerk/clerk-react'
 
@@ -10,7 +10,7 @@ import NavBar from './Components/NavBar.tsx'
 
 const App: FC = () => {
 
-  const [theme, setTheme] = useState('coffee')
+  const [theme, setTheme] = useState('TheRoundTable')
   const { user } = useUser();
   const socket = useContext(SocketContext)
 
@@ -44,7 +44,6 @@ const App: FC = () => {
             <Route path="/import" element={<CharacterImportPage username={user.username}/>} />
             <Route path="/characters" element={<CharactersPage />} />
             <Route path="/calendar" element={<CalendarPage />} />
-            <Route path="/rooms" element={<RoomPage />} />
             <Route path="/rooms/:roomID" element={user.publicMetadata.isDM ? <DMPage /> : <PlayerPage />} />
             <Route path="*" element={<ErrorPage />} />
           </Routes>
