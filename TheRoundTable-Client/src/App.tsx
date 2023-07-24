@@ -41,10 +41,10 @@ const App: FC = () => {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<LandingPage />} />
-            <Route path="/import" element={<CharacterImportPage username={user.username}/>} />
-            <Route path="/characters" element={<CharactersPage />} />
+            <Route path="/import" element={<CharacterImportPage username={user.username} user_id={user.id}/>} />
+            <Route path="/characters" element={<CharactersPage username={user.username} />} />
             <Route path="/calendar" element={<CalendarPage />} />
-            <Route path="/rooms/:roomID" element={user.publicMetadata.isDM ? <DMPage /> : <PlayerPage />} />
+            <Route path="/rooms/:roomID" element={!user.publicMetadata.isDM ? <DMPage /> : <PlayerPage />} />
             <Route path="*" element={<ErrorPage />} />
           </Routes>
         </BrowserRouter>

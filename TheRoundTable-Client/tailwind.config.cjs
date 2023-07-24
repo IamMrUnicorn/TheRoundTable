@@ -10,10 +10,10 @@ export const daisyui = {
         accent: "#bc4749",
         neutral: "#f2e8cf",
         "base-100": "#dddccc",
-        info: "#d4a373",
-        success: "#edd892",
-        warning: "#ffcb69",
-        error: "#adc178"
+        info: "#b91c1c",
+        success: "#facc15",
+        warning: "#10b981",
+        error: "#60a5fa"
       },
       Stigander: {
         primary: "#6a994e",
@@ -21,10 +21,10 @@ export const daisyui = {
         accent: "#bc4749",
         neutral: "#f2e8cf",
         "base-100": "#a7c957",
-        info: "#d4a373",
-        success: "#edd892",
-        warning: "#ffcb69",
-        error: "#adc178"
+        info: "#b91c1c",
+        success: "#facc15",
+        warning: "#10b981",
+        error: "#60a5fa"
       },
       Malarie: {
         primary: "#e9724c",
@@ -32,10 +32,10 @@ export const daisyui = {
         accent: "#9667e0",
         neutral: "#ffe6e8",
         "base-100": "#ffc857",
-        info: "#9b72cf",
-        success: "#af99ff",
-        warning: "#ff99b6",
-        error: "#ffc2e2"
+        info: "#b91c1c",
+        success: "#facc15",
+        warning: "#10b981",
+        error: "#60a5fa"
       },
       Bojack: {
         primary: "#341671",
@@ -43,10 +43,10 @@ export const daisyui = {
         accent: "#32004f",
         neutral: "#f2e8cf",
         "base-100": "#a480f2",
-        info: "#aaaaaa",
-        success: "#cccccc",
-        warning: "#888888",
-        error: "#dddddd"
+        info: "#b91c1c",
+        success: "#facc15",
+        warning: "#10b981",
+        error: "#60a5fa"
       },
       Zaris: {
         primary: "#ced4da",
@@ -54,17 +54,12 @@ export const daisyui = {
         accent: "#1e1e1e",
         neutral: "#ffffff",
         "base-100": "#e9ecef",
-        info: "#ffc9c9",
-        success: "#ffd8a8",
-        warning: "#eeffaa",
-        error: "#d0bfff"
+        info: "#b91c1c",
+        success: "#facc15",
+        warning: "#10b981",
+        error: "#60a5fa"
       },
-    },
-    "retro",
-    "dracula",
-    "aqua",
-    "cyberpunk",
-    "coffee"
+    }
   ]
 };
 

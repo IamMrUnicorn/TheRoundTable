@@ -14,8 +14,8 @@ const DMToolsMobile = ({setPopup}:ToolsProp) => {
             <label htmlFor="bonus_action_modal" onClick={() => {setPopup('bonus action')}} className="btn btn-success">Bonus Action</label>
           </div>
           <div className="m-2 flex flex-row">
-            <label htmlFor="talk_modal" onClick={() => {setPopup('talk')}} className="btn btn-warning">talk</label>
-            <label htmlFor="roll_modal" onClick={() => {setPopup('roll')}} className="btn btn-error">roll</label>
+            <label htmlFor="talk_modal" onClick={() => {setPopup('talk')}} className="btn btn-error">talk</label>
+            <label htmlFor="roll_modal" onClick={() => {setPopup('roll')}} className="btn btn-warning">roll</label>
             <button className="btn btn-md btn-neutral self-center " >end turn</button>
           </div>
         </div>

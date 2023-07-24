@@ -7,6 +7,7 @@ import { Chips } from "primereact/chips";
 
 interface CharacterImportProps {
   username: string | null,
+  user_id: string
 }
 const schema = yup.object().shape({
   name: yup.string().required('Character name is required'),
@@ -157,7 +158,7 @@ interface CharacterFormData {
   magicalWeapons: string[];
 }
 
-const CharacterForm = ({ username }: CharacterImportProps) => {
+const CharacterForm = ({ username, user_id }: CharacterImportProps) => {
   const { control, handleSubmit, formState: { errors } } = useForm({
     resolver: yupResolver(schema),
   });
@@ -175,7 +176,49 @@ const CharacterForm = ({ username }: CharacterImportProps) => {
     setSubmitted(true)
     const formData = data as CharacterFormData
     console.log(formData);
-    axios.post(`http://localhost:3000/characters/${username}/import`, formData)
+    const inventory = JSON.stringify({
+      copper: formData.copper,
+      silver: formData.silver,
+      gold: formData.gold,
+      platinum: formData.platinum,
+      inventory: formData.inventory
+    })
+    const spells = JSON.stringify({
+      cantrips: formData.cantrips,
+      lvl1: formData.lvl1,
+      lvl2: formData.lvl2,
+      lvl3: formData.lvl3,
+      lvl4: formData.lvl4,
+      lvl5: formData.lvl5,
+      lvl6: formData.lvl6,
+      lvl7: formData.lvl7,
+      lvl8: formData.lvl8,
+      lvl9: formData.lvl9,
+    })
+    const weapons = JSON.stringify({
+      heavy: formData.heavy,
+      light: formData.light,
+      reach: formData.reach,
+      range: formData.range,
+      thrown: formData.thrown,
+      loading: formData.loading,
+      finesse: formData.finesse,
+      special: formData.special,
+      versatile: formData.versatile,
+      twoHanded: formData.twoHanded,
+      magicalWeapons: formData.magicalWeapons
+    })
+    const DBsubmission = {
+      'character': [user_id, null, formData.name, formData.race, formData.class, formData.subclass, formData.level],
+      'stats': ['healthy', formData.maxHP, formData.maxHP, formData.AC, formData.proficiency, formData.initiative, formData.speed, formData.strength, formData.dexterity, formData.constitution, formData.intelligence, formData.wisdom, formData.charisma, formData.spellDC, JSON.stringify(formData.feats)],
+      'proficiency': [formData.strengthProficient, formData.dexterityProficient, formData.constitutionProficient, formData.intelligenceProficient, formData.wisdomProficient, formData.charismaProficient, formData.athleticsProficient, formData.acrobaticsProficient, formData.sleightOfHandProficient, formData.stealthProficient, formData.arcanaProficient, formData.historyProficient, formData.investigationProficient, formData.natureProficient, formData.religionProficient, formData.animalHandlingProficient, formData.insightProficient, formData.medicineProficient, formData.perceptionProficient, formData.survivalProficient, formData.deceptionProficient, formData.intimidationProficient, formData.performanceProficient, formData.persuasionProficient],
+      'inventory': [spells, weapons, inventory],
+    } 
+    const character = JSON.stringify(DBsubmission)
+
+    localStorage.setItem('Main_character', character)
+    
+    axios.post(`http://localhost:3000/characters/${username}/import`, DBsubmission)
       .then((response) => {
         console.log(response)
       })
