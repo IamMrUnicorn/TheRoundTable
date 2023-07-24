@@ -54,7 +54,8 @@ CREATE TABLE character_stats (
   intelligence INT,
   wisdom INT,
   charisma INT,
-  spell_DC INT
+  spell_DC INT,
+  feats TEXT
 );
 
 -- Create table character-proficiency
