@@ -34,7 +34,7 @@ const App: FC = () => {
    */
   return (
     <SocketContext.Provider value={socket}>
-      <div data-theme={localStorage.getItem('theme') || theme} className='max-h-screen max-w-screen overflow-x-hidden hiddenScroll '>
+      <div data-theme={localStorage.getItem('theme') || theme} className='h-screen max-w-screen overflow-x-hidden hiddenScroll '>
 
         <NavBar setTheme={setTheme}/>
 

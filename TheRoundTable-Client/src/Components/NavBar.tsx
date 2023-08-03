@@ -1,16 +1,16 @@
 import { UserButton, SignOutButton } from "@clerk/clerk-react";
 import { Dispatch, SetStateAction } from "react";
 
-const themes = ['TheRoundTable', 'Stigander', 'Malarie', 'Bojack', 'Zaris', 'retro', 'dracula', 'aqua', 'cyberpunk', 'coffee']
+const themes = ['TheRoundTable', 'Stigander', 'Malarie', 'Bojack', 'Zaris']
 interface NavProps {
   setTheme: Dispatch<SetStateAction<string>>
 }
 
 const NavBar = ({ setTheme }: NavProps) => {
   return (
-    <nav className="flex flex-row justify-between bg-secondary h-min">
+    <nav className="flex flex-row justify-between bg-secondary min-h-[5vh]">
       <div className="bg-accent flex flex-col justify-center w-[50vw] xl:w-[30vw] rounded-md ">
-        <a href='/' className="text-neutral md:text-3xl font-bold">THE ROUND TABLE <i className="fa-solid fa-dungeon"></i> <i className="fa-solid fa-dragon"></i></a>
+        <a href='/' className="text-neutral text-center md:text-3xl font-bold">THE ROUND TABLE <i className="fa-solid fa-dungeon"></i> <i className="fa-solid fa-dragon"></i></a>
       </div>
 
 
@@ -20,13 +20,13 @@ const NavBar = ({ setTheme }: NavProps) => {
         <a href="/import" className="btn btn-neutral btn-sm ">import character <i className="fa-solid fa-user-plus" /></a>
         <a href="/characters" className="btn btn-neutral btn-sm ">view characters <i className="fa-solid fa-people-group" /></a>
         <a href="/calendar" className="btn btn-neutral btn-sm ">calendar <i className="fa-solid fa-calendar-days" /></a>
-        <a className="btn btn-neutral btn-sm " target="_blank" href='https://www.ign.com/articles/how-to-play-dungeons-and-dragons'>new to dnd <i className="fa-solid fa-graduation-cap" /></a>
+        <a className="btn btn-neutral btn-sm " target="_blank" href='https://www.google.com/search?q=how+to+play+dnd&oq=how+to+play+dnd'>new to dnd <i className="fa-solid fa-graduation-cap" /></a>
 
         <div className="dropdown dropdown-end ">
           <label tabIndex={0} className="btn btn-neutral btn-sm m-1">themes <i className="fa-solid fa-paintbrush" /></label>
-          <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-neutral z-10 rounded-box ">
+          <ul tabIndex={0} className="dropdown-content text-stone-800 menu p-2 shadow bg-neutral z-10 rounded-box ">
             {themes.map((theme, index) => (
-              <li onClick={() => { localStorage.setItem('theme', theme); setTheme(theme) }} key={index}><a>{theme}</a></li>
+              <li onClick={() => { localStorage.setItem('theme', theme); setTheme(theme) }} key={index}><a className="">{theme}</a></li>
             ))}
           </ul>
         </div>
