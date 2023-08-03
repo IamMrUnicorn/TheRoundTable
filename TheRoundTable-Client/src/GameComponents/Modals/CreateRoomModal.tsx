@@ -30,11 +30,11 @@ const CreateRoomModal = ({setPopup}:CreateRoomModalProps) => {
   })
 
   const onSubmit = async (_data:formData) => {
-    const formData = _data;
 
     const RoomInfo = {
-      dm_id: formData.DMcheck === true ? user?.id : null,
-      name: formData.name
+      dm_id: _data.DMcheck === true ? user?.id : null,
+      name: _data.name,
+      creator_id: user?.id
     }
     console.log(RoomInfo)
 
@@ -45,8 +45,9 @@ const CreateRoomModal = ({setPopup}:CreateRoomModalProps) => {
       console.log(error)
     } else {
       console.log(data)
-      window.location.href = `/rooms/${formData.name}`
+      window.location.href = `/rooms/${_data.name}`
     }
+
   }
   return (
     <>
