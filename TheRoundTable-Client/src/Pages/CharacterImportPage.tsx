@@ -1,12 +1,11 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import React, { useContext, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { Chips } from "primereact/chips";
+import { supabaseContext } from '../supabase';
 
 interface CharacterImportProps {
-  username: string | null,
   user_id: string
 }
 const schema = yup.object().shape({
@@ -15,7 +14,7 @@ const schema = yup.object().shape({
   background: yup.string().required('Character background is required'),
   class: yup.string().required('Character class is required'),
   subclass: yup.string().required('Character subclass is required'),
-  level: yup.number().max(30, 'Level can\'t be over 30').required('Level is required'),
+  level: yup.number().min(1, 'Level can\'t be under 1').max(30, 'Level can\'t be over 30').required('Level is required'),
   alignment: yup.string().matches(/(lawful|neutral|chaotic) (good|neutral|evil)/, 'Alignment must be one of lawful, neutral, chaotic combined with one of good, neutral, evil'),
   strength: yup.number().max(30, 'Strength can\'t be over 30'),
   dexterity: yup.number().max(30, 'Dexterity can\'t be over 30'),
@@ -29,7 +28,7 @@ const schema = yup.object().shape({
   initiative: yup.number().max(10, 'initiative can\'t be over 10'),
   speed: yup.number().max(999, 'speed can\'t be over 999'),
   spellDC: yup.number().max(60, 'spellDC can\'t be over 60'),
-  hitDice: yup.string().required('hit dice is required'),
+  hitDice: yup.string().matches(/^(?:[1-9]|[12][0-9]|30)\s[dD](4|6|8|10|12|20)$/).required('hit dice must be "number(1-30) D[4|6|8|10|12|20]"'),
   strengthProficient: yup.boolean(),
   dexterityProficient: yup.boolean(),
   constitutionProficient: yup.boolean(),
@@ -158,7 +157,8 @@ interface CharacterFormData {
   magicalWeapons: string[];
 }
 
-const CharacterForm = ({ username, user_id }: CharacterImportProps) => {
+const CharacterForm = ({ user_id }: CharacterImportProps) => {
+  const supabase = useContext(supabaseContext)
   const { control, handleSubmit, formState: { errors } } = useForm({
     resolver: yupResolver(schema),
   });
@@ -172,9 +172,9 @@ const CharacterForm = ({ username, user_id }: CharacterImportProps) => {
     }
   };
 
-  const onConfirm = async (data: unknown) => {
+  const onConfirm = async (_data: unknown) => {
     setSubmitted(true)
-    const formData = data as CharacterFormData
+    const formData = _data as CharacterFormData
     console.log(formData);
     const inventory = JSON.stringify({
       copper: formData.copper,
@@ -208,26 +208,111 @@ const CharacterForm = ({ username, user_id }: CharacterImportProps) => {
       twoHanded: formData.twoHanded,
       magicalWeapons: formData.magicalWeapons
     })
+
     const DBsubmission = {
-      'character': [user_id, null, formData.name, formData.race, formData.class, formData.subclass, formData.level],
-      'stats': ['healthy', formData.maxHP, formData.maxHP, formData.AC, formData.proficiency, formData.initiative, formData.speed, formData.strength, formData.dexterity, formData.constitution, formData.intelligence, formData.wisdom, formData.charisma, formData.spellDC, JSON.stringify(formData.feats)],
-      'proficiency': [formData.strengthProficient, formData.dexterityProficient, formData.constitutionProficient, formData.intelligenceProficient, formData.wisdomProficient, formData.charismaProficient, formData.athleticsProficient, formData.acrobaticsProficient, formData.sleightOfHandProficient, formData.stealthProficient, formData.arcanaProficient, formData.historyProficient, formData.investigationProficient, formData.natureProficient, formData.religionProficient, formData.animalHandlingProficient, formData.insightProficient, formData.medicineProficient, formData.perceptionProficient, formData.survivalProficient, formData.deceptionProficient, formData.intimidationProficient, formData.performanceProficient, formData.persuasionProficient],
-      'inventory': [spells, weapons, inventory],
-    } 
+      'character': {
+        clerk_user_id: user_id,
+        party_id: null,
+        name: formData.name,
+        image_url: null,
+        race: formData.race,
+        class: formData.class,
+        subclass: formData.subclass,
+        level: formData.level
+      },
+      'stats': {
+        character_id: '',
+        status: 'healthy',
+        currenthp: formData.maxHP,
+        maxhp: formData.maxHP,
+        ac: formData.AC,
+        proficiency: formData.proficiency,
+        initiative: formData.initiative,
+        speed: formData.speed,
+        strength: formData.strength,
+        dexterity: formData.dexterity,
+        constitution: formData.constitution,
+        intelligence: formData.intelligence,
+        wisdom: formData.wisdom,
+        charisma: formData.charisma,
+        spell_dc: formData.spellDC,
+        feats: JSON.stringify(formData.feats),
+      },
+      'proficiency': {
+        character_id: '',
+        strength: formData.strengthProficient,
+        dexterity: formData.dexterityProficient,
+        constitution: formData.constitutionProficient,
+        intelligence: formData.intelligenceProficient,
+        wisdom: formData.wisdomProficient,
+        charisma: formData.charismaProficient,
+        athletics: formData.athleticsProficient,
+        acrobatics: formData.acrobaticsProficient,
+        sleightofhand: formData.sleightOfHandProficient,
+        stealth: formData.stealthProficient,
+        arcana: formData.arcanaProficient,
+        history: formData.historyProficient,
+        investigation: formData.investigationProficient,
+        nature: formData.natureProficient,
+        religion: formData.religionProficient,
+        animalhandling: formData.animalHandlingProficient,
+        insight: formData.insightProficient,
+        medicine: formData.medicineProficient,
+        perception: formData.perceptionProficient,
+        survival: formData.survivalProficient,
+        deception: formData.deceptionProficient,
+        intimidation: formData.intimidationProficient,
+        performance: formData.performanceProficient,
+        persuasion: formData.persuasionProficient,
+      },
+      'inventory': {
+        character_id: '',
+        spells: spells,
+        weapons: weapons,
+        inventory: inventory
+      },
+    }
     const character = JSON.stringify(DBsubmission)
 
     localStorage.setItem('Main_character', character)
-    
-    axios.post(`http://localhost:3000/characters/${username}/import`, DBsubmission)
-      .then((response) => {
-        console.log(response)
-      })
-      .catch((err) => {
-        console.log('err from server -> ', err)
-      })
+
+    console.log(DBsubmission.character)
+    const { data, error } = await supabase
+      .from('characters')
+      .insert(DBsubmission.character)
+      .select();
+    if (error) {
+      console.log(error)
+    } else {
+      console.log(data[0])
+      const characterId = data[0].id;
+      DBsubmission.stats.character_id = characterId;
+      DBsubmission.proficiency.character_id = characterId;
+      DBsubmission.inventory.character_id = characterId;
+      const { error } = await supabase
+        .from('character_stats')
+        .insert(DBsubmission.stats);
+      if (error) {
+        console.log(error)
+      } else {
+        const { error } = await supabase
+          .from('character_proficiency')
+          .insert(DBsubmission.proficiency);
+        if (error) {
+          console.log(error)
+        } else {
+          const { error } = await supabase
+            .from('character_inventory')
+            .insert(DBsubmission.inventory)
+          if (error) {
+            console.log(error)
+          }
+        }
+      }
+    }
   };
 
-  const customChip = (item:string) => {
+  const customChip = (item: string) => {
     return (
       <div className='bg-primary text-primary-content rounded-lg text-center w-min whitespace-nowrap p-1'>
         <span>{item}</span>
@@ -241,19 +326,20 @@ const CharacterForm = ({ username, user_id }: CharacterImportProps) => {
       <div className='flex flex-col lg:flex-row gap-1 items-center lg:items-baseline lg:justify-center'>
 
         <div className='flex flex-col gap-1 w-min items-end '>
-          <p className='self-center'>character name</p>
+          <p className='self-center'>character identity</p>
           <label>  Name:  <Controller name="name" control={control} defaultValue="" render={({ field }) => <input className='text-black' type="text" {...field} />} />  {errors.name && <p className='text-red-500'>Character name is required</p>} </label>
+
           <label>  Race:  <Controller name="race" control={control} defaultValue="" render={({ field }) => <input className='text-black' type="text" {...field} />} /> {errors.race && <p className='text-red-500'>Character race is required</p>} </label>
           <label>  Class:  <Controller name="class" control={control} defaultValue="" render={({ field }) => <input className='text-black' type="text" {...field} />} /> {errors.class && <p className='text-red-500'>Character class is required</p>} </label>
           <label>  Subclass:  <Controller name="subclass" control={control} defaultValue="" render={({ field }) => <input className='text-black' type="text" {...field} />} /> {errors.subclass && <p className='text-red-500'>Character subclass is required</p>} </label>
           <label>  Level:  <Controller name="level" control={control} defaultValue={0} render={({ field }) => <input className='text-black' type="number" {...field} />} /> {errors.level && <p className='text-red-500'>Level is required and can't be over 30</p>} </label>
           <label>  Background:  <Controller name="background" control={control} defaultValue="" render={({ field }) => <input className='text-black' type="text" {...field} />} /> {errors.background && <p className='text-red-500'>Character background is required</p>} </label>
           <label>  Alignment:  <Controller name="alignment" control={control} defaultValue="" render={({ field }) => <input className='text-black' type="text" {...field} />} /> {errors.alignment && <p className='text-red-500'>Alignment must be one of lawful, neutral, chaotic combined with one of good, neutral, evil</p>} </label>
-          <label>  hit Dice:  <Controller name="hitDice" control={control} defaultValue="" render={({ field }) => <input className='text-black' type="text" {...field} />} /> {errors.hitDice && <p className='text-red-500'> Character hit dice are required </p>} </label>
+          <label>  hit Dice:  <Controller name="hitDice" control={control} defaultValue="" render={({ field }) => <input className='text-black' type="text" {...field} />} /> {errors.hitDice && <p className='text-red-500'> hit dice must be like 7 D8 "number(1-30)[space]D[4|6|8|10|12|20]" </p>} </label>
         </div>
         <div className='flex flex-col items-center lg:items-end w-min flex-wrap gap-1'>
           <p className='self-center'>character details & skills</p>
-          <label>   MaxHP:   <Controller name="maxHP" control={control} defaultValue={0} render={({ field }) => <input className='text-black'  type="number" {...field} />} /> {errors.maxHP && <p className='text-red-500'>maxHP can't be over 9999</p>} </label>
+          <label>   MaxHP:   <Controller name="maxHP" control={control} defaultValue={0} render={({ field }) => <input className='text-black' type="number" {...field} />} /> {errors.maxHP && <p className='text-red-500'>maxHP can't be over 9999</p>} </label>
           <label>   AC:   <Controller name="AC" control={control} defaultValue={0} render={({ field }) => <input className='text-black' type="number" {...field} />} /> {errors.AC && <p className='text-red-500'>AC can't be over 60</p>} </label>
           <label>   Proficiency bonus:   <Controller name="proficiency" control={control} defaultValue={0} render={({ field }) => <input className='text-black' type="number" {...field} />} /> {errors.proficiency && <p className='text-red-500'>Proficiency bonus can't be over 10</p>} </label>
           <label>   Initiative:   <Controller name="initiative" control={control} defaultValue={0} render={({ field }) => <input className='text-black' type="number" {...field} />} /> {errors.initiative && <p className='text-red-500'>Initiative can't be over 10</p>} </label>
