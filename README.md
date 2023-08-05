@@ -4,17 +4,18 @@ The Round Table is your one stop hub space for running and tracking your table t
 
 ## Features
 
-![Landing Page Screenshot](Readme_images/)
+![Landing Page Screenshot](Readme_images/LandingPage.png)
 
 - Stored character and party data in a PostgreSQL database
-![Characters Screenshot](Readme_images/)
+![Characters Screenshot](Readme_images/charactersPage.png)
 
 - Real-time game interactions, and drawing using Socket.IO.
 - Fast game log and game state updates using Redis.
-![gameboard](Readme_images/)
+![Game Page](Readme_images/DefaultGamePage.png)
 
 - Multiple themes available
-![Alt Theme Screenshot1](Readme_images/)
-![Alt Theme Screenshot2](Readme_images/)
-![Alt Theme Screenshot3](Readme_images/)
+![Stigander Theme Screenshot](Readme_images/StiganderGamePage.png)
+![Malarie Theme Screenshot](Readme_images/MalarieGamePage.png)
+![Bojack Theme Screenshot](Readme_images/BojackGamePage.png)
+![Zaris Theme Screenshot](Readme_images/ZarisGamePage.png)
 
