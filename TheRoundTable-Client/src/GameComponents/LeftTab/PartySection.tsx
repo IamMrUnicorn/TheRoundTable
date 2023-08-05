@@ -1,10 +1,9 @@
-import {useState, useEffect} from "react";
 
 import { PlayerCard } from "./Index";
-import { Player } from "./PlayerCard";
+import { Character } from "../../Pages/PlayerPage";
 
 interface PartyProps {
-  party: Player []
+  party: Character[] | null
 }
 
 //todo add a sort option, sort by current hp, maxhp, class, name(alphabetical), level(default), status
@@ -13,8 +12,8 @@ const PartySection = ({party}:PartyProps) => {
 
   return (
     <div className="bg-primary max-h-[20vh] lg:max-h-[53vh] flex flex-col hiddenScroll">
-      {party.map((player:Player, index) => (
-        <PlayerCard key={index} player={player}/>
+      {party?.map((character:Character, index) => (
+        <PlayerCard key={index} character={character}/>
       ))}
     </div>
   )
