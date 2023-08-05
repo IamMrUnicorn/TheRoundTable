@@ -5,15 +5,23 @@ import { Dispatch, SetStateAction } from "react";
 
 export interface WeaponsModalProps {
   setPopup: Dispatch<SetStateAction<string>>,
-  CharacterWeapons: string | undefined
+  CharacterWeapons: {
+    heavy: string[];
+    light: string[];
+    reach: string[];
+    range: string[];
+    thrown: string[];
+    loading: string[];
+    finesse: string[];
+    special: string[];
+    versatile: string[];
+    twoHanded: string[];
+    magicalWeapons: string[];
+  } | undefined
 }
 
 const WeaponsModal = ({setPopup, CharacterWeapons}:WeaponsModalProps) => {
   
-  if (CharacterWeapons){
-    const weapons = JSON.parse(CharacterWeapons)
-    console.log(weapons)
-  }
   return (
     <>
       <input type="checkbox" id="action_modal" className="modal-toggle" />

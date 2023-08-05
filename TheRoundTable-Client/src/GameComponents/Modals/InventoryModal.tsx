@@ -5,7 +5,13 @@ import { Dispatch, SetStateAction } from "react";
 
 export interface InventoryModalProps {
   setPopup: Dispatch<SetStateAction<string>>,
-  CharacterInventory: string | undefined
+  CharacterInventory: {
+    copper: number;
+    silver: number;
+    gold: number;
+    platinum: number;
+    inventory: string[];
+  } | undefined
 }
 
 const InventoryModal = ({setPopup, CharacterInventory}:InventoryModalProps) => {
