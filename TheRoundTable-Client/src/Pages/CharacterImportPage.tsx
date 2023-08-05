@@ -10,11 +10,11 @@ interface CharacterImportProps {
 }
 const schema = yup.object().shape({
   name: yup.string().required('Character name is required'),
-  race: yup.string().required('Character race is required'),
+  race: yup.array().required('Atleast 1 Character race is required'),
   background: yup.string().required('Character background is required'),
-  class: yup.string().required('Character class is required'),
-  subclass: yup.string().required('Character subclass is required'),
-  level: yup.number().min(1, 'Level can\'t be under 1').max(30, 'Level can\'t be over 30').required('Level is required'),
+  class: yup.array().required('Atleast 1 Character class is required'),
+  subclass: yup.array().required('Atleast 1 Character subclass is required'),
+  level: yup.number().min(1, 'Level can\'t be under 1').max(20, 'Level can\'t be over 20').required('Level is required'),
   alignment: yup.string().matches(/(lawful|neutral|chaotic) (good|neutral|evil)/, 'Alignment must be one of lawful, neutral, chaotic combined with one of good, neutral, evil'),
   strength: yup.number().max(30, 'Strength can\'t be over 30'),
   dexterity: yup.number().max(30, 'Dexterity can\'t be over 30'),
@@ -53,10 +53,12 @@ const schema = yup.object().shape({
   stealthProficient: yup.boolean(),
   arcanaProficient: yup.boolean(),
   persuasionProficient: yup.boolean(),
-  copper: yup.number().max(60, 'copper can\'t be over 60'),
-  silver: yup.number().max(60, 'silver can\'t be over 60'),
-  gold: yup.number().max(60, 'gold can\'t be over 60'),
-  platinum: yup.number().max(60, 'platinum can\'t be over 60'),
+  copper: yup.number(),
+  silver: yup.number(),
+  gold: yup.number(),
+  platinum: yup.number(),
+  languages: yup.array(),
+  proficiencies: yup.array(),
   feats: yup.array(),
   inventory: yup.array(),
   cantrips: yup.array(),
@@ -85,9 +87,9 @@ const schema = yup.object().shape({
 
 interface CharacterFormData {
   name: string;
-  race: string;
-  class: string;
-  subclass: string;
+  race: string[];
+  class: string[];
+  subclass: string[];
   level: number;
   background: string;
   alignment: string;
@@ -103,7 +105,9 @@ interface CharacterFormData {
   wisdom: number;
   charisma: number;
   spellDC: number;
+  languages: string[];
   feats: string[];
+  proficiencies: string[];
   strengthProficient: boolean;
   dexterityProficient: boolean;
   constitutionProficient: boolean;
@@ -215,10 +219,15 @@ const CharacterForm = ({ user_id }: CharacterImportProps) => {
         party_id: null,
         name: formData.name,
         image_url: null,
-        race: formData.race,
-        class: formData.class,
-        subclass: formData.subclass,
-        level: formData.level
+        race: JSON.stringify(formData.race),
+        class: JSON.stringify(formData.class),
+        subclass: JSON.stringify(formData.subclass),
+        background: formData.background,
+        alignment: formData.alignment,
+        level: formData.level,
+        hitdice: formData.hitDice,
+        languages: JSON.stringify(formData.languages),
+        proficiencies: JSON.stringify(formData.proficiencies)
       },
       'stats': {
         character_id: '',
@@ -314,7 +323,7 @@ const CharacterForm = ({ user_id }: CharacterImportProps) => {
 
   const customChip = (item: string) => {
     return (
-      <div className='bg-primary text-primary-content rounded-lg text-center w-min whitespace-nowrap p-1'>
+      <div className=' rounded-lg text-center w-min whitespace-nowrap p-1'>
         <span>{item}</span>
       </div>
     );
@@ -322,20 +331,20 @@ const CharacterForm = ({ user_id }: CharacterImportProps) => {
 
   return (
     <form className='flex flex-col' onSubmit={handleSubmit(onSubmit)}>
-      <p className='bg-secondary rounded-full lg:w-max m-2 p-3 text-neutral self-center'>enter everything as it appears on your character sheet</p>
+      <p className='bg-primary rounded-full lg:w-max m-2 p-3 text-neutral self-center'>enter everything as it appears on your character sheet</p>
       <div className='flex flex-col lg:flex-row gap-1 items-center lg:items-baseline lg:justify-center'>
 
         <div className='flex flex-col gap-1 w-min items-end '>
           <p className='self-center'>character identity</p>
           <label>  Name:  <Controller name="name" control={control} defaultValue="" render={({ field }) => <input className='text-black' type="text" {...field} />} />  {errors.name && <p className='text-red-500'>Character name is required</p>} </label>
-
-          <label>  Race:  <Controller name="race" control={control} defaultValue="" render={({ field }) => <input className='text-black' type="text" {...field} />} /> {errors.race && <p className='text-red-500'>Character race is required</p>} </label>
-          <label>  Class:  <Controller name="class" control={control} defaultValue="" render={({ field }) => <input className='text-black' type="text" {...field} />} /> {errors.class && <p className='text-red-500'>Character class is required</p>} </label>
-          <label>  Subclass:  <Controller name="subclass" control={control} defaultValue="" render={({ field }) => <input className='text-black' type="text" {...field} />} /> {errors.subclass && <p className='text-red-500'>Character subclass is required</p>} </label>
-          <label>  Level:  <Controller name="level" control={control} defaultValue={0} render={({ field }) => <input className='text-black' type="number" {...field} />} /> {errors.level && <p className='text-red-500'>Level is required and can't be over 30</p>} </label>
+          <label>  Race:  <Controller name="race" control={control} defaultValue={[]} render={({ field }) => (<Chips className='text-black' value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> {errors.race && <p className='text-red-500'>At least 1 race is required</p>} </label>
+          <label>  Class:  <Controller name="class" control={control} defaultValue={[]} render={({ field }) => (<Chips className='text-black' value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} />{errors.class && <p className='text-red-500'>At least 1 class is required</p>} </label>
+          <label>  Subclass:  <Controller name="subclass" control={control} defaultValue={[]} render={({ field }) => (<Chips className='text-black' value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} />{errors.subclass && <p className='text-red-500'>At least 1 subclass is required</p>} </label>
+          <label>  Level:  <Controller name="level" control={control} defaultValue={0} render={({ field }) => <input className='text-black' type="number" {...field} />} /> {errors.level && <p className='text-red-500'>Level is required and can't be over 20</p>} </label>
           <label>  Background:  <Controller name="background" control={control} defaultValue="" render={({ field }) => <input className='text-black' type="text" {...field} />} /> {errors.background && <p className='text-red-500'>Character background is required</p>} </label>
           <label>  Alignment:  <Controller name="alignment" control={control} defaultValue="" render={({ field }) => <input className='text-black' type="text" {...field} />} /> {errors.alignment && <p className='text-red-500'>Alignment must be one of lawful, neutral, chaotic combined with one of good, neutral, evil</p>} </label>
           <label>  hit Dice:  <Controller name="hitDice" control={control} defaultValue="" render={({ field }) => <input className='text-black' type="text" {...field} />} /> {errors.hitDice && <p className='text-red-500'> hit dice must be like 7 D8 "number(1-30)[space]D[4|6|8|10|12|20]" </p>} </label>
+          <label>  languages:  <Controller name="languages" control={control} defaultValue={[]} render={({ field }) => (<Chips className='text-black' value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
         </div>
         <div className='flex flex-col items-center lg:items-end w-min flex-wrap gap-1'>
           <p className='self-center'>character details & skills</p>
@@ -352,6 +361,7 @@ const CharacterForm = ({ user_id }: CharacterImportProps) => {
           <label>   Charisma:   <Controller name="charisma" control={control} defaultValue={0} render={({ field }) => <input className='text-black' type="number" {...field} />} /> {errors.charisma && <p className='text-red-500'>Charisma can't be over 30</p>} </label>
           <label>   SpellDC:   <Controller name="spellDC" control={control} defaultValue={0} render={({ field }) => <input className='text-black' type="number" {...field} />} /> {errors.spellDC && <p className='text-red-500'>spellDC can't be over 60</p>} </label>
           <label>   Feats: <Controller name="feats" control={control} defaultValue={[]} render={({ field }) => (<Chips className='text-black' value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
+          <label>  other proficiencies: <Controller name="proficiencies" control={control} defaultValue={[]} render={({ field }) => (<Chips value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
         </div>
         <div className='flex flex-col items-end w-min whitespace-nowrap gap-1'>
           <p className='self-center'>proficiencies</p>
@@ -401,9 +411,6 @@ const CharacterForm = ({ user_id }: CharacterImportProps) => {
           <label> lvl8: <Controller name="lvl8" control={control} defaultValue={[]} render={({ field }) => (<Chips className='text-black' value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
           <label> lvl9: <Controller name="lvl9" control={control} defaultValue={[]} render={({ field }) => (<Chips className='text-black' value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
         </div>
-
-
-
         <div className='flex flex-col items-center lg:items-end mb-3 lg:m-0  flex-wrap gap-1'>
           <p className='self-center'>weapons</p>
           <label> heavy: <Controller name="heavy" control={control} defaultValue={[]} render={({ field }) => (<Chips className='text-black' value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
