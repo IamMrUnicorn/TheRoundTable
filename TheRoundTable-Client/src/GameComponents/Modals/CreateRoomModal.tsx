@@ -32,9 +32,10 @@ const CreateRoomModal = ({setPopup}:CreateRoomModalProps) => {
   const onSubmit = async (_data:formData) => {
 
     const RoomInfo = {
-      dm_id: _data.DMcheck === true ? user?.id : null,
+      DM_clerk_id: _data.DMcheck === true ? user?.id : null,
       name: _data.name,
-      creator_id: user?.id
+      creator_clerk_id: user?.id,
+      setup: false
     }
     console.log(RoomInfo)
 
