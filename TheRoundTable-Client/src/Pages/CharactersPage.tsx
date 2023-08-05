@@ -1,10 +1,9 @@
 import { useEffect, useContext, useState } from "react";
 import { supabaseContext } from "../supabase";
 import { CharacterSheet } from "../Components/CharacterSheet";
+import { CharacterPageProps } from "./CharacterImportPage";
 
-interface CharacterPageProps {
-  user_id: string;
-}
+
 
 export interface CharacterDataInterface {
   name: string;

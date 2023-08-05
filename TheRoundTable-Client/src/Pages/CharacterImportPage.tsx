@@ -5,7 +5,7 @@ import * as yup from 'yup';
 import { Chips } from "primereact/chips";
 import { supabaseContext } from '../supabase';
 
-interface CharacterImportProps {
+export interface CharacterPageProps {
   user_id: string
 }
 const schema = yup.object().shape({
@@ -161,7 +161,7 @@ interface CharacterFormData {
   magicalWeapons: string[];
 }
 
-const CharacterForm = ({ user_id }: CharacterImportProps) => {
+const CharacterForm = ({ user_id }: CharacterPageProps) => {
   const supabase = useContext(supabaseContext)
   const { control, handleSubmit, formState: { errors } } = useForm({
     resolver: yupResolver(schema),
