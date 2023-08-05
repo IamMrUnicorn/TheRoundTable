@@ -5,13 +5,10 @@ const NotesContainer = () => {
   return (
     <div className="bg-secondary h-[95vh]">
 
-      <div className="bg-neutral h-[47vh] Notes-Table">
+      <div className="bg-neutral m-2 rounded-2xl h-[40vh] Notes-Table">
       </div>
 
-      <div className="h-[47vh]">
-
-
-        <div className="bg-primary flex flex-row ">
+        <div className="bg-primary rounded-lg flex flex-row ">
 
           <div className="dropdown dropdown-start">
             <label tabIndex={0} className="btn btn-accent btn-sm m-1"> menu</label>
@@ -35,10 +32,9 @@ const NotesContainer = () => {
           </div>
 
         </div>
-        <div className="bg-neutral h-full">
+        <div className="bg-neutral m-2 rounded-2xl h-[45vh] ">
         </div>
 
-      </div>
     </div>
   )
 }

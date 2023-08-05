@@ -1,18 +1,16 @@
-import { FC, useState, useContext, useEffect } from "react";
+import { FC, useState, useEffect } from "react";
 import { LocationInfo, SpotifyMusicPlayer, PartySection } from '../GameComponents/LeftTab/Index'
 import { TurnOrder, ActionLog, DMTools, DMToolsMobile, DMScreen, } from '../GameComponents/MiddleTab/index'
 import { party, messages, sessionDetails } from '../exampleData'
 import { ActionModal, BonusActionModal, RollModal, SpellsModal, TalkModal, WeaponsModal, InventoryModal } from '../GameComponents/Modals/index'
 import NotesContainer from '../GameComponents/RightTab/NotesContainer.js'
 
-import { SocketContext } from "../socket";
 import { useUser } from '@clerk/clerk-react'
 import { Player } from "../GameComponents/LeftTab/PlayerCard.js";
 
 
 const DMPage: FC = () => {
   const { user } = useUser()
-  const socket = useContext(SocketContext)
   const [popup, setPopup] = useState('none')
   const Stigander = party[0];
   const [characters, setCharacters] = useState<Player[]>([])
@@ -27,7 +25,7 @@ const DMPage: FC = () => {
   }
 
   return (
-    <SocketContext.Provider value={socket}>
+    <>
       <div className='hidden lg:w-full lg:max-h-[95vh] lg:flex lg:flex-row'>
 
         {popup === 'action' ? <ActionModal setPopup={setPopup} />
@@ -90,7 +88,7 @@ const DMPage: FC = () => {
         </div> */}
 
       </div>
-    </SocketContext.Provider>
+    </>
   )
 }
 

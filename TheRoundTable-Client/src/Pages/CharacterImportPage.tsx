@@ -1,21 +1,20 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import React, { useContext, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { Chips } from "primereact/chips";
+import { supabaseContext } from '../supabase';
 
 interface CharacterImportProps {
-  username: string | null,
   user_id: string
 }
 const schema = yup.object().shape({
   name: yup.string().required('Character name is required'),
-  race: yup.string().required('Character race is required'),
+  race: yup.array().required('Atleast 1 Character race is required'),
   background: yup.string().required('Character background is required'),
-  class: yup.string().required('Character class is required'),
-  subclass: yup.string().required('Character subclass is required'),
-  level: yup.number().max(30, 'Level can\'t be over 30').required('Level is required'),
+  class: yup.array().required('Atleast 1 Character class is required'),
+  subclass: yup.array().required('Atleast 1 Character subclass is required'),
+  level: yup.number().min(1, 'Level can\'t be under 1').max(20, 'Level can\'t be over 20').required('Level is required'),
   alignment: yup.string().matches(/(lawful|neutral|chaotic) (good|neutral|evil)/, 'Alignment must be one of lawful, neutral, chaotic combined with one of good, neutral, evil'),
   strength: yup.number().max(30, 'Strength can\'t be over 30'),
   dexterity: yup.number().max(30, 'Dexterity can\'t be over 30'),
@@ -29,7 +28,7 @@ const schema = yup.object().shape({
   initiative: yup.number().max(10, 'initiative can\'t be over 10'),
   speed: yup.number().max(999, 'speed can\'t be over 999'),
   spellDC: yup.number().max(60, 'spellDC can\'t be over 60'),
-  hitDice: yup.string().required('hit dice is required'),
+  hitDice: yup.string().matches(/^(?:[1-9]|[12][0-9]|30)\s[dD](4|6|8|10|12|20)$/).required('hit dice must be "number(1-30) D[4|6|8|10|12|20]"'),
   strengthProficient: yup.boolean(),
   dexterityProficient: yup.boolean(),
   constitutionProficient: yup.boolean(),
@@ -54,10 +53,12 @@ const schema = yup.object().shape({
   stealthProficient: yup.boolean(),
   arcanaProficient: yup.boolean(),
   persuasionProficient: yup.boolean(),
-  copper: yup.number().max(60, 'copper can\'t be over 60'),
-  silver: yup.number().max(60, 'silver can\'t be over 60'),
-  gold: yup.number().max(60, 'gold can\'t be over 60'),
-  platinum: yup.number().max(60, 'platinum can\'t be over 60'),
+  copper: yup.number(),
+  silver: yup.number(),
+  gold: yup.number(),
+  platinum: yup.number(),
+  languages: yup.array(),
+  proficiencies: yup.array(),
   feats: yup.array(),
   inventory: yup.array(),
   cantrips: yup.array(),
@@ -86,9 +87,9 @@ const schema = yup.object().shape({
 
 interface CharacterFormData {
   name: string;
-  race: string;
-  class: string;
-  subclass: string;
+  race: string[];
+  class: string[];
+  subclass: string[];
   level: number;
   background: string;
   alignment: string;
@@ -104,7 +105,9 @@ interface CharacterFormData {
   wisdom: number;
   charisma: number;
   spellDC: number;
+  languages: string[];
   feats: string[];
+  proficiencies: string[];
   strengthProficient: boolean;
   dexterityProficient: boolean;
   constitutionProficient: boolean;
@@ -158,7 +161,8 @@ interface CharacterFormData {
   magicalWeapons: string[];
 }
 
-const CharacterForm = ({ username, user_id }: CharacterImportProps) => {
+const CharacterForm = ({ user_id }: CharacterImportProps) => {
+  const supabase = useContext(supabaseContext)
   const { control, handleSubmit, formState: { errors } } = useForm({
     resolver: yupResolver(schema),
   });
@@ -172,9 +176,9 @@ const CharacterForm = ({ username, user_id }: CharacterImportProps) => {
     }
   };
 
-  const onConfirm = async (data: unknown) => {
+  const onConfirm = async (_data: unknown) => {
     setSubmitted(true)
-    const formData = data as CharacterFormData
+    const formData = _data as CharacterFormData
     console.log(formData);
     const inventory = JSON.stringify({
       copper: formData.copper,
@@ -208,28 +212,118 @@ const CharacterForm = ({ username, user_id }: CharacterImportProps) => {
       twoHanded: formData.twoHanded,
       magicalWeapons: formData.magicalWeapons
     })
+
     const DBsubmission = {
-      'character': [user_id, null, formData.name, formData.race, formData.class, formData.subclass, formData.level],
-      'stats': ['healthy', formData.maxHP, formData.maxHP, formData.AC, formData.proficiency, formData.initiative, formData.speed, formData.strength, formData.dexterity, formData.constitution, formData.intelligence, formData.wisdom, formData.charisma, formData.spellDC, JSON.stringify(formData.feats)],
-      'proficiency': [formData.strengthProficient, formData.dexterityProficient, formData.constitutionProficient, formData.intelligenceProficient, formData.wisdomProficient, formData.charismaProficient, formData.athleticsProficient, formData.acrobaticsProficient, formData.sleightOfHandProficient, formData.stealthProficient, formData.arcanaProficient, formData.historyProficient, formData.investigationProficient, formData.natureProficient, formData.religionProficient, formData.animalHandlingProficient, formData.insightProficient, formData.medicineProficient, formData.perceptionProficient, formData.survivalProficient, formData.deceptionProficient, formData.intimidationProficient, formData.performanceProficient, formData.persuasionProficient],
-      'inventory': [spells, weapons, inventory],
-    } 
+      'character': {
+        clerk_user_id: user_id,
+        party_id: null,
+        name: formData.name,
+        image_url: null,
+        race: JSON.stringify(formData.race),
+        class: JSON.stringify(formData.class),
+        subclass: JSON.stringify(formData.subclass),
+        background: formData.background,
+        alignment: formData.alignment,
+        level: formData.level,
+        hitdice: formData.hitDice,
+        languages: JSON.stringify(formData.languages),
+        proficiencies: JSON.stringify(formData.proficiencies)
+      },
+      'stats': {
+        character_id: '',
+        status: 'healthy',
+        currenthp: formData.maxHP,
+        maxhp: formData.maxHP,
+        ac: formData.AC,
+        proficiency: formData.proficiency,
+        initiative: formData.initiative,
+        speed: formData.speed,
+        strength: formData.strength,
+        dexterity: formData.dexterity,
+        constitution: formData.constitution,
+        intelligence: formData.intelligence,
+        wisdom: formData.wisdom,
+        charisma: formData.charisma,
+        spell_dc: formData.spellDC,
+        feats: JSON.stringify(formData.feats),
+      },
+      'proficiency': {
+        character_id: '',
+        strength: formData.strengthProficient,
+        dexterity: formData.dexterityProficient,
+        constitution: formData.constitutionProficient,
+        intelligence: formData.intelligenceProficient,
+        wisdom: formData.wisdomProficient,
+        charisma: formData.charismaProficient,
+        athletics: formData.athleticsProficient,
+        acrobatics: formData.acrobaticsProficient,
+        sleightofhand: formData.sleightOfHandProficient,
+        stealth: formData.stealthProficient,
+        arcana: formData.arcanaProficient,
+        history: formData.historyProficient,
+        investigation: formData.investigationProficient,
+        nature: formData.natureProficient,
+        religion: formData.religionProficient,
+        animalhandling: formData.animalHandlingProficient,
+        insight: formData.insightProficient,
+        medicine: formData.medicineProficient,
+        perception: formData.perceptionProficient,
+        survival: formData.survivalProficient,
+        deception: formData.deceptionProficient,
+        intimidation: formData.intimidationProficient,
+        performance: formData.performanceProficient,
+        persuasion: formData.persuasionProficient,
+      },
+      'inventory': {
+        character_id: '',
+        spells: spells,
+        weapons: weapons,
+        inventory: inventory
+      },
+    }
     const character = JSON.stringify(DBsubmission)
 
     localStorage.setItem('Main_character', character)
-    
-    axios.post(`http://localhost:3000/characters/${username}/import`, DBsubmission)
-      .then((response) => {
-        console.log(response)
-      })
-      .catch((err) => {
-        console.log('err from server -> ', err)
-      })
+
+    console.log(DBsubmission.character)
+    const { data, error } = await supabase
+      .from('characters')
+      .insert(DBsubmission.character)
+      .select();
+    if (error) {
+      console.log(error)
+    } else {
+      console.log(data[0])
+      const characterId = data[0].id;
+      DBsubmission.stats.character_id = characterId;
+      DBsubmission.proficiency.character_id = characterId;
+      DBsubmission.inventory.character_id = characterId;
+      const { error } = await supabase
+        .from('character_stats')
+        .insert(DBsubmission.stats);
+      if (error) {
+        console.log(error)
+      } else {
+        const { error } = await supabase
+          .from('character_proficiency')
+          .insert(DBsubmission.proficiency);
+        if (error) {
+          console.log(error)
+        } else {
+          const { error } = await supabase
+            .from('character_inventory')
+            .insert(DBsubmission.inventory)
+          if (error) {
+            console.log(error)
+          }
+        }
+      }
+    }
   };
 
-  const customChip = (item:string) => {
+  const customChip = (item: string) => {
     return (
-      <div className='bg-secondary'>
+      <div className=' rounded-lg text-center w-min whitespace-nowrap p-1'>
         <span>{item}</span>
       </div>
     );
@@ -237,37 +331,39 @@ const CharacterForm = ({ username, user_id }: CharacterImportProps) => {
 
   return (
     <form className='flex flex-col' onSubmit={handleSubmit(onSubmit)}>
-      <p className='bg-secondary rounded-full w-max m-2 p-3 text-neutral self-center'>enter everything as it appears on your character sheet</p>
-      <div className='flex flex-row gap-1 justify-center'>
+      <p className='bg-primary rounded-full lg:w-max m-2 p-3 text-neutral self-center'>enter everything as it appears on your character sheet</p>
+      <div className='flex flex-col lg:flex-row gap-1 items-center lg:items-baseline lg:justify-center'>
 
         <div className='flex flex-col gap-1 w-min items-end '>
-          <p className='self-center'>character name</p>
-          <label>  Name:  <Controller name="name" control={control} defaultValue="" render={({ field }) => <input type="text" {...field} />} />  {errors.name && <p>Character name is required</p>} </label>
-          <label>  Race:  <Controller name="race" control={control} defaultValue="" render={({ field }) => <input type="text" {...field} />} /> {errors.race && <p>Character race is required</p>} </label>
-          <label>  Class:  <Controller name="class" control={control} defaultValue="" render={({ field }) => <input type="text" {...field} />} /> {errors.class && <p>Character class is required</p>} </label>
-          <label>  Subclass:  <Controller name="subclass" control={control} defaultValue="" render={({ field }) => <input type="text" {...field} />} /> {errors.subclass && <p>Character subclass is required</p>} </label>
-          <label>  Level:  <Controller name="level" control={control} defaultValue={0} render={({ field }) => <input type="number" {...field} />} /> {errors.level && <p>Level is required and can't be over 30</p>} </label>
-          <label>  Background:  <Controller name="background" control={control} defaultValue="" render={({ field }) => <input type="text" {...field} />} /> {errors.background && <p>Character background is required</p>} </label>
-          <label>  Alignment:  <Controller name="alignment" control={control} defaultValue="" render={({ field }) => <input type="text" {...field} />} /> {errors.alignment && <p>Alignment must be one of lawful, neutral, chaotic combined with one of good, neutral, evil</p>} </label>
-          <label>  hit Dice:  <Controller name="hitDice" control={control} defaultValue="" render={({ field }) => <input type="text" {...field} />} /> {errors.hitDice && <p> Character hit dice are required </p>} </label>
+          <p className='self-center'>character identity</p>
+          <label>  Name:  <Controller name="name" control={control} defaultValue="" render={({ field }) => <input className='text-black' type="text" {...field} />} />  {errors.name && <p className='text-red-500'>Character name is required</p>} </label>
+          <label>  Race:  <Controller name="race" control={control} defaultValue={[]} render={({ field }) => (<Chips className='text-black' value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> {errors.race && <p className='text-red-500'>At least 1 race is required</p>} </label>
+          <label>  Class:  <Controller name="class" control={control} defaultValue={[]} render={({ field }) => (<Chips className='text-black' value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} />{errors.class && <p className='text-red-500'>At least 1 class is required</p>} </label>
+          <label>  Subclass:  <Controller name="subclass" control={control} defaultValue={[]} render={({ field }) => (<Chips className='text-black' value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} />{errors.subclass && <p className='text-red-500'>At least 1 subclass is required</p>} </label>
+          <label>  Level:  <Controller name="level" control={control} defaultValue={0} render={({ field }) => <input className='text-black' type="number" {...field} />} /> {errors.level && <p className='text-red-500'>Level is required and can't be over 20</p>} </label>
+          <label>  Background:  <Controller name="background" control={control} defaultValue="" render={({ field }) => <input className='text-black' type="text" {...field} />} /> {errors.background && <p className='text-red-500'>Character background is required</p>} </label>
+          <label>  Alignment:  <Controller name="alignment" control={control} defaultValue="" render={({ field }) => <input className='text-black' type="text" {...field} />} /> {errors.alignment && <p className='text-red-500'>Alignment must be one of lawful, neutral, chaotic combined with one of good, neutral, evil</p>} </label>
+          <label>  hit Dice:  <Controller name="hitDice" control={control} defaultValue="" render={({ field }) => <input className='text-black' type="text" {...field} />} /> {errors.hitDice && <p className='text-red-500'> hit dice must be like 7 D8 "number(1-30)[space]D[4|6|8|10|12|20]" </p>} </label>
+          <label>  languages:  <Controller name="languages" control={control} defaultValue={[]} render={({ field }) => (<Chips className='text-black' value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
         </div>
-        <div className='flex flex-col items-end w-min flex-wrap gap-1'>
+        <div className='flex flex-col items-center lg:items-end w-min flex-wrap gap-1'>
           <p className='self-center'>character details & skills</p>
-          <label>   MaxHP:   <Controller name="maxHP" control={control} defaultValue={0} render={({ field }) => <input type="number" {...field} />} /> {errors.maxHP && <p>maxHP can't be over 9999</p>} </label>
-          <label>   AC:   <Controller name="AC" control={control} defaultValue={0} render={({ field }) => <input type="number" {...field} />} /> {errors.AC && <p>AC can't be over 60</p>} </label>
-          <label>   Proficiency bonus:   <Controller name="proficiency" control={control} defaultValue={0} render={({ field }) => <input type="number" {...field} />} /> {errors.proficiency && <p>Proficiency bonus can't be over 10</p>} </label>
-          <label>   Initiative:   <Controller name="initiative" control={control} defaultValue={0} render={({ field }) => <input type="number" {...field} />} /> {errors.initiative && <p>Initiative can't be over 10</p>} </label>
-          <label>   Speed:   <Controller name="speed" control={control} defaultValue={0} render={({ field }) => <input type="number" {...field} />} /> {errors.speed && <p>Speed can't be over 999</p>} </label>
-          <label>   Strength:   <Controller name="strength" control={control} defaultValue={0} render={({ field }) => <input type="number" {...field} />} /> {errors.strength && <p>Strength can't be over 30</p>} </label>
-          <label>   Dexterity:   <Controller name="dexterity" control={control} defaultValue={0} render={({ field }) => <input type="number" {...field} />} /> {errors.dexterity && <p>Dexterity can't be over 30</p>} </label>
-          <label>   Constitution:   <Controller name="constitution" control={control} defaultValue={0} render={({ field }) => <input type="number" {...field} />} /> {errors.constitution && <p>Constitution can't be over 30</p>} </label>
-          <label>   Intelligence:   <Controller name="intelligence" control={control} defaultValue={0} render={({ field }) => <input type="number" {...field} />} /> {errors.intelligence && <p>Intelligence can't be over 30</p>} </label>
-          <label>   Wisdom:   <Controller name="wisdom" control={control} defaultValue={0} render={({ field }) => <input type="number" {...field} />} /> {errors.wisdom && <p>Wisdom can't be over 30</p>} </label>
-          <label>   Charisma:   <Controller name="charisma" control={control} defaultValue={0} render={({ field }) => <input type="number" {...field} />} /> {errors.charisma && <p>Charisma can't be over 30</p>} </label>
-          <label>   SpellDC:   <Controller name="spellDC" control={control} defaultValue={0} render={({ field }) => <input type="number" {...field} />} /> {errors.spellDC && <p>spellDC can't be over 60</p>} </label>
-          <label>   Feats: <Controller name="feats" control={control} defaultValue={[]} render={({ field }) => (<Chips value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
+          <label>   MaxHP:   <Controller name="maxHP" control={control} defaultValue={0} render={({ field }) => <input className='text-black' type="number" {...field} />} /> {errors.maxHP && <p className='text-red-500'>maxHP can't be over 9999</p>} </label>
+          <label>   AC:   <Controller name="AC" control={control} defaultValue={0} render={({ field }) => <input className='text-black' type="number" {...field} />} /> {errors.AC && <p className='text-red-500'>AC can't be over 60</p>} </label>
+          <label>   Proficiency bonus:   <Controller name="proficiency" control={control} defaultValue={0} render={({ field }) => <input className='text-black' type="number" {...field} />} /> {errors.proficiency && <p className='text-red-500'>Proficiency bonus can't be over 10</p>} </label>
+          <label>   Initiative:   <Controller name="initiative" control={control} defaultValue={0} render={({ field }) => <input className='text-black' type="number" {...field} />} /> {errors.initiative && <p className='text-red-500'>Initiative can't be over 10</p>} </label>
+          <label>   Speed:   <Controller name="speed" control={control} defaultValue={0} render={({ field }) => <input className='text-black' type="number" {...field} />} /> {errors.speed && <p className='text-red-500'>Speed can't be over 999</p>} </label>
+          <label>   Strength:   <Controller name="strength" control={control} defaultValue={0} render={({ field }) => <input className='text-black' type="number" {...field} />} /> {errors.strength && <p className='text-red-500'>Strength can't be over 30</p>} </label>
+          <label>   Dexterity:   <Controller name="dexterity" control={control} defaultValue={0} render={({ field }) => <input className='text-black' type="number" {...field} />} /> {errors.dexterity && <p className='text-red-500'>Dexterity can't be over 30</p>} </label>
+          <label>   Constitution:   <Controller name="constitution" control={control} defaultValue={0} render={({ field }) => <input className='text-black' type="number" {...field} />} /> {errors.constitution && <p className='text-red-500'>Constitution can't be over 30</p>} </label>
+          <label>   Intelligence:   <Controller name="intelligence" control={control} defaultValue={0} render={({ field }) => <input className='text-black' type="number" {...field} />} /> {errors.intelligence && <p className='text-red-500'>Intelligence can't be over 30</p>} </label>
+          <label>   Wisdom:   <Controller name="wisdom" control={control} defaultValue={0} render={({ field }) => <input className='text-black' type="number" {...field} />} /> {errors.wisdom && <p className='text-red-500'>Wisdom can't be over 30</p>} </label>
+          <label>   Charisma:   <Controller name="charisma" control={control} defaultValue={0} render={({ field }) => <input className='text-black' type="number" {...field} />} /> {errors.charisma && <p className='text-red-500'>Charisma can't be over 30</p>} </label>
+          <label>   SpellDC:   <Controller name="spellDC" control={control} defaultValue={0} render={({ field }) => <input className='text-black' type="number" {...field} />} /> {errors.spellDC && <p className='text-red-500'>spellDC can't be over 60</p>} </label>
+          <label>   Feats: <Controller name="feats" control={control} defaultValue={[]} render={({ field }) => (<Chips className='text-black' value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
+          <label>  other proficiencies: <Controller name="proficiencies" control={control} defaultValue={[]} render={({ field }) => (<Chips value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
         </div>
-        <div className='flex flex-col items-end w-min flex-wrap gap-1'>
+        <div className='flex flex-col items-end w-min whitespace-nowrap gap-1'>
           <p className='self-center'>proficiencies</p>
           <label>  strength:   <Controller name="strengthProficient" control={control} defaultValue={false} render={({ field: { ref, value, ...restField } }) => <input type="checkbox" {...restField} ref={ref} checked={!!value} />} /> </label>
           <label>  dexterity:   <Controller name="dexterityProficient" control={control} defaultValue={false} render={({ field: { ref, value, ...restField } }) => <input type="checkbox" {...restField} ref={ref} checked={!!value} />} /> </label>
@@ -296,47 +392,44 @@ const CharacterForm = ({ username, user_id }: CharacterImportProps) => {
         </div>
         <div className='flex flex-col items-end w-min flex-wrap gap-1'>
           <p className='self-center'>inventory</p>
-          <label>  copper pieces:  <Controller name="copper" control={control} defaultValue={0} render={({ field }) => <input type="number" {...field} />} /></label>
-          <label>  silver pieces:  <Controller name="silver" control={control} defaultValue={0} render={({ field }) => <input type="number" {...field} />} /></label>
-          <label>  gold pieces:  <Controller name="gold" control={control} defaultValue={0} render={({ field }) => <input type="number" {...field} />} /></label>
-          <label>  platinum pieces:  <Controller name="platinum" control={control} defaultValue={0} render={({ field }) => <input type="number" {...field} />} /></label>
+          <label>  copper pieces:  <Controller name="copper" control={control} defaultValue={0} render={({ field }) => <input className='text-black' type="number" {...field} />} /></label>
+          <label>  silver pieces:  <Controller name="silver" control={control} defaultValue={0} render={({ field }) => <input className='text-black' type="number" {...field} />} /></label>
+          <label>  gold pieces:  <Controller name="gold" control={control} defaultValue={0} render={({ field }) => <input className='text-black' type="number" {...field} />} /></label>
+          <label>  platinum pieces:  <Controller name="platinum" control={control} defaultValue={0} render={({ field }) => <input className='text-black' type="number" {...field} />} /></label>
           <label>  inventory: <Controller name="inventory" control={control} defaultValue={[]} render={({ field }) => (<Chips value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
         </div>
-        <div className='flex flex-col items-end w-min flex-wrap gap-1'>
+        <div className='flex flex-col items-center lg:items-end w-min flex-wrap gap-1'>
           <p className='self-center'>spells</p>
           <label> Cantrips: <Controller name="cantrips" control={control} defaultValue={[]} render={({ field }) => (<Chips value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
-          <label> lvl1: <Controller name="lvl1" control={control} defaultValue={[]} render={({ field }) => (<Chips value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
-          <label> lvl2: <Controller name="lvl2" control={control} defaultValue={[]} render={({ field }) => (<Chips value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
-          <label> lvl3: <Controller name="lvl3" control={control} defaultValue={[]} render={({ field }) => (<Chips value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
-          <label> lvl4: <Controller name="lvl4" control={control} defaultValue={[]} render={({ field }) => (<Chips value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
-          <label> lvl5: <Controller name="lvl5" control={control} defaultValue={[]} render={({ field }) => (<Chips value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
-          <label> lvl6: <Controller name="lvl6" control={control} defaultValue={[]} render={({ field }) => (<Chips value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
-          <label> lvl7: <Controller name="lvl7" control={control} defaultValue={[]} render={({ field }) => (<Chips value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
-          <label> lvl8: <Controller name="lvl8" control={control} defaultValue={[]} render={({ field }) => (<Chips value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
-          <label> lvl9: <Controller name="lvl9" control={control} defaultValue={[]} render={({ field }) => (<Chips value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
+          <label> lvl1: <Controller name="lvl1" control={control} defaultValue={[]} render={({ field }) => (<Chips className='text-black' value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
+          <label> lvl2: <Controller name="lvl2" control={control} defaultValue={[]} render={({ field }) => (<Chips className='text-black' value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
+          <label> lvl3: <Controller name="lvl3" control={control} defaultValue={[]} render={({ field }) => (<Chips className='text-black' value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
+          <label> lvl4: <Controller name="lvl4" control={control} defaultValue={[]} render={({ field }) => (<Chips className='text-black' value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
+          <label> lvl5: <Controller name="lvl5" control={control} defaultValue={[]} render={({ field }) => (<Chips className='text-black' value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
+          <label> lvl6: <Controller name="lvl6" control={control} defaultValue={[]} render={({ field }) => (<Chips className='text-black' value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
+          <label> lvl7: <Controller name="lvl7" control={control} defaultValue={[]} render={({ field }) => (<Chips className='text-black' value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
+          <label> lvl8: <Controller name="lvl8" control={control} defaultValue={[]} render={({ field }) => (<Chips className='text-black' value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
+          <label> lvl9: <Controller name="lvl9" control={control} defaultValue={[]} render={({ field }) => (<Chips className='text-black' value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
         </div>
-
-
-
-        <div className='flex flex-col items-end flex-wrap gap-1'>
+        <div className='flex flex-col items-center lg:items-end mb-3 lg:m-0  flex-wrap gap-1'>
           <p className='self-center'>weapons</p>
-          <label> heavy: <Controller name="heavy" control={control} defaultValue={[]} render={({ field }) => (<Chips value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
-          <label> light: <Controller name="light" control={control} defaultValue={[]} render={({ field }) => (<Chips value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
-          <label> reach: <Controller name="reach" control={control} defaultValue={[]} render={({ field }) => (<Chips value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
-          <label> range: <Controller name="range" control={control} defaultValue={[]} render={({ field }) => (<Chips value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
-          <label> thrown: <Controller name="thrown" control={control} defaultValue={[]} render={({ field }) => (<Chips value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
-          <label> loading: <Controller name="loading" control={control} defaultValue={[]} render={({ field }) => (<Chips value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
-          <label> finesse: <Controller name="finesse" control={control} defaultValue={[]} render={({ field }) => (<Chips value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
-          <label> special: <Controller name="special" control={control} defaultValue={[]} render={({ field }) => (<Chips value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
-          <label> versatile: <Controller name="versatile" control={control} defaultValue={[]} render={({ field }) => (<Chips value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
-          <label> twoHanded: <Controller name="twoHanded" control={control} defaultValue={[]} render={({ field }) => (<Chips value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
-          <label> magicalWeapons: <Controller name="magicalWeapons" control={control} defaultValue={[]} render={({ field }) => (<Chips value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
+          <label> heavy: <Controller name="heavy" control={control} defaultValue={[]} render={({ field }) => (<Chips className='text-black' value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
+          <label> light: <Controller name="light" control={control} defaultValue={[]} render={({ field }) => (<Chips className='text-black' value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
+          <label> reach: <Controller name="reach" control={control} defaultValue={[]} render={({ field }) => (<Chips className='text-black' value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
+          <label> range: <Controller name="range" control={control} defaultValue={[]} render={({ field }) => (<Chips className='text-black' value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
+          <label> thrown: <Controller name="thrown" control={control} defaultValue={[]} render={({ field }) => (<Chips className='text-black' value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
+          <label> loading: <Controller name="loading" control={control} defaultValue={[]} render={({ field }) => (<Chips className='text-black' value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
+          <label> finesse: <Controller name="finesse" control={control} defaultValue={[]} render={({ field }) => (<Chips className='text-black' value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
+          <label> special: <Controller name="special" control={control} defaultValue={[]} render={({ field }) => (<Chips className='text-black' value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
+          <label> versatile: <Controller name="versatile" control={control} defaultValue={[]} render={({ field }) => (<Chips className='text-black' value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
+          <label> twoHanded: <Controller name="twoHanded" control={control} defaultValue={[]} render={({ field }) => (<Chips className='text-black' value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
+          <label> magicalWeapons: <Controller name="magicalWeapons" control={control} defaultValue={[]} render={({ field }) => (<Chips className='text-black' value={field.value} onChange={(e) => field.onChange(e.value || [])} itemTemplate={customChip} />)} /> </label>
         </div>
 
       </div>
       {submitted ? null : (<div className='flex flex-row justify-center'>
-        {!confirmation && <button className='btn' type="submit">Submit for Validation</button>}
-        {confirmation && <button className='btn' type="button" onClick={handleSubmit(onConfirm)}>Confirm Submission</button>}
+        {!confirmation && <button className='btn btn-accent' type="submit">Submit for Validation</button>}
+        {confirmation && <button className='btn btn-primary' type="button" onClick={handleSubmit(onConfirm)}>Confirm Submission</button>}
       </div>)}
     </form>
   );
@@ -345,4 +438,3 @@ const CharacterForm = ({ username, user_id }: CharacterImportProps) => {
 export default CharacterForm;
 
 // modifier should be mathed but player can edit bc of magical item
-// hit dice

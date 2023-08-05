@@ -21,14 +21,14 @@ const DMTools = ({setPopup}:ToolsProp) => {
         </div>
       </div>
       <div className="self-center p-5 flex flex-col ">
-        <button className="btn m-2 btn-block btn-accent ">NPC select</button>
-        <button className="btn m-2 btn-block btn-accent ">prompt player</button>
-        <button className="btn m-2 btn-block btn-accent "></button>
+        <button className="btn btn-sm m-2 btn-block btn-accent ">NPC select</button>
+        <button className="btn btn-sm m-2 btn-block btn-accent ">prompt player</button>
+        <button className="btn btn-sm m-2 btn-block btn-accent "></button>
       </div>
       <div className="self-center p-5 flex flex-col ">
-        <button className="btn m-2 btn-block btn-accent ">DM guide</button>
-        <button className="btn m-2 btn-block btn-accent ">monster manual</button>
-        <button className="btn m-2 btn-block btn-accent ">spell lookup</button>
+        <button className="btn btn-sm m-2 btn-block btn-accent ">DM guide</button>
+        <button className="btn btn-sm m-2 btn-block btn-accent ">monster manual</button>
+        <button className="btn btn-sm m-2 btn-block btn-accent ">spell lookup</button>
       </div>
     </div>
   )
