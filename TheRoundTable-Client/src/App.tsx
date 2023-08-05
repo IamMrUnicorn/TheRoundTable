@@ -5,6 +5,9 @@ import { CalendarPage, CharacterImportPage, CharactersPage, DMPage, ErrorPage, L
 import { supabaseContext } from './supabase.ts';
 import { useUser } from '@clerk/clerk-react'
 
+import 'primereact/resources/primereact.min.css';
+import 'primeicons/primeicons.css';
+
 import './App.css'
 import NavBar from './Components/NavBar.tsx'
 
@@ -25,14 +28,6 @@ const App: FC = () => {
   }
 
 
-  /**
-   * main monitor: 1920x937 2xl
-   * second monitor 1360x625 xl
-   * my macbook air: 1366x657 full screen, hidden menu bar. 1366x605 with menu bar
-   * john's macbook: 1280x720 xl
-   * shuhua monitor: 1731x980 2xl
-   * 
-   */
   return (
     // <SocketContext.Provider value={socket}>
       <supabaseContext.Provider value={supabase}>
