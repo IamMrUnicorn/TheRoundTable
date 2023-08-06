@@ -9,6 +9,7 @@ interface PartyProps {
 //todo add a sort option, sort by current hp, maxhp, class, name(alphabetical), level(default), status
 const PartySection = ({party}:PartyProps) => {
 
+  if (!party) return null
 
   return (
     <div className="bg-primary max-h-[20vh] lg:max-h-[53vh] flex flex-col hiddenScroll">
