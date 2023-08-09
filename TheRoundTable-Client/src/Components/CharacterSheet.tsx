@@ -120,7 +120,7 @@ export const CharacterSheet = ({ characterData }: prop) => {
   const handleSubmit = () => {
     console.log(editableCharacterData)
   }
-
+  // all charisma things are +5
   return (
     <div className="flex flex-row max-h-[900px] text-black ">
       <div className="flex flex-col">
@@ -141,7 +141,7 @@ export const CharacterSheet = ({ characterData }: prop) => {
                 {characterData.party_id}
               </div>
               <div className="flex flex-row justify-center gap-1">
-                {}
+                { }
                 {/* <label> Race: <Chips value={editableCharacterData.race} onChange={(e) => handleChipChange(e, 'race')} /> </label> */}
                 <p className="p-1"> {characterData.race.map((item, index) => (<p key={index}> {item} </p>))} </p>
                 <p className="p-1"> {characterData.background} </p>
@@ -330,19 +330,19 @@ export const CharacterSheet = ({ characterData }: prop) => {
               </div>
               <div className="flex flex-col pt-7">
                 <div className="flex flex-row rounded-full w-4/5 place-self-center border border-solid border-black bg-purple-400">
-                  <div className={`h-8 w-8 rounded-full text-center pt-1 justify-start mr-4 ${characterData.character_proficiency.deception ? 'bg-black text-white' : 'bg-white text-black'}`}> +{Math.floor((characterData.character_stats.dexterity - 10) / 2) + (characterData.character_proficiency.deception ? characterData.character_stats.proficiency : 0)}</div>
+                  <div className={`h-8 w-8 rounded-full text-center pt-1 justify-start mr-4 ${characterData.character_proficiency.deception ? 'bg-black text-white' : 'bg-white text-black'}`}> +{Math.floor((characterData.character_stats.charisma - 10) / 2) + (characterData.character_proficiency.deception ? characterData.character_stats.proficiency : 0)}</div>
                   <p className="text-lg"> deception </p>
                 </div>
                 <div className="flex flex-row rounded-full w-4/5 place-self-center border border-solid border-black bg-purple-400">
-                  <div className={`h-8 w-8 rounded-full text-center pt-1 justify-start mr-4 ${characterData.character_proficiency.intimidation ? 'bg-black text-white' : 'bg-white text-black'}`}> +{Math.floor((characterData.character_stats.dexterity - 10) / 2) + (characterData.character_proficiency.intimidation ? characterData.character_stats.proficiency : 0)}</div>
+                  <div className={`h-8 w-8 rounded-full text-center pt-1 justify-start mr-4 ${characterData.character_proficiency.intimidation ? 'bg-black text-white' : 'bg-white text-black'}`}> +{Math.floor((characterData.character_stats.charisma - 10) / 2) + (characterData.character_proficiency.intimidation ? characterData.character_stats.proficiency : 0)}</div>
                   <p className="text-lg"> intimidation </p>
                 </div>
                 <div className="flex flex-row rounded-full w-4/5 place-self-center border border-solid border-black bg-purple-400">
-                  <div className={`h-8 w-8 rounded-full text-center pt-1 justify-start mr-4 ${characterData.character_proficiency.performance ? 'bg-black text-white' : 'bg-white text-black'}`}> +{Math.floor((characterData.character_stats.dexterity - 10) / 2) + (characterData.character_proficiency.performance ? characterData.character_stats.proficiency : 0)}</div>
+                  <div className={`h-8 w-8 rounded-full text-center pt-1 justify-start mr-4 ${characterData.character_proficiency.performance ? 'bg-black text-white' : 'bg-white text-black'}`}> +{Math.floor((characterData.character_stats.charisma - 10) / 2) + (characterData.character_proficiency.performance ? characterData.character_stats.proficiency : 0)}</div>
                   <p className="text-lg"> performance </p>
                 </div>
                 <div className="flex flex-row rounded-full w-4/5 place-self-center border border-solid border-black bg-purple-400">
-                  <div className={`h-8 w-8 rounded-full text-center pt-1 justify-start mr-4 ${characterData.character_proficiency.persuasion ? 'bg-black text-white' : 'bg-white text-black'}`}> +{Math.floor((characterData.character_stats.dexterity - 10) / 2) + (characterData.character_proficiency.persuasion ? characterData.character_stats.proficiency : 0)}</div>
+                  <div className={`h-8 w-8 rounded-full text-center pt-1 justify-start mr-4 ${characterData.character_proficiency.persuasion ? 'bg-black text-white' : 'bg-white text-black'}`}> +{Math.floor((characterData.character_stats.charisma - 10) / 2) + (characterData.character_proficiency.persuasion ? characterData.character_stats.proficiency : 0)}</div>
                   <p className="text-lg"> persuasion </p>
                 </div>
                 <div className="flex flex-row rounded-full w-4/5 place-self-center border border-solid border-black bg-blue-400">
@@ -368,52 +368,54 @@ export const CharacterSheet = ({ characterData }: prop) => {
               </div>
             </div>
           </div>
-          <div className="flex flex-row w-1/2 p-5 bg-yellow-100">
-            <Accordion>
-              {Object.entries(characterData.character_inventory.weapons).map(([type, weapons], index) => (
-                <AccordionTab key={index} contentClassName="bg-red-300" header={type}>
-                  {weapons.length ? (
-                    weapons.map((weapon, weaponIndex) => (
-                      <p className="flex flex-row" key={weaponIndex}>{weapon}</p>
-                    ))
-                  ) : (
-                    <p>empty</p>
-                  )}
-                </AccordionTab>
-              ))}
-            </Accordion>
-            <div>
-              <p>Copper: {characterData.character_inventory.inventory.copper}</p>
-              <p>Silver: {characterData.character_inventory.inventory.silver}</p>
-              <p>Gold: {characterData.character_inventory.inventory.gold}</p>
-              <p>Platinum: {characterData.character_inventory.inventory.platinum}</p>
-              <h4>Items:</h4>
-              {characterData.character_inventory.inventory.inventory.map((item, index) => (
-                <p key={index}>{item}</p>
+          <div className="flex flex-col  p-5 bg-green-100">
+            <div className="flex flex-row gap-2">
+              languages:
+              {characterData.languages.map((language, index) => (
+                <p className="" key={index}> {language} </p>
               ))}
             </div>
+            <div className="flex flex-row gap-2">
+              proficiencies:
+              {characterData.proficiencies.map((proficiency, index) => (
+                <p key={index}>{proficiency}</p>
+              ))}
+            </div>
+            <Accordion>
+            {Object.entries(characterData.character_inventory.weapons).map(([type, weapons], index) => (
+              <AccordionTab key={index} contentClassName="bg-red-300" header={type}>
+                {weapons.length ? (
+                  weapons.map((weapon, weaponIndex) => (
+                    <p className="flex flex-row" key={weaponIndex}>{weapon}</p>
+                  ))
+                ) : (
+                  <p>empty</p>
+                )}
+              </AccordionTab>
+            ))}
+          </Accordion>
           </div>
         </div>
       </div>
       <div className="flex flex-col w-full ">
-        <div className="flex flex-col h-1/3 bg-yellow-100">
-          <div className="flex flex-row gap-2">
-            languages:
-            {characterData.languages.map((language, index) => (
-              <p className="" key={index}> {language} </p>
+        <div className="flex flex-col flex-wrap overflow-y-scroll h-1/2 bg-yellow-100">
+          <div className=''>
+            <div className='flex flex-row'>
+              <p className='h-20 text-center pt-4 rounded-full w-20 mr-4 bg-orange-400'>Copper <br/> {characterData.character_inventory.inventory.copper}</p>
+              <p className='h-20 text-center pt-4 rounded-full w-20 mr-4 bg-slate-400'>Silver <br/> {characterData.character_inventory.inventory.silver}</p>
+              <p className='h-20 text-center pt-4 rounded-full w-20 mr-4 bg-yellow-400'>Gold <br/> {characterData.character_inventory.inventory.gold}</p>
+              <p className='h-20 text-center pt-4 rounded-full w-20 mr-4 bg-slate-200'>Platinum <br/> {characterData.character_inventory.inventory.platinum}</p>
+            </div>
+            <h4>Items:</h4>
+            {characterData.character_inventory.inventory.inventory.map((item, index) => (
+              <p key={index}>{item}</p>
             ))}
           </div>
-          <div className="flex flex-row gap-2">
-            proficiencies:
-            {characterData.proficiencies.map((proficiency, index) => (
-              <p key={index}>{proficiency}</p>
-            ))}
-          </div>
-
-
         </div>
         <div className="flex flex-col flex-wrap h-2/3 bg-yellow-100">
           <p>feats: {characterData.character_stats.feats.map((feat, index) => (<p className="p-1" key={index}>{feat}</p>))}</p>
+          <p>class abilities: </p>
+
         </div>
       </div>
     </div>
