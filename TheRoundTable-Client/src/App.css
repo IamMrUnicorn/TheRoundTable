@@ -7,6 +7,21 @@
   --text-color: #B64973;
 }
 
+
+.primary-font {
+  font-family: 'Berkshire Swash', cursive;
+}
+
+.secondary-font {
+  font-family: 'Fondamento', cursive;
+}
+
+.alt-font {
+  font-family: 'Lobster', cursive;
+}
+.extra-font {
+  font-family: 'Henny Penny', cursive;
+}
 .hiddenScroll {
   scrollbar-width: thin; /* Firefox */
   scrollbar-color: rgba(155, 155, 155, 0.7) transparent; /* Firefox */
@@ -33,7 +48,6 @@
 
 .wavebg {
   margin: auto;
-  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
   overflow: auto;
   background: linear-gradient(315deg, #963C5E 3%,  #F8EDF1 38%, #240F17 68%, #B64973 98%);
   animation: gradient 15s ease infinite;
@@ -49,7 +63,6 @@
 
 
 .typewriter {
-  font-family: Arial, Helvetica, sans-serif;
   font-size: 56px;
   color: #fff;
   font-weight: bold;

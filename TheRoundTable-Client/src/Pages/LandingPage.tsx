@@ -91,9 +91,9 @@ const LandingPage: FC = () => {
     updateUserInDatabase();
   }, [])
   return (
-    <div data-theme='TheRoundTable' className="h-[95vh] flex flex-col text-white items-center justify-evenly wavebg">
+    <div data-theme='TheRoundTable' className="h-[95vh] flex flex-col text-white items-center justify-evenly extra-font wavebg">
       <h1 className="text-6xl">WELCOME TO THE ROUND TABLE</h1>
-      <p className="typewriter"> The best place to <span>{typingText}</span> </p>
+      <p className=" typewriter"> The best place to <span>{typingText}</span> </p>
 
       <div className='flex flex-col justify-center'>
         <h3 className='text-3xl'>get started by hosting your own session </h3>

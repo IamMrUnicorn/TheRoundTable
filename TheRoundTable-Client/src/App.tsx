@@ -33,7 +33,7 @@ const App: FC = () => {
   return (
     // <SocketContext.Provider value={socket}>
       <supabaseContext.Provider value={supabase}>
-        <div data-theme={localStorage.getItem('theme') || theme} className='h-screen max-w-screen overflow-x-hidden hiddenScroll '>
+        <div data-theme={localStorage.getItem('theme') || theme} className='h-screen max-w-screen overflow-x-hidden hiddenScroll extra-font'>
 
           <NavBar setTheme={setTheme}/>
 
