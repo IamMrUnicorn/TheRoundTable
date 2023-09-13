@@ -331,7 +331,7 @@ const CharacterForm = ({ user_id }: CharacterPageProps) => {
 
   return (
     <form className='flex flex-col' onSubmit={handleSubmit(onSubmit)}>
-      <p className='bg-primary rounded-full lg:w-max m-2 p-3 text-neutral self-center'>enter everything as it appears on your character sheet <br/> * on the grey fields press enter to add multiple entries, <br/> * do not press enter on the white fields</p>
+      <p className='bg-primary rounded-full lg:w-max m-2 p-5 text-neutral self-center'>enter everything as it appears on your character sheet <br/> * on the grey fields press enter to add multiple entries, <br/> * do not press enter on the white fields</p>
       <div className='flex flex-col lg:flex-row gap-1 items-center lg:items-baseline lg:justify-center '>
 
         <div className='flex flex-col gap-1 w-min items-end '>
@@ -429,8 +429,8 @@ const CharacterForm = ({ user_id }: CharacterPageProps) => {
 
       </div>
       {submitted ? null : (<div className='flex flex-row justify-center'>
-        {!confirmation && <button className='btn btn-accent' type="submit">Submit for Validation</button>}
-        {confirmation && <button className='btn btn-primary' type="button" onClick={handleSubmit(onConfirm)}>Confirm Submission</button>}
+        {!confirmation && <button className='btn btn-accent m-5' type="submit">Submit for Validation</button>}
+        {confirmation && <button className='btn btn-primary m-5' type="button" onClick={handleSubmit(onConfirm)}>Confirm Submission</button>}
       </div>)}
     </form>
   );

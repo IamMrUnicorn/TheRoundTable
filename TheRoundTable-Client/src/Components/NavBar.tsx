@@ -10,7 +10,7 @@ const NavBar = ({ setTheme }: NavProps) => {
   return (
     <nav className="flex flex-row justify-between bg-secondary min-h-[5vh]">
       <div className="bg-accent flex flex-col justify-center w-[50vw] xl:w-[30vw] rounded-md ">
-        <a href='/' className="text-neutral text-center md:text-3xl font-bold">THE ROUND TABLE <i className="fa-solid fa-dungeon"></i> <i className="fa-solid fa-dragon"></i></a>
+        <a href='/' className="text-neutral text-center md:text-3xl font-primary">THE ROUND TABLE <i className="fa-solid fa-dungeon"></i> <i className="fa-solid fa-dragon"></i></a>
       </div>
 
 
@@ -24,9 +24,9 @@ const NavBar = ({ setTheme }: NavProps) => {
 
         <div className="dropdown dropdown-end ">
           <label tabIndex={0} className="btn btn-neutral btn-sm m-1">themes <i className="fa-solid fa-paintbrush" /></label>
-          <ul tabIndex={0} className="dropdown-content text-stone-800 menu p-2 shadow bg-neutral z-10 rounded-box ">
+          <ul tabIndex={0} className="dropdown-content text-neutral-content menu p-2 shadow bg-neutral z-10 rounded-box">
             {themes.map((theme, index) => (
-              <li onClick={() => { localStorage.setItem('theme', theme); setTheme(theme) }} key={index}><a className="">{theme}</a></li>
+              <li onClick={() => { localStorage.setItem('theme', theme); setTheme(theme) }} key={index}><a className="hover:text-neutral-content">{theme}</a></li>
             ))}
           </ul>
         </div>
@@ -43,21 +43,21 @@ const NavBar = ({ setTheme }: NavProps) => {
             <i className="swap-on fa-solid fa-xmark" />
           </label>
           <ul tabIndex={0} className="dropdown-content z-10 menu p-2 shadow bg-neutral rounded-box ">
-            <li> <a href="/import" className="btn btn-neutral btn-sm ">import character <i className="fa-solid fa-user-plus" /> </a> </li>
-            <li> <a href="/characters" className="btn btn-neutral btn-sm ">view characters <i className="fa-solid fa-people-group" /> </a> </li>
-            <li> <a href="/calendar" className="btn btn-neutral btn-sm ">calendar <i className="fa-solid fa-calendar-days" /> </a> </li>
-            <li> <a className="btn btn-neutral btn-sm " target="_blank" href='https://www.ign.com/articles/how-to-play-dungeons-and-dragons'>new to dnd <i className="fa-solid fa-graduation-cap" /> </a> </li>
+            <li> <a href="/import" className="btn btn-neutral btn-sm  hover:text-neutral-content">import character <i className="fa-solid fa-user-plus" /> </a> </li>
+            <li> <a href="/characters" className="btn btn-neutral btn-sm  hover:text-neutral-content">view characters <i className="fa-solid fa-people-group" /> </a> </li>
+            <li> <a href="/calendar" className="btn btn-neutral btn-sm  hover:text-neutral-content">calendar <i className="fa-solid fa-calendar-days" /> </a> </li>
+            <li> <a className="btn btn-neutral btn-sm hover:text-neutral-content" target="_blank" href='https://www.ign.com/articles/how-to-play-dungeons-and-dragons'>new to dnd <i className="fa-solid fa-graduation-cap" /> </a> </li>
           </ul>
         </div>
 
-          <div className="dropdown dropdown-end ">
-            <label tabIndex={0} className="btn btn-sm btn-neutral btn-circle m-1"><i className="fa-solid fa-paintbrush" /></label>
-            <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-neutral z-10 rounded-box">
-              {themes.map((theme, index) => (
-                <li onClick={() => { localStorage.setItem('theme', theme); setTheme(theme) }} key={index}><a>{theme}</a></li>
-              ))}
-            </ul>
-          </div>
+        <div className="dropdown dropdown-end">
+          <label tabIndex={0} className="btn btn-sm btn-neutral btn-circle m-1"><i className="fa-solid fa-paintbrush" /></label>
+          <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-neutral text-neutral-content z-10 rounded-box ">
+            {themes.map((theme, index) => (
+              <li onClick={() => { localStorage.setItem('theme', theme); setTheme(theme) }} key={index}><a className="hover:text-neutral-content">{theme}</a></li>
+            ))}
+          </ul>
+        </div>
         <UserButton />
       </div>
 

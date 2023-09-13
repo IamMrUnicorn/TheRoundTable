@@ -120,12 +120,10 @@ export const CharacterSheet = ({ characterData }: prop) => {
   const handleSubmit = () => {
     console.log(editableCharacterData)
   }
-  // all charisma things are +5
   return (
-    <div className="flex flex-row max-h-[900px] text-black ">
+    <div className="flex flex-row text-black ">
       <div className="flex flex-col">
-        <div className="flex flex-col h-2/6">
-          <div className="flex flex-row  justify-around bg-yellow-100">
+          <div className="flex flex-row justify-around bg-red-100">
             <div className=" flex flex-col ">
               <div className=" rounded-full flex flex-col justify-center  bg-slate-500 text-center h-24 w-24 m-1">profile pic</div>
               {/* <button className="btn btn-primary"> edit <br /> character </button> */}
@@ -249,7 +247,6 @@ export const CharacterSheet = ({ characterData }: prop) => {
               </div>
             </div>
           </div>
-        </div>
         <div className="flex flex-row ">
           <div className="flex flex-col w-1/2">
             <div className="flex flex-row bg-yellow-100">
@@ -368,7 +365,7 @@ export const CharacterSheet = ({ characterData }: prop) => {
               </div>
             </div>
           </div>
-          <div className="flex flex-col  p-5 bg-green-100">
+          <div className="flex flex-col  p-5 bg-yellow-100">
             <div className="flex flex-row gap-2">
               languages:
               {characterData.languages.map((language, index) => (
@@ -398,7 +395,7 @@ export const CharacterSheet = ({ characterData }: prop) => {
         </div>
       </div>
       <div className="flex flex-col w-full ">
-        <div className="flex flex-col flex-wrap overflow-y-scroll h-1/2 bg-yellow-100">
+        <div className="flex flex-col flex-wrap overflow-y-scroll h-1/2 hiddenScroll bg-yellow-100">
           <div className=''>
             <div className='flex flex-row'>
               <p className='h-20 text-center pt-4 rounded-full w-20 mr-4 bg-orange-400'>Copper <br/> {characterData.character_inventory.inventory.copper}</p>
@@ -412,13 +409,13 @@ export const CharacterSheet = ({ characterData }: prop) => {
             ))}
           </div>
         </div>
-        <div className="flex flex-col flex-wrap h-2/3 bg-yellow-100">
+        <div className="flex flex-col flex-wrap h-1/2 bg-yellow-100">
           <p>feats: {characterData.character_stats.feats.map((feat, index) => (<p className="p-1" key={index}>{feat}</p>))}</p>
           <p>class abilities: </p>
 
         </div>
       </div>
-    </div>
+    </div>   
   )
 }
 
