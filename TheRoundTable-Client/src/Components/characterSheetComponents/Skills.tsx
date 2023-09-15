@@ -3,8 +3,8 @@ import { characterDataI } from "../CharacterSheet"
 export const Skills = ({characterData}:{characterData:characterDataI}) => {
 
   return (
-    <div className="flex flex-col flex-wrap h-1/2 pt-3 bg-yellow-100">
-      <p className=" place-self-end text-lg">skills</p>
+    <div className="flex flex-col flex-wrap h-1/2 pt-3 font2 capitalize bg-yellow-100">
+      <p className=" place-self-end text-lg font-accent capitalize">skills</p>
       <div className="flex flex-col ">
         <div className="flex flex-row rounded-full w-4/5 place-self-center border border-solid border-black bg-red-400">
           <div className={`h-8 w-8 rounded-full text-center pt-1 justify-start mr-4 ${characterData.character_proficiency.athletics ? 'bg-black text-white' : 'bg-white text-black'}`}> +{Math.floor((characterData.character_stats.strength - 10) / 2) + (characterData.character_proficiency.athletics ? characterData.character_stats.proficiency : 0)}</div>
@@ -16,7 +16,7 @@ export const Skills = ({characterData}:{characterData:characterDataI}) => {
         </div>
         <div className="flex flex-row rounded-full w-4/5 place-self-center border border-solid border-black bg-orange-400">
           <div className={`h-8 w-8 rounded-full text-center pt-1 justify-start mr-4 ${characterData.character_proficiency.sleightofhand ? 'bg-black text-white' : 'bg-white text-black'}`}> +{Math.floor((characterData.character_stats.dexterity - 10) / 2) + (characterData.character_proficiency.sleightofhand ? characterData.character_stats.proficiency : 0)}</div>
-          <p className="text-sm md:text-md place-self-center"> sleight of hand </p>
+          <p className=" place-self-center"> sleight of hand </p>
         </div>
         <div className="flex flex-row rounded-full w-4/5 place-self-center border border-solid border-black bg-orange-400">
           <div className={`h-8 w-8 rounded-full text-center pt-1 justify-start mr-4 ${characterData.character_proficiency.stealth ? 'bg-black text-white' : 'bg-white text-black'}`}> +{Math.floor((characterData.character_stats.intelligence - 10) / 2) + (characterData.character_proficiency.stealth ? characterData.character_stats.proficiency : 0)}</div>
@@ -62,7 +62,7 @@ export const Skills = ({characterData}:{characterData:characterDataI}) => {
         </div>
         <div className="flex flex-row rounded-full w-4/5 place-self-center border border-solid border-black bg-blue-400">
           <div className={`h-8 w-8 rounded-full text-center pt-1 justify-start mr-4 ${characterData.character_proficiency.animalhandling ? 'bg-black text-white' : 'bg-white text-black'}`}> +{Math.floor((characterData.character_stats.wisdom - 10) / 2) + (characterData.character_proficiency.animalhandling ? characterData.character_stats.proficiency : 0)}</div>
-          <p className="text-sm md:text-md place-self-center"> animal handling </p>
+          <p className=" place-self-center"> animal handling </p>
         </div>
         <div className="flex flex-row rounded-full w-4/5 place-self-center border border-solid border-black bg-blue-400">
           <div className={`h-8 w-8 rounded-full text-center pt-1 justify-start mr-4 ${characterData.character_proficiency.insight ? 'bg-black text-white' : 'bg-white text-black'}`}> +{Math.floor((characterData.character_stats.wisdom - 10) / 2) + (characterData.character_proficiency.insight ? characterData.character_stats.proficiency : 0)}</div>

@@ -2,6 +2,7 @@ import { Accordion, AccordionTab } from 'primereact/accordion'
 import { Chips } from 'primereact/chips'
 import { InputText } from 'primereact/inputtext'
 import { InputNumber } from 'primereact/inputnumber'
+import { useState } from 'react'
 
 import {Header, CoreStats, SavingThrows, Skills, LanguageWeapon, Inventory, Feats} from './characterSheetComponents/index'
 
@@ -131,7 +132,7 @@ export const CharacterSheet = ({ characterData }: {characterData: characterDataI
           <LanguageWeapon characterData={characterData}/>
         </div>
       </div>
-      <div className="flex flex-col w-full ">
+      <div className="hidden md:flex md:flex-col md:w-full ">
         <Inventory characterData={characterData}/>
         <Feats characterData={characterData}/>
       </div>

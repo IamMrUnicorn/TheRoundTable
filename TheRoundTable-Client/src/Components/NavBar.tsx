@@ -9,24 +9,24 @@ interface NavProps {
 const NavBar = ({ setTheme }: NavProps) => {
   return (
     <nav className="flex flex-row justify-between bg-secondary min-h-[5vh]">
-      <div className="bg-accent flex flex-col justify-center w-[50vw] xl:w-[30vw] rounded-md ">
-        <a href='/' className="text-neutral text-center md:text-3xl font-primary">THE ROUND TABLE <i className="fa-solid fa-dungeon"></i> <i className="fa-solid fa-dragon"></i></a>
+      <div className="bg-accent flex flex-col justify-center w-[50vw] xl:w-[30vw] rounded-md  ">
+        <a href='/' className="text-neutral text-center md:text-3xl font-accent hover:text-opacity-75">The Round Table <i className="fa-solid fa-dungeon"></i> <i className="fa-solid fa-dragon"></i></a>
       </div>
 
 
       {/* large screen spread out nav bar */}
       <div className="hidden xl:flex xl:flex-row xl:justify-end xl:gap-1 xl:items-center xl:mr-10 ">
 
-        <a href="/import" className="btn btn-neutral btn-sm ">import character <i className="fa-solid fa-user-plus" /></a>
-        <a href="/characters" className="btn btn-neutral btn-sm ">view characters <i className="fa-solid fa-people-group" /></a>
-        <a href="/calendar" className="btn btn-neutral btn-sm ">calendar <i className="fa-solid fa-calendar-days" /></a>
-        <a className="btn btn-neutral btn-sm " target="_blank" href='https://www.google.com/search?q=how+to+play+dnd&oq=how+to+play+dnd'>new to dnd <i className="fa-solid fa-graduation-cap" /></a>
+        <a href="/import" className="btn btn-neutral btn-sm font2 capitalize">import character <i className="fa-solid fa-user-plus" /></a>
+        <a href="/characters" className="btn btn-neutral btn-sm font2 capitalize">view characters <i className="fa-solid fa-people-group" /></a>
+        <a href="/calendar" className="btn btn-neutral btn-sm font2 capitalize">calendar <i className="fa-solid fa-calendar-days" /></a>
+        <a className="btn btn-neutral btn-sm font2 capitalize" target="_blank" href='https://www.google.com/search?q=how+to+play+dnd&oq=how+to+play+dnd'>new to dnd <i className="fa-solid fa-graduation-cap" /></a>
 
         <div className="dropdown dropdown-end ">
-          <label tabIndex={0} className="btn btn-neutral btn-sm m-1">themes <i className="fa-solid fa-paintbrush" /></label>
-          <ul tabIndex={0} className="dropdown-content text-neutral-content menu p-2 shadow bg-neutral z-10 rounded-box">
+          <label tabIndex={0} className="btn btn-neutral btn-sm font2 capitalize m-1">themes <i className="fa-solid fa-paintbrush" /></label>
+          <ul tabIndex={0} className="dropdown-content text-neutral-content menu p-2 shadow bg-neutral ZTOP rounded-box">
             {themes.map((theme, index) => (
-              <li onClick={() => { localStorage.setItem('theme', theme); setTheme(theme) }} key={index}><a className="hover:text-neutral-content">{theme}</a></li>
+              <li onClick={() => { localStorage.setItem('theme', theme); setTheme(theme) }} key={index}><a className="hover:text-neutral-content font2 capitalize">{theme}</a></li>
             ))}
           </ul>
         </div>
