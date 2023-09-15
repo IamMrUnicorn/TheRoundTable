@@ -2,7 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-
 .font-primary {
   font-family: 'Alkalami', serif;
 }
@@ -85,6 +84,9 @@
   background-color: rgba(125, 125, 125, 0.8);
 }
 
+.ZTOP {
+  z-index: 1000;
+}
 .wavebg {
   margin: auto;
   overflow: auto;
