@@ -3,7 +3,7 @@ import { characterDataI } from "../CharacterSheet"
 export const CoreStats = ({characterData}:{characterData:characterDataI}) => {
 
   return (
-    <div className="flex flex-row font2 capitalize h-40 bg-yellow-100">
+    <div className="flex flex-row font-accent capitalize h-40 bg-yellow-100">
       <div className="flex justify-around w-full items-center ">
         <div className="text-center border border-solid border-black rounded-2xl bg-red-400 w-20 h-20 lg:w-24 lg:h-24 transform rotate-45 relative">
           <div className="transform -rotate-45 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">

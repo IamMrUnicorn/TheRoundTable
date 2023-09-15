@@ -15,7 +15,7 @@ const LocationInfo = ({ sessionDetails }: LocationProps) => {
     <div className="text-neutral bg-secondary LocationInfo flex flex-row justify-center p-1">
       <div className='flex flex-col'>
 
-        <div className='flex flex-row capitalize font-accent'>
+        <div className='flex flex-row capitalize font-primary'>
 
           <div className="flex flex-col items-start px-2 ">
             <p className="LocationInfo-location"><i className="fa-solid fa-house" /> {sessionDetails.location1}</p>

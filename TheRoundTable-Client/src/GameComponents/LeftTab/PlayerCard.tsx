@@ -22,30 +22,30 @@ const PlayerCard = ({ character, info }: PlayerProps) => {
         <div>
 
           <div className="mx-1 mb-1">
-            <p className="capitalize font-accent">{character.name}</p>
+            <p className="capitalize font-primary">{character.name}</p>
           </div>
           <div className="mx-1 mb-1 flex flex-row">
             {character.race.map((race, index) => (
-              <p className='capitalize font-accent' key={index}>{race}</p>
+              <p className='capitalize font-primary' key={index}>{race}</p>
             ))}
           </div>
-            <p className="font-accent">HP: ?? <i className="fa-solid fa-briefcase-medical"></i></p>
+            <p className="font-primary">HP: ?? <i className="fa-solid fa-briefcase-medical"></i></p>
         </div>
 
         <div className="flex flex-col">
 
           <div className="mx-1 ml-1 mb-1 flex flex-row">
             {character.class.map((characterClass, index) => (
-              <p className="pr-3 capitalize font-accent" key={index}>{characterClass}</p>
-            ))} <p className='font-accent'> | {character.level}</p>
+              <p className="pr-3 capitalize font-primary" key={index}>{characterClass}</p>
+            ))} <p className='font-primary'> | {character.level}</p>
           </div>
           <div className="mx-1 mb-1 flex flex-row">
             {character.subclass.map((characterSubClass, index) => (
-              <p className="pr-3 capitalize font-accent" key={index}>{characterSubClass}</p>
+              <p className="pr-3 capitalize font-primary" key={index}>{characterSubClass}</p>
             ))}
           </div>
           <div className="mx-1 mb-1 flex flex-row" >
-            <p className="capitalize font-accent">{character.character_stats.status}</p>
+            <p className="capitalize font-primary">{character.character_stats.status}</p>
           </div>
         </div>
 
@@ -55,7 +55,7 @@ const PlayerCard = ({ character, info }: PlayerProps) => {
 
 
   return (
-    <div className="bg-base-100 p-1 m-2 rounded-3xl justify-between font-accent capitalize flex flex-row">
+    <div className="bg-base-100 p-1 m-2 rounded-3xl justify-between font-primary capitalize flex flex-row">
 
       <div className="flex flex-col">
 

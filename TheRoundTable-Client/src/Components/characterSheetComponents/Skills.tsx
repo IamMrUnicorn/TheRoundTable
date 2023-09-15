@@ -3,8 +3,8 @@ import { characterDataI } from "../CharacterSheet"
 export const Skills = ({characterData}:{characterData:characterDataI}) => {
 
   return (
-    <div className="flex flex-col flex-wrap h-1/2 pt-3 font2 capitalize bg-yellow-100">
-      <p className=" place-self-end text-lg font-accent capitalize">skills</p>
+    <div className="flex flex-col flex-wrap h-1/2 pt-3 font-accent capitalize bg-yellow-100">
+      <p className=" place-self-end text-lg font-primary capitalize">skills</p>
       <div className="flex flex-col ">
         <div className="flex flex-row rounded-full w-4/5 place-self-center border border-solid border-black bg-red-400">
           <div className={`h-8 w-8 rounded-full text-center pt-1 justify-start mr-4 ${characterData.character_proficiency.athletics ? 'bg-black text-white' : 'bg-white text-black'}`}> +{Math.floor((characterData.character_stats.strength - 10) / 2) + (characterData.character_proficiency.athletics ? characterData.character_stats.proficiency : 0)}</div>

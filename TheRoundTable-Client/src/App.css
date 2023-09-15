@@ -2,14 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
-.font-primary {
+.font-neutral {
   font-family: 'Alkalami', serif;
 }
-.font-accent {
+.font-primary {
   font-family: 'Berkshire Swash', cursive;
 }
 
-.font2 {
+.font-accent {
   font-family: 'Fondamento', cursive;
 }
 .font3 {

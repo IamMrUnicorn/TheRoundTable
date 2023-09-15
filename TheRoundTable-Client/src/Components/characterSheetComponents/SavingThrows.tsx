@@ -3,9 +3,9 @@ import { characterDataI } from "../CharacterSheet"
 export const SavingThrows = ({characterData}: {characterData:characterDataI}) => {
 
   return (
-    <div className="flex flex-row font2 capitalize bg-yellow-100">
+    <div className="flex flex-row font-accent capitalize bg-yellow-100">
       <div className="flex flex-col w-1/2 ">
-        <p className="text-center text-xl font-accent capitalize p-1"> saving throws </p>
+        <p className="text-center text-xl font-primary capitalize p-1"> saving throws </p>
         <div className="flex flex-row rounded-full w-3/4 place-self-center border border-solid border-black bg-red-400">
           <div className={`h-8 w-8 rounded-full text-center pt-1 justify-start mr-4 ${characterData.character_proficiency.strength ? 'bg-black text-white' : 'bg-white text-black'}`}> +{Math.floor((characterData.character_stats.strength - 10) / 2) + (characterData.character_proficiency.strength ? characterData.character_stats.proficiency : 0)}</div>
           <p className="text-lg"> strength </p>
@@ -32,10 +32,10 @@ export const SavingThrows = ({characterData}: {characterData:characterDataI}) =>
         </div>
       </div>
       <div className="flex flex-col  w-1/2 ">
-        <div className=" self-center font-accent capitalize p-2">hit dice: <span className='font2'>{characterData.hitdice}</span></div>
-        <div className=" self-center font-accent capitalize p-2">passive perception: <span className='font2'></span> </div>
-        <div className=" self-center font-accent capitalize p-2">spell cast ability: <span className='font2'>____</span> </div>
-        <div className=" self-center font-accent capitalize p-2">spell DC: <span className='font2'>{characterData.character_stats.spell_dc}</span> |  spell atk: +<span className='font2'>___</span></div>
+        <div className=" self-center font-primary capitalize p-2">hit dice: <span className='font-accent'>{characterData.hitdice}</span></div>
+        <div className=" self-center font-primary capitalize p-2">passive perception: <span className='font-accent'></span> </div>
+        <div className=" self-center font-primary capitalize p-2">spell cast ability: <span className='font-accent'>____</span> </div>
+        <div className=" self-center font-primary capitalize p-2">spell DC: <span className='font-accent'>{characterData.character_stats.spell_dc}</span> |  spell atk: +<span className='font-accent'>___</span></div>
         <div className=" btn capitalize" onClick={() => { console.log('dog') }}>flip page over for spell sheet</div>
       </div>
     </div>

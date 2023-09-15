@@ -6,7 +6,7 @@ const PlayerTools = ({setPopup}:ToolsProp) => {
 
 
   return (
-    <div className="bg-base-100 h-1/4 font2 flex flex-row">
+    <div className="bg-base-100 h-1/4 font-accent flex flex-row">
       <div className="bg-secondary mx-2 pr-5 rounded-2xl flex flex-row">
         <div className="m-3  flex flex-col">
           <div className="m-2 flex flex-row">

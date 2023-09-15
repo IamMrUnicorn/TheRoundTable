@@ -60,8 +60,8 @@ const LandingPage: FC = () => {
     updateUserInDatabase();
   }, [])
   return (
-    <div data-theme='TheRoundTable' className="h-[95vh] flex flex-col text-white items-center justify-evenly bg-black ">
-        <h1 className="title font-primary">THE ROUND TABLE
+    <div className="h-[95vh] flex flex-col text-white items-center justify-evenly bg-black ">
+        <h1 className="title font-neutral">THE ROUND TABLE
           <div className="aurora">
             <div className="aurora__item"></div>
             <div className="aurora__item"></div>
@@ -71,21 +71,21 @@ const LandingPage: FC = () => {
         </h1>
 
       <div className='flex flex-col justify-center'>
-        <h3 className='text-3xl font-accent'>get started by hosting your own session </h3>
+        <h3 className='text-3xl font-primary'>get started by hosting your own session </h3>
 
         <div className='flex flex-row justify-center'>
-          <label htmlFor="createRoom_modal" className='btn btn-accent capitalize font2 m-1' onClick={() => { setcreateRoomClicked(true) }}>create a room</label>
+          <label htmlFor="createRoom_modal" className='btn btn-accent capitalize font-accent m-1' onClick={() => { setcreateRoomClicked(true) }}>create a room</label>
           {createRoomClicked && <CreateRoomModal setPopup={setcreateRoomClicked} />}
         </div>
 
       </div>
       <div className='flex flex-col justify-center'>
 
-        <h3 className='text-3xl font-accent'>or join your party with the provided invite code</h3>
+        <h3 className='text-3xl font-primary'>or join your party with the provided invite code</h3>
 
         <div className='flex flex-row justify-center'>
-          <input className='self-center rounded-lg p-1 m-1 text-black' type='text' onChange={(e) => { setCode(e.target.value) }}></input>
-          <a className='btn btn-accent capitalize font2 btn-sm m-1' href={`rooms/${code}`}>join room</a>
+          <input className='self-center rounded-lg p-1 m-1 font-accent text-black' type='text' onChange={(e) => { setCode(e.target.value) }}></input>
+          <a className='btn btn-accent capitalize font-accent btn-sm m-1' href={`rooms/${code}`}>join room</a>
         </div>
       </div>
 
