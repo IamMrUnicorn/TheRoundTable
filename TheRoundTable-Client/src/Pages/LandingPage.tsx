@@ -60,8 +60,8 @@ const LandingPage: FC = () => {
     updateUserInDatabase();
   }, [])
   return (
-    <div data-theme='TheRoundTable' className="h-[95vh] flex flex-col text-white items-center justify-evenly bg-black font-primary">
-        <h1 className="title">THE ROUND TABLE
+    <div data-theme='TheRoundTable' className="h-[95vh] flex flex-col text-white items-center justify-evenly bg-black ">
+        <h1 className="title font-primary">THE ROUND TABLE
           <div className="aurora">
             <div className="aurora__item"></div>
             <div className="aurora__item"></div>
@@ -74,7 +74,7 @@ const LandingPage: FC = () => {
         <h3 className='text-3xl font-accent'>get started by hosting your own session </h3>
 
         <div className='flex flex-row justify-center'>
-          <label htmlFor="createRoom_modal" className='btn btn-accent m-1' onClick={() => { setcreateRoomClicked(true) }}>create a room</label>
+          <label htmlFor="createRoom_modal" className='btn btn-accent capitalize font2 m-1' onClick={() => { setcreateRoomClicked(true) }}>create a room</label>
           {createRoomClicked && <CreateRoomModal setPopup={setcreateRoomClicked} />}
         </div>
 
@@ -85,7 +85,7 @@ const LandingPage: FC = () => {
 
         <div className='flex flex-row justify-center'>
           <input className='self-center rounded-lg p-1 m-1 text-black' type='text' onChange={(e) => { setCode(e.target.value) }}></input>
-          <a className='btn btn-accent btn-sm m-1' href={`rooms/${code}`}>join room</a>
+          <a className='btn btn-accent capitalize font2 btn-sm m-1' href={`rooms/${code}`}>join room</a>
         </div>
       </div>
 

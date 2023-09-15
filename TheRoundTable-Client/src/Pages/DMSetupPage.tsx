@@ -5,7 +5,8 @@ export const DMSetupPage = ({user_id}:CharacterPageProps) => {
 
   return (
     <div>
-      setup the room
+      {/* setup DM screen, provide info blocks that DM can rearrange at will */}
+      {/* include section for player stats */}
     </div>
   )
 }

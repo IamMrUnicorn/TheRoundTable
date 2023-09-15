@@ -9,7 +9,7 @@ const TurnOrder = ({OrderedCharacters, selectedCharacter}:TurnOrderProps) => {
   if (!OrderedCharacters) return
 // add status icons over player on turn order if they're frightended
   return (
-    <ol className="flex flex-row rounded-md min-h-[24px] gap-1 bg-primary text-neutral hiddenScroll ">
+    <ol className="flex flex-row rounded-md min-h-[24px] gap-1 bg-primary text-neutral hiddenScroll font10 px-1 ">
       {OrderedCharacters.map((character, index) => {
         if (selectedCharacter === character) {
           return (

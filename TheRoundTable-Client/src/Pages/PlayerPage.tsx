@@ -241,7 +241,7 @@ const PlayerPage = ({ user_id }: CharacterPageProps) => {
         <div className='lg:w-[30%] flex flex-col'>
           <LocationInfo sessionDetails={sessionDetails} />
           <PartySection party={characters} />
-          <SpotifyMusicPlayer />
+          {/* <SpotifyMusicPlayer /> */}
         </div>
 
         <div className='lg:w-[40%] flex flex-col'>

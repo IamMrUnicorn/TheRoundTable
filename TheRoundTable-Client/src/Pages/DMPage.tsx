@@ -7,6 +7,7 @@ import NotesContainer from '../GameComponents/RightTab/NotesContainer.js'
 
 import { useUser } from '@clerk/clerk-react'
 import { Player } from "../GameComponents/LeftTab/PlayerCard.js";
+import { FileBin } from "../GameComponents/LeftTab/FileBin";
 
 
 const DMPage: FC = () => {
@@ -40,7 +41,7 @@ const DMPage: FC = () => {
         <div className='lg:w-[30%] flex flex-col'>
           <LocationInfo sessionDetails={sessionDetails} />
           <PartySection party={party} />
-          <SpotifyMusicPlayer />
+          <FileBin/>
         </div>
 
         <div className='lg:w-[40%] flex flex-col'>

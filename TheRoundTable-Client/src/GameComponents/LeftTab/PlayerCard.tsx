@@ -3,12 +3,59 @@ import { Character } from "../../Pages/PlayerPage"
 
 interface PlayerProps {
   character: Character
+  info: string
 }
 
 // player DCs and spell slots, (and character specific things like ki points or sorcery points) inspiration dice, weapon in hand, 
-const PlayerCard = ({ character }: PlayerProps) => {
-  return (
+const PlayerCard = ({ character, info }: PlayerProps) => {
+  if (info === 'min') return (
     <div className="bg-base-100 p-1 m-2 rounded-3xl justify-between flex flex-row">
+
+      <div className="flex flex-row">
+
+        <div className="avatar p-2">
+          <div className="w-20 self-center h-20 rounded-full ring ring-primary ring-offset-base-100">
+            <img src={character.image_url ? character.image_url : ''}></img>
+          </div>
+        </div>
+
+        <div>
+
+          <div className="mx-1 mb-1">
+            <p className="capitalize font-accent">{character.name}</p>
+          </div>
+          <div className="mx-1 mb-1 flex flex-row">
+            {character.race.map((race, index) => (
+              <p className='capitalize font-accent' key={index}>{race}</p>
+            ))}
+          </div>
+            <p className="font-accent">HP: ?? <i className="fa-solid fa-briefcase-medical"></i></p>
+        </div>
+
+        <div className="flex flex-col">
+
+          <div className="mx-1 ml-1 mb-1 flex flex-row">
+            {character.class.map((characterClass, index) => (
+              <p className="pr-3 capitalize font-accent" key={index}>{characterClass}</p>
+            ))} <p className='font-accent'> | {character.level}</p>
+          </div>
+          <div className="mx-1 mb-1 flex flex-row">
+            {character.subclass.map((characterSubClass, index) => (
+              <p className="pr-3 capitalize font-accent" key={index}>{characterSubClass}</p>
+            ))}
+          </div>
+          <div className="mx-1 mb-1 flex flex-row" >
+            <p className="capitalize font-accent">{character.character_stats.status}</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  )
+
+
+  return (
+    <div className="bg-base-100 p-1 m-2 rounded-3xl justify-between font-accent capitalize flex flex-row">
 
       <div className="flex flex-col">
 
@@ -19,10 +66,10 @@ const PlayerCard = ({ character }: PlayerProps) => {
         </div>
 
         <div className="flex flex-col">
-          <div className="mx-1 mb-1 flex flex-row">
+          <div className="mx-1 mb-1">
             <p className="">{character.name}</p>
           </div>
-          <div className="mx-1 mb-1 flex flex-row">
+          <div className="mx-1 mb-1">
             {character.race.map((race, index) => (
               <p key={index}>{race}</p>
             ))}
@@ -32,12 +79,12 @@ const PlayerCard = ({ character }: PlayerProps) => {
               <p className="pr-3" key={index}>{characterClass}</p>
             ))} | {character.level}
           </div>
-          <div className="mx-1 mb-1 flex flex-row">
+          <div className="mx-1 mb-1">
             {character.subclass.map((characterSubClass, index) => (
               <p className="pr-3" key={index}>{characterSubClass}</p>
             ))}
           </div>
-          <div className="mx-1 mb-1 flex flex-row" >
+          <div className="mx-1 mb-1" >
             <p className="">{character.character_stats.status}</p>
           </div>
         </div>

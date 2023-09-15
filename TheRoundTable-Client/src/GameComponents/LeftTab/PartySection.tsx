@@ -7,14 +7,25 @@ interface PartyProps {
 }
 
 //todo add a sort option, sort by current hp, maxhp, class, name(alphabetical), level(default), status
-const PartySection = ({party}:PartyProps) => {
+const PartySection = ({party, DMview}:PartyProps) => {
 
-  if (!party) return null
+  if (!party || party.length === 0) return (
+    <div className='bg-primary h-full flex flex-row justify-center pt-10'>
+      no one's showed up yet :(
+    </div>
+  )
 
-  return (
-    <div className="bg-primary max-h-[20vh] lg:max-h-[53vh] flex flex-col hiddenScroll">
+  if (DMview) return (
+    <div className="bg-primary h-2/3 flex flex-col hiddenScroll">
       {party?.map((character:Character, index) => (
-        <PlayerCard key={index} character={character}/>
+        <PlayerCard key={index} character={character} info='max'/>
+      ))}
+    </div>
+  )
+  return (
+    <div className="bg-primary h-2/3 flex flex-col hiddenScroll">
+      {party?.map((character:Character, index) => (
+        <PlayerCard key={index} character={character} info='min'/>
       ))}
     </div>
   )
