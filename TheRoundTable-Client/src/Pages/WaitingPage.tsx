@@ -1,0 +1,46 @@
+import { useContext, useEffect, useState } from 'react'
+import { supabaseContext } from '../supabase';
+import { DMSetupPage } from './DMSetupPage';
+import { PlayerWaitingPage } from './PlayerWaitingPage';
+import { LoadingPage } from './LoadingPage';
+
+export const WaitingPage = ({user_id}: {user_id: string}) => {
+
+  const supabase = useContext(supabaseContext)
+
+  console.log()
+  const [userisDM, setUserisDM] = useState<boolean | null>(null);
+  const [partyName, setPartyName] = useState('')
+
+  const isUserTheDm = async (partyName: string) => {
+    let { data, error } = await supabase
+      .from('parties')
+      .select('DM_clerk_id')
+      .eq('name', partyName)
+    if (error) {
+      console.log(error)
+    } else {
+      console.log()
+      setUserisDM(user_id === data![0].DM_clerk_id ? true : false)
+    }
+  }
+  
+  const setPartyNameFromURL = () => {
+    const nameFromUrl = window.location.pathname.slice(14)
+    const name = decodeURIComponent(nameFromUrl)
+    setPartyName(name)
+  }
+
+  useEffect(() =>{
+    setPartyNameFromURL()
+    isUserTheDm(partyName)
+  }, [userisDM])
+
+  if (userisDM === true) {
+    return <DMSetupPage user_id={user_id} />
+  } else if (userisDM === false) {
+    return <PlayerWaitingPage user_id={user_id} partyName={partyName}/>
+  } else {
+    return <LoadingPage/>
+  }
+}
