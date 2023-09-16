@@ -1,51 +1,58 @@
-import { FC, useState, useEffect } from "react";
-import { LocationInfo, SpotifyMusicPlayer, PartySection } from '../GameComponents/LeftTab/Index'
-import { TurnOrder, ActionLog, DMTools, DMToolsMobile, DMScreen, } from '../GameComponents/MiddleTab/index'
-import { party, messages, sessionDetails } from '../exampleData'
+import { useState } from "react";
+import { LocationInfo, PartySection } from '../GameComponents/LeftTab/Index'
+import { TurnOrder, ActionLog, DMTools, DMScreen } from '../GameComponents/MiddleTab/index'
+import NotesContainer from '../GameComponents/RightTab/NotesContainer'
 import { ActionModal, BonusActionModal, RollModal, SpellsModal, TalkModal, WeaponsModal, InventoryModal } from '../GameComponents/Modals/index'
-import NotesContainer from '../GameComponents/RightTab/NotesContainer.js'
 
-import { useUser } from '@clerk/clerk-react'
-import { Player } from "../GameComponents/LeftTab/PlayerCard.js";
-import { FileBin } from "../GameComponents/LeftTab/FileBin";
+import { party, messages, sessionDetails } from '../exampleData'
 
 
-const DMPage: FC = () => {
-  const { user } = useUser()
+import { Character } from "./GamePage.js";
+import { FileBin } from "../GameComponents/LeftTab/FileBin.js";
+
+
+/**
+ * 
+ * first check if the room is setup, if no display a waiting room
+ * then check if the current user has a character in the party, if no then have them select one
+ * once all players in the party have selected a character, set players as ready and display waiting for DM
+ * Once DM claim's their position, allow them to setup the room however they may need.
+ *   dm checklist
+ *    connect to spotify
+ *    upload map
+ *    upload story
+ *    "get the discord ready"
+ *    
+ */
+
+
+
+const DMPage = ({ party }: {party: Character[] | null}) => {
   const [popup, setPopup] = useState('none')
-  const Stigander = party[0];
-  const [characters, setCharacters] = useState<Player[]>([])
-  const [selectedCharacter, setSelectedCharacter] = useState<Player>(characters[0])
-  useEffect(() => {
-    setCharacters(party)
-    setSelectedCharacter(Stigander)
-  }, [])
 
-  if (!user) {
-    return <div>loading...</div>
-  }
+
 
   return (
     <>
       <div className='hidden lg:w-full lg:max-h-[95vh] lg:flex lg:flex-row'>
 
         {popup === 'action' ? <ActionModal setPopup={setPopup} />
-          : popup === 'bonus action' ? <BonusActionModal setPopup={setPopup} />
-            : popup === 'spells' ? <SpellsModal setPopup={setPopup} CharacterSpells={Stigander.spells} />
-              : popup === 'weapons' ? <WeaponsModal setPopup={setPopup} CharacterWeapons={Stigander.weapons} />
-                : popup === 'inventory' ? <InventoryModal setPopup={setPopup} CharacterInventory={Stigander.inventory} />
-                  : popup === 'talk' ? <TalkModal setPopup={setPopup} />
-                    : popup === 'roll' ? <RollModal setPopup={setPopup} />
-                      : null}
+        : popup === 'bonus action' ? <BonusActionModal setPopup={setPopup} />
+        : popup === 'spells' ? <SpellsModal setPopup={setPopup} />
+        : popup === 'weapons' ? <WeaponsModal setPopup={setPopup} />
+        : popup === 'inventory' ? <InventoryModal setPopup={setPopup} />
+        : popup === 'talk' ? <TalkModal setPopup={setPopup} />
+        : popup === 'roll' ? <RollModal setPopup={setPopup} />
+        : null}
 
         <div className='lg:w-[30%] flex flex-col'>
           <LocationInfo sessionDetails={sessionDetails} />
-          <PartySection party={party} />
+          <PartySection party={party} DMview={true} />
           <FileBin/>
         </div>
 
         <div className='lg:w-[40%] flex flex-col'>
-          {characters.length === 0 ? null : (<TurnOrder OrderedCharacters={characters} selectedCharacter={selectedCharacter} />)}
+          {party?.length === 0 ? null : (<TurnOrder OrderedCharacters={party} />)}
           <DMScreen />
           <ActionLog Messages={messages} />
           <DMTools setPopup={setPopup} />
@@ -59,7 +66,7 @@ const DMPage: FC = () => {
 
 
       {/* smaller than laptop view (mobile & tablets) */}
-      <div className='flex flex-col lg:hidden'>
+      {/* <div className='flex flex-col lg:hidden'>
 
         {popup === 'action' ? <ActionModal setPopup={setPopup} />
           : popup === 'bonus action' ? <BonusActionModal setPopup={setPopup} />
@@ -71,15 +78,15 @@ const DMPage: FC = () => {
                       : null}
 
 
-          {characters.length === 0 ? null : (
-            <TurnOrder OrderedCharacters={characters} selectedCharacter={selectedCharacter} />
-          )}
-          <LocationInfo sessionDetails={sessionDetails} />
-        <DMScreen />
+        {characters.length === 0 ? null : (
+          <TurnOrder OrderedCharacters={characters} selectedCharacter={selectedCharacter} />
+        )}
+        <LocationInfo sessionDetails={sessionDetails} />
+        <PlayGround />
         <ActionLog Messages={messages} />
 
         <div className='flex flex-row'>
-          <DMToolsMobile setPopup={setPopup} />
+          <PlayerToolsMobile setPopup={setPopup} />
           <PartySection party={party} />
         </div>
 
@@ -88,7 +95,7 @@ const DMPage: FC = () => {
           <NotesContainer />
         </div> */}
 
-      </div>
+      {/* </div> */}
     </>
   )
 }
