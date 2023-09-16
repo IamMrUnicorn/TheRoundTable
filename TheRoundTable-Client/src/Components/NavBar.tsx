@@ -9,8 +9,8 @@ interface NavProps {
 const NavBar = ({ setTheme }: NavProps) => {
   return (
     <nav className="flex flex-row justify-between bg-secondary min-h-[5vh]">
-      <div className="bg-accent flex flex-col justify-center w-[50vw] xl:w-[30vw] rounded-md  ">
-        <a href='/' className="text-neutral text-center md:text-3xl font-primary hover:text-opacity-75">The Round Table <i className="fa-solid fa-dungeon"></i> <i className="fa-solid fa-dragon"></i></a>
+      <div className="bg-accent flex flex-col justify-center w-[50vw] xl:w-[30vw] rounded-md hover:bg-opacity-80 ">
+        <a href='/' className="text-neutral text-center md:text-3xl font-primary hover:text-opacity-90">The Round Table <i className="fa-solid fa-dungeon"></i> <i className="fa-solid fa-dragon"></i></a>
       </div>
 
 
