@@ -5,14 +5,22 @@ import { Dispatch, SetStateAction } from "react";
 
 export interface SpellsModalProps {
   setPopup: Dispatch<SetStateAction<string>>,
-  CharacterSpells: string | undefined
+  CharacterSpells: {
+    cantrips: string[];
+    lvl1: string[];
+    lvl2: string[];
+    lvl3: string[];
+    lvl4: string[];
+    lvl5: string[];
+    lvl6: string[];
+    lvl7: string[];
+    lvl8: string[];
+    lvl9: string[];
+  } | undefined
 }
 
 const SpellsModal = ({setPopup, CharacterSpells}:SpellsModalProps) => {
-  if (CharacterSpells){
-    const inventory = JSON.parse(CharacterSpells)
-    console.log(inventory)
-  }
+  
   return (
     <>
       <input type="checkbox" id="action_modal" className="modal-toggle" />

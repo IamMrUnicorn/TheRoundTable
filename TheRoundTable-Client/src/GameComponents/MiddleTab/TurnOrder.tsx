@@ -1,20 +1,21 @@
-import { Player } from "../LeftTab/PlayerCard"
+import { Character } from "../../Pages/GamePage"
 
 interface TurnOrderProps {
-  OrderedCharacters: Player[],
-  selectedCharacter: Player | undefined
+  OrderedCharacters: Character[] | null,
+  selectedCharacter?: Character | null
 }
 const TurnOrder = ({OrderedCharacters, selectedCharacter}:TurnOrderProps) => {
 
+  if (!OrderedCharacters) return
 // add status icons over player on turn order if they're frightended
   return (
-    <ol className="flex flex-row rounded-md min-h-[24px] gap-1 bg-primary text-neutral hiddenScroll ">
+    <ol className="flex flex-row rounded-md min-h-[24px] gap-1 bg-primary text-neutral hiddenScroll font10 px-1 ">
       {OrderedCharacters.map((character, index) => {
         if (selectedCharacter === character) {
           return (
             <li className="flex flex-row" key={index}> <i className="fa-solid fa-star"/> {character.name}</li>
           )
-        } else if (character.status === 'dead') {
+        } else if (character.character_stats.status === 'dead') {
           return (
             <li className="flex flex-row" key={index}> <i className="fa-solid fa-skull"/> {character.name}</li>
           )

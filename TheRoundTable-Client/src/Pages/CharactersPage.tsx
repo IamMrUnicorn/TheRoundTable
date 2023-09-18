@@ -1,110 +1,16 @@
 import { useEffect, useContext, useState } from "react";
 import { supabaseContext } from "../supabase";
-import { CharacterSheet } from "../Components/CharacterSheet";
-
-interface CharacterPageProps {
-  user_id: string;
-}
-
-export interface CharacterDataInterface {
-  name: string;
-  image_url: string | null;
-  race: string;
-  class: string;
-  subclass: string;
-  level: number;
-  background: string;
-  alignment: string;
-  languages: string[];
-  proficincies: string[];
-  character_stats: {
-    status: string;
-    currenthp: number;
-    maxhp: number;
-    ac: number,
-    proficiency: number,
-    initiative: number,
-    speed: number,
-    strength: number,
-    dexterity: number,
-    constitution: number,
-    intelligence: number,
-    wisdom: number,
-    charisma: number,
-    spell_dc: number,
-    feats: string[]; 
-  };
-  character_proficiency: {
-    strength: boolean,
-    dexterity: boolean,
-    constitution: boolean,
-    intelligence: boolean,
-    wisdom: boolean,
-    charisma: boolean,
-    athletics: boolean,
-    acrobatics: boolean,
-    sleightofhand: boolean,
-    stealth: boolean,
-    arcana: boolean,
-    history: boolean,
-    investigation: boolean,
-    nature: boolean,
-    religion: boolean,
-    animalhandling: boolean,
-    insight: boolean,
-    medicine: boolean,
-    perception: boolean,
-    survival: boolean,
-    deception: boolean,
-    intimidation: boolean,
-    performance: boolean,
-    persuasion: boolean
-  };
-  character_inventory: {
-    spells: { 
-      cantrips: string[], 
-      lvl1: string[], 
-      lvl2: string[], 
-      lvl3: string[], 
-      lvl4: string[], 
-      lvl5: string[], 
-      lvl6: string[], 
-      lvl7: string[], 
-      lvl8: string[], 
-      lvl9: string[] 
-    },
-    weapons: {
-      heavy: string[],
-      light: string[],
-      reach: string[],
-      range: string[],
-      thrown: string[],
-      loading: string[],
-      finesse: string[],
-      special: string[],
-      versatile: string[],
-      twoHanded: string[],
-      magicalWeapons: string[]
-    },
-    inventory: { 
-      copper: 0, 
-      silver: 0, 
-      gold: 0, 
-      platinum: 0, 
-      inventory: string[] 
-    }
-  };
-}
-
+import { CharacterSheet, characterDataI } from "../Components/CharacterSheet";
+import { CharacterPageProps } from "./CharacterImportPage";
 
 
 const CharactersPage = ({user_id}:CharacterPageProps) => {
   const supabase = useContext(supabaseContext)
-  const [characters, setCharacters] = useState<CharacterDataInterface[] | null>(null) 
+  const [characters, setCharacters] = useState<characterDataI[] | null>(null) 
   useEffect(() => {
     const getCharacterData = async (clerk: string) => {
       try {
-        const { data: CharacterDataInterface, error } = await supabase
+        const { data: characterDataI, error } = await supabase
           .from('characters')
           .select(`
             id,
@@ -132,8 +38,8 @@ const CharactersPage = ({user_id}:CharacterPageProps) => {
           `)
           .eq('clerk_user_id', clerk)
     
-        if (error || !CharacterDataInterface) throw error;
-        const transformedCharacters = await Promise.all(CharacterDataInterface.map(async (character: any): Promise<CharacterDataInterface> => {
+        if (error || !characterDataI) throw error;
+        const transformedCharacters = await Promise.all(characterDataI.map(async (character: any): Promise<characterDataI> => {
           if (character.party_id) {
             const { data: party } = await supabase
               .from('parties')
@@ -158,7 +64,7 @@ const CharactersPage = ({user_id}:CharacterPageProps) => {
             character.character_inventory[key] = JSON.parse(character.character_inventory[key]);
           });
 
-          return character as CharacterDataInterface;
+          return character as characterDataI;
         }));
 
         setCharacters(transformedCharacters);
@@ -170,7 +76,6 @@ const CharactersPage = ({user_id}:CharacterPageProps) => {
     getCharacterData(user_id)
   }, [])
 
-  console.log(characters)
 
   return (
     <div className="flex flex-col items-center justify-center "> 

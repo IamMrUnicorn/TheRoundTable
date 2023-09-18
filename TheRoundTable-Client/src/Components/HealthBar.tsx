@@ -22,7 +22,7 @@ export const HealthBar = ({ currentHealth, maxHealth }) => {
       <div style={barStyle}>
         <div style={fillStyle}></div>
       </div>
-      <span className="">{currentHealth}</span>
+      <span className="pl-3">{currentHealth}</span>
       <span className="">/</span>
       <span>{maxHealth}</span>
     </div>
