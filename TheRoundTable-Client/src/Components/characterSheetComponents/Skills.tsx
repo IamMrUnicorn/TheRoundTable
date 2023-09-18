@@ -1,85 +1,40 @@
 import { characterDataI } from "../CharacterSheet"
 
-export const Skills = ({characterData}:{characterData:characterDataI}) => {
 
+const SkillItem = ({ proficiency, value, label, stat, bgColor }: { proficiency: boolean, value: number, label: string, stat: number, bgColor: string }) => (
+  <div className={`flex flex-row rounded-full w-full place-self-center border border-solid  border-black ${bgColor}`}>
+    <div className={`h-8 w-8 rounded-full text-center pt-1 justify-start mr-4 ${proficiency ? 'bg-black text-white' : 'bg-white text-black'}`}>
+      {Math.floor((stat - 10) / 2) + (proficiency ? value : 0)}
+    </div>
+    <p className="text-lg"> {label} </p>
+  </div>
+);
+
+export const Skills = ({characterData}:{characterData:characterDataI}) => {
   return (
-    <div className="flex flex-col flex-wrap h-1/2 pt-3 font-accent capitalize bg-yellow-100">
-      <p className=" place-self-end text-lg font-primary capitalize">skills</p>
-      <div className="flex flex-col ">
-        <div className="flex flex-row rounded-full w-4/5 place-self-center border border-solid border-black bg-red-400">
-          <div className={`h-8 w-8 rounded-full text-center pt-1 justify-start mr-4 ${characterData.character_proficiency.athletics ? 'bg-black text-white' : 'bg-white text-black'}`}> +{Math.floor((characterData.character_stats.strength - 10) / 2) + (characterData.character_proficiency.athletics ? characterData.character_stats.proficiency : 0)}</div>
-          <p className="text-lg"> athletics </p>
-        </div>
-        <div className="flex flex-row rounded-full w-4/5 place-self-center border border-solid border-black bg-orange-400">
-          <div className={`h-8 w-8 rounded-full text-center pt-1 justify-start mr-4 ${characterData.character_proficiency.acrobatics ? 'bg-black text-white' : 'bg-white text-black'}`}> +{Math.floor((characterData.character_stats.dexterity - 10) / 2) + (characterData.character_proficiency.acrobatics ? characterData.character_stats.proficiency : 0)}</div>
-          <p className="text-lg"> acrobatics </p>
-        </div>
-        <div className="flex flex-row rounded-full w-4/5 place-self-center border border-solid border-black bg-orange-400">
-          <div className={`h-8 w-8 rounded-full text-center pt-1 justify-start mr-4 ${characterData.character_proficiency.sleightofhand ? 'bg-black text-white' : 'bg-white text-black'}`}> +{Math.floor((characterData.character_stats.dexterity - 10) / 2) + (characterData.character_proficiency.sleightofhand ? characterData.character_stats.proficiency : 0)}</div>
-          <p className=" place-self-center"> sleight of hand </p>
-        </div>
-        <div className="flex flex-row rounded-full w-4/5 place-self-center border border-solid border-black bg-orange-400">
-          <div className={`h-8 w-8 rounded-full text-center pt-1 justify-start mr-4 ${characterData.character_proficiency.stealth ? 'bg-black text-white' : 'bg-white text-black'}`}> +{Math.floor((characterData.character_stats.intelligence - 10) / 2) + (characterData.character_proficiency.stealth ? characterData.character_stats.proficiency : 0)}</div>
-          <p className="text-lg"> stealth </p>
-        </div>
-        <div className="flex flex-row rounded-full w-4/5 place-self-center border border-solid border-black bg-green-400">
-          <div className={`h-8 w-8 rounded-full text-center pt-1 justify-start mr-4 ${characterData.character_proficiency.arcana ? 'bg-black text-white' : 'bg-white text-black'}`}> +{Math.floor((characterData.character_stats.intelligence - 10) / 2) + (characterData.character_proficiency.arcana ? characterData.character_stats.proficiency : 0)}</div>
-          <p className="text-lg"> arcana </p>
-        </div>
-        <div className="flex flex-row rounded-full w-4/5 place-self-center border border-solid border-black bg-green-400">
-          <div className={`h-8 w-8 rounded-full text-center pt-1 justify-start mr-4 ${characterData.character_proficiency.history ? 'bg-black text-white' : 'bg-white text-black'}`}> +{Math.floor((characterData.character_stats.intelligence - 10) / 2) + (characterData.character_proficiency.history ? characterData.character_stats.proficiency : 0)}</div>
-          <p className="text-lg"> history </p>
-        </div>
-        <div className="flex flex-row rounded-full w-4/5 place-self-center border border-solid border-black bg-green-400">
-          <div className={`h-8 w-8 rounded-full text-center pt-1 justify-start mr-4 ${characterData.character_proficiency.investigation ? 'bg-black text-white' : 'bg-white text-black'}`}> +{Math.floor((characterData.character_stats.intelligence - 10) / 2) + (characterData.character_proficiency.investigation ? characterData.character_stats.proficiency : 0)}</div>
-          <p className="text-md lg:text-lg"> investigation </p>
-        </div>
-        <div className="flex flex-row rounded-full w-4/5 place-self-center border border-solid border-black bg-green-400">
-          <div className={`h-8 w-8 rounded-full text-center pt-1 justify-start mr-4 ${characterData.character_proficiency.nature ? 'bg-black text-white' : 'bg-white text-black'}`}> +{Math.floor((characterData.character_stats.intelligence - 10) / 2) + (characterData.character_proficiency.nature ? characterData.character_stats.proficiency : 0)}</div>
-          <p className="text-lg"> nature </p>
-        </div>
-        <div className="flex flex-row rounded-full w-4/5 place-self-center border border-solid border-black bg-green-400">
-          <div className={`h-8 w-8 rounded-full text-center pt-1 justify-start mr-4 ${characterData.character_proficiency.religion ? 'bg-black text-white' : 'bg-white text-black'}`}> +{Math.floor((characterData.character_stats.intelligence - 10) / 2) + (characterData.character_proficiency.religion ? characterData.character_stats.proficiency : 0)}</div>
-          <p className="text-lg"> religion </p>
-        </div>
+    <div className="grid grid-cols-2 gap-4  pt-3 font-accent capitalize bg-yellow-100">
+      <p className="col-span-2 place-self-center text-3xl font-primary capitalize">skills</p>
+      <div className="flex flex-col p-3">
+        <SkillItem proficiency={characterData.character_proficiency.athletics} value={characterData.character_stats.proficiency} label="athletics" stat={characterData.character_stats.strength} bgColor='bg-red-400'/>
+        <SkillItem proficiency={characterData.character_proficiency.acrobatics} value={characterData.character_stats.proficiency} label="acrobatics" stat={characterData.character_stats.dexterity} bgColor='bg-orange-400'/>
+        <SkillItem proficiency={characterData.character_proficiency.sleightofhand} value={characterData.character_stats.proficiency} label="sleightofhand" stat={characterData.character_stats.dexterity} bgColor='bg-orange-400'/>
+        <SkillItem proficiency={characterData.character_proficiency.stealth} value={characterData.character_stats.proficiency} label="stealth" stat={characterData.character_stats.dexterity} bgColor='bg-orange-400'/>
+        <SkillItem proficiency={characterData.character_proficiency.arcana} value={characterData.character_stats.proficiency} label="arcana" stat={characterData.character_stats.intelligence} bgColor='bg-green-400'/>
+        <SkillItem proficiency={characterData.character_proficiency.history} value={characterData.character_stats.proficiency} label="history" stat={characterData.character_stats.intelligence} bgColor='bg-green-400'/>
+        <SkillItem proficiency={characterData.character_proficiency.investigation} value={characterData.character_stats.proficiency} label="investigation" stat={characterData.character_stats.intelligence} bgColor='bg-green-400'/>
+        <SkillItem proficiency={characterData.character_proficiency.nature} value={characterData.character_stats.proficiency} label="nature" stat={characterData.character_stats.intelligence} bgColor='bg-green-400'/>
+        <SkillItem proficiency={characterData.character_proficiency.religion} value={characterData.character_stats.proficiency} label="religion" stat={characterData.character_stats.intelligence} bgColor='bg-green-400'/>
       </div>
-      <div className="flex flex-col pt-7">
-        <div className="flex flex-row rounded-full w-4/5 place-self-center border border-solid border-black bg-purple-400">
-          <div className={`h-8 w-8 rounded-full text-center pt-1 justify-start mr-4 ${characterData.character_proficiency.deception ? 'bg-black text-white' : 'bg-white text-black'}`}> +{Math.floor((characterData.character_stats.charisma - 10) / 2) + (characterData.character_proficiency.deception ? characterData.character_stats.proficiency : 0)}</div>
-          <p className="text-lg"> deception </p>
-        </div>
-        <div className="flex flex-row rounded-full w-4/5 place-self-center border border-solid border-black bg-purple-400">
-          <div className={`h-8 w-8 rounded-full text-center pt-1 justify-start mr-4 ${characterData.character_proficiency.intimidation ? 'bg-black text-white' : 'bg-white text-black'}`}> +{Math.floor((characterData.character_stats.charisma - 10) / 2) + (characterData.character_proficiency.intimidation ? characterData.character_stats.proficiency : 0)}</div>
-          <p className="text-lg"> intimidation </p>
-        </div>
-        <div className="flex flex-row rounded-full w-4/5 place-self-center border border-solid border-black bg-purple-400">
-          <div className={`h-8 w-8 rounded-full text-center pt-1 justify-start mr-4 ${characterData.character_proficiency.performance ? 'bg-black text-white' : 'bg-white text-black'}`}> +{Math.floor((characterData.character_stats.charisma - 10) / 2) + (characterData.character_proficiency.performance ? characterData.character_stats.proficiency : 0)}</div>
-          <p className="text-lg"> performance </p>
-        </div>
-        <div className="flex flex-row rounded-full w-4/5 place-self-center border border-solid border-black bg-purple-400">
-          <div className={`h-8 w-8 rounded-full text-center pt-1 justify-start mr-4 ${characterData.character_proficiency.persuasion ? 'bg-black text-white' : 'bg-white text-black'}`}> +{Math.floor((characterData.character_stats.charisma - 10) / 2) + (characterData.character_proficiency.persuasion ? characterData.character_stats.proficiency : 0)}</div>
-          <p className="text-lg"> persuasion </p>
-        </div>
-        <div className="flex flex-row rounded-full w-4/5 place-self-center border border-solid border-black bg-blue-400">
-          <div className={`h-8 w-8 rounded-full text-center pt-1 justify-start mr-4 ${characterData.character_proficiency.animalhandling ? 'bg-black text-white' : 'bg-white text-black'}`}> +{Math.floor((characterData.character_stats.wisdom - 10) / 2) + (characterData.character_proficiency.animalhandling ? characterData.character_stats.proficiency : 0)}</div>
-          <p className=" place-self-center"> animal handling </p>
-        </div>
-        <div className="flex flex-row rounded-full w-4/5 place-self-center border border-solid border-black bg-blue-400">
-          <div className={`h-8 w-8 rounded-full text-center pt-1 justify-start mr-4 ${characterData.character_proficiency.insight ? 'bg-black text-white' : 'bg-white text-black'}`}> +{Math.floor((characterData.character_stats.wisdom - 10) / 2) + (characterData.character_proficiency.insight ? characterData.character_stats.proficiency : 0)}</div>
-          <p className="text-lg"> insight </p>
-        </div>
-        <div className="flex flex-row rounded-full w-4/5 place-self-center border border-solid border-black bg-blue-400">
-          <div className={`h-8 w-8 rounded-full text-center pt-1 justify-start mr-4 ${characterData.character_proficiency.medicine ? 'bg-black text-white' : 'bg-white text-black'}`}> +{Math.floor((characterData.character_stats.wisdom - 10) / 2) + (characterData.character_proficiency.medicine ? characterData.character_stats.proficiency : 0)}</div>
-          <p className="text-lg"> medicine </p>
-        </div>
-        <div className="flex flex-row rounded-full w-4/5 place-self-center border border-solid border-black bg-blue-400">
-          <div className={`h-8 w-8 rounded-full text-center pt-1 justify-start mr-4 ${characterData.character_proficiency.perception ? 'bg-black text-white' : 'bg-white text-black'}`}> +{Math.floor((characterData.character_stats.wisdom - 10) / 2) + (characterData.character_proficiency.perception ? characterData.character_stats.proficiency : 0)}</div>
-          <p className="text-lg"> perception </p>
-        </div>
-        <div className="flex flex-row rounded-full w-4/5 place-self-center border border-solid border-black bg-blue-400">
-          <div className={`h-8 w-8 rounded-full text-center pt-1 justify-start mr-4 ${characterData.character_proficiency.survival ? 'bg-black text-white' : 'bg-white text-black'}`}> +{Math.floor((characterData.character_stats.wisdom - 10) / 2) + (characterData.character_proficiency.survival ? characterData.character_stats.proficiency : 0)}</div>
-          <p className="text-lg"> survival </p>
-        </div>
+      <div className="flex flex-col p-3">
+        <SkillItem proficiency={characterData.character_proficiency.deception} value={characterData.character_stats.proficiency} label="deception" stat={characterData.character_stats.charisma} bgColor='bg-purple-400'/>
+        <SkillItem proficiency={characterData.character_proficiency.intimidation} value={characterData.character_stats.proficiency} label="intimidation" stat={characterData.character_stats.charisma} bgColor='bg-purple-400'/>
+        <SkillItem proficiency={characterData.character_proficiency.performance} value={characterData.character_stats.proficiency} label="performance" stat={characterData.character_stats.charisma} bgColor='bg-purple-400'/>
+        <SkillItem proficiency={characterData.character_proficiency.persuasion} value={characterData.character_stats.proficiency} label="persuasion" stat={characterData.character_stats.charisma} bgColor='bg-purple-400'/>
+        <SkillItem proficiency={characterData.character_proficiency.animalhandling} value={characterData.character_stats.proficiency} label="animalhandling" stat={characterData.character_stats.wisdom} bgColor='bg-blue-400'/>
+        <SkillItem proficiency={characterData.character_proficiency.insight} value={characterData.character_stats.proficiency} label="insight" stat={characterData.character_stats.wisdom} bgColor='bg-blue-400'/>
+        <SkillItem proficiency={characterData.character_proficiency.medicine} value={characterData.character_stats.proficiency} label="medicine" stat={characterData.character_stats.wisdom} bgColor='bg-blue-400'/>
+        <SkillItem proficiency={characterData.character_proficiency.perception} value={characterData.character_stats.proficiency} label="perception" stat={characterData.character_stats.wisdom} bgColor='bg-blue-400'/>
+        <SkillItem proficiency={characterData.character_proficiency.survival} value={characterData.character_stats.proficiency} label="survival" stat={characterData.character_stats.wisdom} bgColor='bg-blue-400'/>
       </div>
     </div>
   )

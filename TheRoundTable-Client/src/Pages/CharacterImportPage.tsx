@@ -430,8 +430,8 @@ const CharacterForm = ({ user_id }: CharacterPageProps) => {
 
       </div>
       {submitted ? null : (<div className='flex flex-row justify-center'>
-        {!confirmation && <button className='btn btn-accent m-5 font-primary capitalize' type="submit">Submit for Validation</button>}
-        {confirmation && <button className='btn btn-primary m-5 font-primary capitalize' type="button" onClick={handleSubmit(onConfirm)}>Confirm Submission</button>}
+        {!confirmation && <button className='btn btn-accent m-5 font-accent capitalize' type="submit">Submit for Validation</button>}
+        {confirmation && <button className='btn btn-primary m-5 font-accent capitalize' type="button" onClick={handleSubmit(onConfirm)}>Confirm Submission</button>}
       </div>)}
     </form>
   );

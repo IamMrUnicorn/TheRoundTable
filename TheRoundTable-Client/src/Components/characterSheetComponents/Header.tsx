@@ -4,20 +4,22 @@ import { HealthBar } from "../HealthBar"
 
 export const Header = ({ characterData, handleSubmit }: { characterData: characterDataI, handleSubmit: () => void }) => {
   return (
-    <div className="flex flex-row justify-around bg-yellow-100">
+    <div className="flex flex-row justify-around pt-5 bg-yellow-100">
       <div className=" flex flex-col ">
-        <div className=" rounded-full flex flex-col justify-center  bg-slate-500 text-center h-24 w-24 font-accent capitalize m-1">profile pic</div>
-        {/* <button className="btn btn-primary"> edit <br /> character </button> */}
+        <div className=" rounded-full flex flex-col justify-center  border border-solid border-black bg-slate-500 text-center h-48 w-48 font-accent capitalize mr-1">
+          profile pic
+          </div>
+        {/* <button className="btn btn-primary"> edit <br /> character </button> 
         <button className="btn btn-primary font-accent capitalize text-lg m-1 btn-sm" onClick={handleSubmit}>edit</button>
-        {/* editing ? cancel : edit charcter */}
+        {/* editing ? cancel : edit charcter
         <button className="btn btn-primary font-accent capitalize text-lg m-1 btn-sm" onClick={handleSubmit}>Submit</button>
         {/* editing ? save : null */}
       </div>
       <div className="flex flex-col w-1/4 ">
         <div className="flex flex-row justify-center font-accent capitalize text-lg" >
           {/* <label> Name: <InputText value={editableCharacterData.name} onChange={(e) => handleInputChange(e, 'name')} /> </label> */}
-          <p className="text-3xl"> {characterData.name} </p>
-          <p> {characterData.party_id} </p>
+          <p className="text-4xl font-primary"> {characterData.name} </p>
+          <p className="text-xl font-primary"> {characterData.party_id} </p>
         </div>
         <div className="flex flex-row justify-center font-accent capitalize text-lg gap-1">
           { }
@@ -53,18 +55,18 @@ export const Header = ({ characterData, handleSubmit }: { characterData: charact
       </div>
       <div className="flex flex-col font-accent w-1/4">
         <div className="flex flex-row h-1/2">
-          <div className="flex flex-col w-1/2 p-2 m-1 bg-slate-400 rounded-xl text-center justify-center items-center">
+          <div className="flex flex-col w-1/2 p-2 m-1 border border-solid border-black bg-slate-400 rounded-xl text-center justify-center items-center">
             <p> AC: {characterData.character_stats.ac}</p>
           </div>
-          <div className="flex flex-col w-1/2 p-2 m-1 bg-slate-400 rounded-xl text-center justify-center items-center">
+          <div className="flex flex-col w-1/2 p-2 m-1 border border-solid border-black bg-slate-400 rounded-xl text-center justify-center items-center">
             <p className='capitalize'>speed: {characterData.character_stats.speed}ft</p>
           </div>
         </div>
         <div className="flex flex-row h-1/2">
-          <div className="flex flex-col w-1/2 p-2 m-1 bg-slate-400 rounded-xl text-center justify-center items-center">
+          <div className="flex flex-col w-1/2 p-2 m-1 border border-solid border-black bg-slate-400 rounded-xl text-center justify-center items-center">
             <p className='capitalize'>initiative: <br/>+{characterData.character_stats.initiative}</p>
           </div>
-          <div className="flex flex-col w-1/2 p-2 m-1 bg-slate-400 rounded-xl text-center justify-center items-center">
+          <div className="flex flex-col w-1/2 p-2 m-1 border border-solid border-black bg-slate-400 rounded-xl text-center justify-center items-center">
             <p className='capitalize'>proficiency bonus: +{characterData.character_stats.proficiency}</p>
           </div>
         </div>
