@@ -71,5 +71,5 @@ export default App
 // MORE INTERTWINING OF REAL DATA 
 // ALLOW USERS TO EDIT CHARACTERS ONCE THEY ARE UPLOADED
 // ALLOW USERS TO DELETE CHARACTERS FROM CHARACTER SHEET
-// MAKE A SPELL SHEET
+
 // try to get class / subclass details from dndapi or maybe even manual upload
