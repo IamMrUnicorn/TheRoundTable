@@ -1,4 +1,4 @@
-export const HealthBar = ({ currentHealth, maxHealth }) => {
+export const HealthBar = ({ currentHealth, maxHealth }:{ currentHealth:number, maxHealth:number }) => {
   const percentage = (currentHealth / maxHealth) * 100;
   const barStyle = {
     width: '287px',

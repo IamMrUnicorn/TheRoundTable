@@ -1,6 +1,6 @@
 import { useContext, FC, useState } from 'react'
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { CalendarPage, CharacterImportPage, CharactersPage, DMPage, ErrorPage, LandingPage, PlayerPage} from './Pages/Index.ts'
+import { CalendarPage, CharacterImportPage, CharactersPage, ErrorPage, LandingPage} from './Pages/Index.ts'
 // import { SocketContext } from './socket.ts'
 import { supabaseContext } from './supabase.ts';
 import { useUser } from '@clerk/clerk-react'
@@ -10,10 +10,10 @@ import 'primeicons/primeicons.css';
 
 import './App.css'
 import NavBar from './Components/NavBar.tsx'
-import { DMSetupPage } from './Pages/DMSetupPage.tsx';
-import { PlayerWaitingPage } from './Pages/PlayerWaitingPage.tsx';
+
 import { WaitingPage } from './Pages/WaitingPage.tsx';
 import { GamePage } from './Pages/GamePage.tsx';
+import { ActiveParties } from './Pages/ActiveParties.tsx';
 
 
 const App: FC = () => {
@@ -42,6 +42,7 @@ const App: FC = () => {
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<LandingPage />} />
+              <Route path="/parties" element={<ActiveParties user_id={user.id}/>} />
               <Route path="/import" element={<CharacterImportPage user_id={user.id}/>} />
               <Route path="/characters" element={<CharactersPage user_id={user.id}/>} />
               <Route path="/calendar" element={<CalendarPage />} />

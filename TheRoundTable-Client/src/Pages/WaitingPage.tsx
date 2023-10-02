@@ -22,7 +22,7 @@ export const WaitingPage = ({user_id}: {user_id: string}) => {
       console.log(error)
     } else {
       console.log(data)
-      setUserisDM(user_id === data![0].DM_clerk_id ? true : false)
+      setUserisDM(user_id === data[0].DM_clerk_id ? true : false)
     }
   }
   
