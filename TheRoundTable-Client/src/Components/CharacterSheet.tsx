@@ -1,4 +1,3 @@
-import { Accordion, AccordionTab } from 'primereact/accordion'
 import { Chips } from 'primereact/chips'
 import { InputText } from 'primereact/inputtext'
 import { InputNumber } from 'primereact/inputnumber'
