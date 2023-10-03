@@ -78,7 +78,7 @@ export const PlayerWaitingPage = ({ user_id, partyName }: waitingPageI) => {
           <Tldraw />
         </div>
       ) : userInParty ? (
-        <div> Prompt for character selection </div>
+        <div> Prompt for character selection and if not then invite user to create a character</div>
       ) : (
         <div> Waiting for DM's approval </div>
       )}
