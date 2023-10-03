@@ -35,7 +35,7 @@ export const WaitingPage = ({user_id}: {user_id: string}) => {
   useEffect(() =>{
     setPartyNameFromURL()
     isUserTheDm(partyName)
-  }, [userisDM])
+  }, [partyName])
 
   if (userisDM === true) {
     return <DMSetupPage user_id={user_id} />
