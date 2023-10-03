@@ -9,7 +9,7 @@ import { party, messages, sessionDetails } from '../exampleData'
 
 import { Character } from "./GamePage.js";
 
-
+// make the player section on the left like a collapsable side tab
 /**
  * 
  * first check if the room is setup, if no display a waiting room

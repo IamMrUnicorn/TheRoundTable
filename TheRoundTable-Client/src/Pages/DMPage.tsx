@@ -10,6 +10,7 @@ import { party, messages, sessionDetails } from '../exampleData'
 import { Character } from "./GamePage.js";
 import { FileBin } from "../GameComponents/LeftTab/FileBin.js";
 
+// include an "old school" option that just full screens the DM screen
 
 /**
  * 

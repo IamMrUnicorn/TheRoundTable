@@ -76,6 +76,7 @@ export const PlayerWaitingPage = ({ user_id, partyName }: waitingPageI) => {
       {userInParty && hasCharacterInParty ? (
         <div className="bg-neutral m-2 rounded-2xl h-1/2 w-1/2 mx-auto">
           <Tldraw />
+          <p className='font-accent'>character locked in, waiting on DM to finish setup</p>
         </div>
       ) : userInParty ? (
         <div> Prompt for character selection </div>

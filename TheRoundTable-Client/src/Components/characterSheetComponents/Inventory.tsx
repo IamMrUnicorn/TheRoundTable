@@ -23,3 +23,7 @@ export const Inventory = ({ characterData }: { characterData: characterDataI }) 
     </div>
   )
 }
+
+
+// make item cards for both standard weapons, magical weapons and custom items
+// add like a "normal" border and a "rare" and a "legendary" card bg and border for items
