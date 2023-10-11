@@ -1,3 +1,6 @@
+import { useEffect, useState } from "react"
+import { supabase } from "../supabase"
+
 interface SpellSheetI {
   spells: {
     cantrips: string[],
@@ -13,12 +16,54 @@ interface SpellSheetI {
   }
 }
 
+interface SpellDataI {
+
+}
+
+const SpellCard = ({ spellName }: { spellName: string }) => {
+  useEffect(() => {
+    const spellLookUp = async (spellName: string) => {
+      try {
+        const { data: SpellDataI, error } = await supabase
+          .from('spells')
+          .select('*')
+          .eq('Name', spellName)
+        if (error || !SpellDataI) throw error
+        else {
+          console.log(SpellDataI)
+        }
+      } catch (error) {
+        console.log(error)
+      }
+    }
+    spellLookUp(spellName)
+  }, [])
+
+  return (
+    <div>
+
+    </div>
+  )
+}
+
 const SpellModule = ({ spells, level, spellSlots }: { spells: string[], level: string, spellSlots: number }) => {
+
+  const [SpellCardShown, setSpellCardShown] = useState(false)
   // Create an array of checkboxes based on spellSlots
   const spellSlotCheckboxes = Array.from({ length: spellSlots }, (_, index) => (
     <input key={index} type='checkbox' className='m-0.5' />
   ));
 
+
+  const displaySpell = () => {
+    setSpellCardShown(!SpellCardShown)
+    // render out a pop up box thing
+    // look up the spell from the dnd api
+    // trim the data
+    // display the data
+    // cache the data?
+    // 
+  }
 
 
   const lines = Array.from({ length: 15 }, (_, index) => index);
@@ -28,9 +73,9 @@ const SpellModule = ({ spells, level, spellSlots }: { spells: string[], level: s
     <div className='flex flex-col m-3 flex-grow bg-yellow-100 rounded-3xl text-black px-5 pb-4 py-2'>
       <div className='flex flex-row py-2'>
         <div className='flex flex-col'>
-          <p className='font-primary capitalize pb-4 text-3xl '>
+          <div className='font-primary capitalize pb-4 text-3xl '>
             {level === 'cantrips' ? <p>Cantrips</p> : <p>Level <span className='text-7xl font-accent'>{level.slice(3)}</span></p>}
-          </p>
+          </div>
           <p className='font-primary '>Prepared?</p>
         </div>
         {/* Conditionally render spell slot div */}
@@ -49,9 +94,11 @@ const SpellModule = ({ spells, level, spellSlots }: { spells: string[], level: s
           {spells[index] ? (
             <>
               <input type='checkbox' className='m-2' />
-              <p className='underline font-accent capitalize'>{spells[index]}</p>
+              <p onClick={displaySpell} className='underline font-accent capitalize'>{spells[index]}</p>
+              <div className="bg-secondary border border-solid border-primary">
+                {SpellCardShown ?  <SpellCard spellName={spells[index]} />  : null}
+              </div>
               <div>
-
                 <div className='font-accent text-xs tooltip bg-yellow-100 px-2 pt-1' data-tip='1 Action'>
                   <i className="fa-solid fa-wand-sparkles" />
                   <i className="fa-solid fa-hourglass-half" />
