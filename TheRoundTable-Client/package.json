@@ -21,6 +21,7 @@
     "primeicons": "^6.0.1",
     "primereact": "^9.6.0",
     "react": "^18.2.0",
+    "react-avatar-editor": "^13.0.0",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.45.0",
     "react-router-dom": "^6.13.0",

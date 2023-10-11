@@ -1,4 +1,4 @@
-import { UserButton, SignOutButton } from "@clerk/clerk-react";
+import { UserButton } from "@clerk/clerk-react";
 import { Dispatch, SetStateAction, useState } from "react";
 
 const themes = ['TheRoundTable', 'Stigander', 'Malarie', 'Bojack', 'Zaris']
@@ -24,9 +24,9 @@ const NavBar = ({ setTheme }: NavProps) => {
       {/* large screen spread out nav bar */}
       <div className="hidden xl:flex xl:flex-row xl:justify-end xl:gap-1 xl:items-center xl:mr-10 ">
 
-        <a href="/parties" className="btn btn-neutral btn-sm font-accent capitalize">Active Parties<i className="fa-solid fa-user-plus" /></a>
+        <a href="/parties" className="btn btn-neutral btn-sm font-accent capitalize">Active Parties<i className="fa-solid fa-users" /></a>
         <a href="/import" className="btn btn-neutral btn-sm font-accent capitalize">import character <i className="fa-solid fa-user-plus" /></a>
-        <a href="/characters" className="btn btn-neutral btn-sm font-accent capitalize">view characters <i className="fa-solid fa-people-group" /></a>
+        <a href="/characters" className="btn btn-neutral btn-sm font-accent capitalize">view characters <i className="fa-solid fa-user-group" /></a>
         <a href="/calendar" className="btn btn-neutral btn-sm font-accent capitalize">calendar <i className="fa-solid fa-calendar-days" /></a>
         <a className="btn btn-neutral btn-sm font-accent capitalize" target="_blank" href='https://www.google.com/search?q=how+to+play+dnd&oq=how+to+play+dnd'>new to dnd <i className="fa-solid fa-graduation-cap" /></a>
 
@@ -50,9 +50,9 @@ const NavBar = ({ setTheme }: NavProps) => {
             <i className="swap-on fa-solid fa-xmark" />
           </summary>
           <ul className="dropdown-content z-10 menu p-2 shadow bg-neutral rounded-box font-primary">
-            <li> <a href="/parties" className="btn btn-neutral btn-sm capitalize  hover:text-neutral-content">Active Parties<i className="fa-solid fa-user-plus" /> </a> </li>
+            <li> <a href="/parties" className="btn btn-neutral btn-sm capitalize  hover:text-neutral-content">Active Parties<i className="fa-solid fa-users" /> </a> </li>
             <li> <a href="/import" className="btn btn-neutral btn-sm capitalize  hover:text-neutral-content">import character <i className="fa-solid fa-user-plus" /> </a> </li>
-            <li> <a href="/characters" className="btn btn-neutral btn-sm capitalize  hover:text-neutral-content">view characters <i className="fa-solid fa-people-group" /> </a> </li>
+            <li> <a href="/characters" className="btn btn-neutral btn-sm capitalize  hover:text-neutral-content">view characters <i className="fa-solid fa-user-group" /> </a> </li>
             <li> <a href="/calendar" className="btn btn-neutral btn-sm capitalize  hover:text-neutral-content">calendar <i className="fa-solid fa-calendar-days" /> </a> </li>
             <li> <a className="btn btn-neutral btn-sm capitalize hover:text-neutral-content" target="_blank" href='https://www.ign.com/articles/how-to-play-dungeons-and-dragons'>new to dnd <i className="fa-solid fa-graduation-cap" /> </a> </li>
           </ul>
