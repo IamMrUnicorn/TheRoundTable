@@ -1,7 +1,7 @@
 import { Chips } from 'primereact/chips'
 import { InputText } from 'primereact/inputtext'
 import { InputNumber } from 'primereact/inputnumber'
-import { useState, useContext } from 'react'
+import React, { useState, useContext, useCallback } from 'react'
 
 import { Header, CoreStats, SavingThrows, Skills, LanguageWeapon, Inventory } from './characterSheetComponents/index'
 import { SpellSheet } from './SpellSheet'
@@ -38,7 +38,9 @@ export interface characterDataI {
     wisdom: number,
     charisma: number,
     spell_dc: number,
-    feats: string[]
+    spellcast_ability: string,
+    feats: {title: string, description:string}[],
+    class_abilities: {title: string, description:string}[],
   },
   character_proficiency: {
     strength: boolean,
@@ -103,13 +105,14 @@ export interface characterDataI {
   }
 }
 
-
-export const CharacterSheet = ({ characterData, onDelete }: { characterData: characterDataI, onDelete: (id: number) => void }) => {
+const CharacterSheetMain = (props :{ characterData: characterDataI, onDelete: (id: number) => void }, ref) => {
   const [isFlipped, setIsFlipped] = useState(false);
   const [isHidden, setIsHidden] = useState(false);
   const [isEditing, setIsEditing] = useState(false)
-  const [editableCharacterData, setEditableCharacterData] = useState(characterData)
+  const [editableCharacterData, setEditableCharacterData] = useState(props.characterData)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [isDeleted, setIsDeleted] = useState(false)
+  const [isLocked, setIsLocked] = useState(false)
   const supabase = useContext(supabaseContext)
 
   const toggleFlip = () => {
@@ -120,17 +123,20 @@ export const CharacterSheet = ({ characterData, onDelete }: { characterData: cha
   };
 
 
-  const handleInputChange = (e: any, property: string) => {
-    const newCharacterData = { ...editableCharacterData }
-    newCharacterData[property] = e.target.value
-    setEditableCharacterData(newCharacterData)
-  }
 
-  const handleChipChange = (e: any, property: string) => {
+
+
+  const handleInputChange = useCallback((value: any, property1: string, property2:String, property3:String) => {
     const newCharacterData = { ...editableCharacterData }
-    newCharacterData[property] = e.value
+    if (property3 === undefined && property2 === undefined) {
+      newCharacterData[property1] = value
+    } else if (property3 === undefined) {
+      newCharacterData[property1][property2] = value
+    } else {
+      newCharacterData[property1][property2][property3] = value
+    }
     setEditableCharacterData(newCharacterData)
-  }
+  }, [])
 
   const handleSubmit = () => {
     console.log(editableCharacterData)
@@ -148,7 +154,8 @@ export const CharacterSheet = ({ characterData, onDelete }: { characterData: cha
   };
 
   const handleDelete = async () => {
-    const characterId = characterData.id;
+    setIsDeleted(!isDeleted)
+    const characterId = props.characterData.id;
 
     try {
       await deleteFromTable('character_inventory', 'character_id', characterId);
@@ -158,7 +165,7 @@ export const CharacterSheet = ({ characterData, onDelete }: { characterData: cha
 
       // Finally, delete the character
       await deleteFromTable('characters', 'id', characterId);
-      onDelete(characterId);
+      props.onDelete(characterId);
     } catch (error) {
       console.log(error);
     }
@@ -167,11 +174,11 @@ export const CharacterSheet = ({ characterData, onDelete }: { characterData: cha
 
 
 
-  if (characterData === undefined) {
+  if (props.characterData === undefined) {
     return <LoadingPage />
   }
   return (
-    <div className="rounded">
+    <div ref={ref} className="rounded">
 
       <div className={`${isHidden ? 'hidden' : ''} rounded text-black ${isFlipped ? 'z-10' : 'z-20'}`} style={{
         transformStyle: 'preserve-3d',
@@ -179,23 +186,28 @@ export const CharacterSheet = ({ characterData, onDelete }: { characterData: cha
         transition: 'all 0.5s ease-in-out',
         transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)'
       }}>
-        <button className="btn btn-primary font-accent capitalize m-5" onClick={toggleFlip}>Flip For Spell Sheet</button>
-        <button className="btn btn-primary font-accent capitalize m-5" onClick={() => { setIsEditing(!isEditing) }}>{isEditing ? 'click to discard changes' : 'Edit Character'}</button>
-        {isEditing ? <button className="btn btn-primary font-accent capitalize m-5" onClick={()=>console.log('save')}>Click Me To Save Changes</button> : null}
-        <button className="btn btn-primary font-accent capitalize m-5" onClick={() => { setIsDeleting(!isDeleting) }}>{isDeleting ? 'Are You Sure? Click Me To Cancel' : 'Delete Character'}</button>
-        {isDeleting ? <button className="btn btn-primary font-accent capitalize m-5" onClick={handleDelete}>Click Me To Confirm Deletion</button> : null}
+        <button className={`btn btn-primary font-accent capitalize m-5 ${isDeleting || isEditing || isDeleted ? 'btn-disabled' : ''}`} onClick={toggleFlip}>Flip For Spell Sheet</button>
+        <button className='btn btn-primary font-accent capitalize m-5' onClick={()=>setIsLocked(!isLocked)}>{ isLocked ? 'Unlock Character Sheet' : 'Lock Character Sheet'}</button>
+        {isLocked ? null : <div>
+          <button className={`btn btn-primary font-accent capitalize m-5 ${isDeleting || isDeleted ? 'btn-disabled' : ''}`} onClick={() => { setIsEditing(!isEditing) }}>{isEditing ? 'click to discard changes' : 'Edit Character'}</button>
+          {isEditing ? <button className="btn btn-primary font-accent capitalize m-5" onClick={() => setEditableCharacterData(props.characterData)}>Click Me To Reset Values To Default</button> : null}
+          {isEditing ? <button className="btn btn-primary font-accent capitalize m-5" onClick={() => console.log('save')}>Click Me To Save Changes</button> : null}
+          <button className={`btn btn-primary font-accent capitalize m-5 ${isEditing || isDeleted ? 'btn-disabled' : ''}`} onClick={() => { setIsDeleting(!isDeleting) }}>{isDeleting ? 'Are You Sure? Click Me To Cancel' : 'Delete Character'}</button>
+          {isDeleting ? <button className={`btn btn-primary font-accent capitalize m-5 ${isDeleted ? 'btn-disabled' : ''}`} onClick={handleDelete}>Click Me To Confirm Deletion</button> : null}
+        </div> }
 
-        <div className="flex flex-col p-8 bg-yellow-100 rounded-3xl ">
-          <Header characterData={characterData} isEditing={isEditing} onInputChange={handleInputChange} onChipChange={handleChipChange} />
-          <CoreStats characterData={characterData} />
+        <div className="flex flex-col p-8 bg-neutral rounded-3xl ">
+          <Header characterData={props.characterData} isEditing={isEditing} onInputChange={handleInputChange} editableCharacterData={editableCharacterData} />
+          <CoreStats characterData={props.characterData} isEditing={isEditing} onInputChange={handleInputChange} editableCharacterData={editableCharacterData} />
           <div className="flex flex-row h-min ">
             <div className="flex flex-col w-1/2">
-              <SavingThrows characterData={characterData} />
-              <Skills characterData={characterData} />
+              <SavingThrows characterData={props.characterData} isEditing={isEditing} onInputChange={handleInputChange} editableCharacterData={editableCharacterData}/>
+              <Skills characterData={props.characterData} isEditing={isEditing} onInputChange={handleInputChange} editableCharacterData={editableCharacterData}/>
             </div>
-            <LanguageWeapon characterData={characterData} />
+            <LanguageWeapon characterData={props.characterData} isEditing={isEditing} onInputChange={handleInputChange} editableCharacterData={editableCharacterData}/>
           </div>
-          <Inventory characterData={characterData} />
+          <p className='mx-auto p-3 font-primary text-3xl'>Inventory</p>
+          <Inventory characterData={props.characterData} isEditing={isEditing} onInputChange={handleInputChange} editableCharacterData={editableCharacterData}/>
         </div>
       </div>
 
@@ -207,12 +219,13 @@ export const CharacterSheet = ({ characterData, onDelete }: { characterData: cha
       }}>
         <button className="btn btn-primary font-accent capitalize ml-44 m-5" onClick={toggleFlip}>Flip Back For Character Sheet</button>
         <button className="btn btn-primary font-accent capitalize m-5" onClick={() => { console.log('edit') }}>Edit</button>
-        <SpellSheet spells={characterData.character_inventory.spells} />
+        <SpellSheet spells={props.characterData.character_inventory.spells} />
       </div>
     </div>
   )
 }
 
+export const CharacterSheet = React.memo(React.forwardRef(CharacterSheetMain));
 
 /*
 const handleSave = async () => {
@@ -358,3 +371,14 @@ const handleSave = async () => {
     }
   }
 }; */
+
+/**
+ * make class & subclass specific modules, maybe pop-up modals 
+ * 
+ * 
+ * make it new player friendly!,
+ * show how to calculate values for different stat points
+ * explain what dice are used for what
+ * add question marks to everything
+ * add push pull and carry values, = to strength
+ */
