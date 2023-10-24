@@ -1,4 +1,4 @@
-import { useEffect, useContext, useState } from "react";
+import { useEffect, useContext, useState, useRef } from "react";
 import { supabaseContext } from "../supabase";
 import { CharacterSheet, characterDataI } from "../Components/CharacterSheet";
 import { CharacterPageProps } from "./CharacterImportPage";
@@ -6,7 +6,36 @@ import { CharacterPageProps } from "./CharacterImportPage";
 
 const CharactersPage = ({ user_id }: CharacterPageProps) => {
   const supabase = useContext(supabaseContext)
+  const [isButtonDisabled, setButtonDisabled] = useState(false);
+  const [counter, setCounter] = useState(0)
   const [characters, setCharacters] = useState<characterDataI[] | null>(null)
+  const topCharacterRef = useRef(null);
+  const newCharacterRef = useRef(null);
+
+  const numToFunny = (n: number) => {
+
+
+    const suffixes = ['th', 'st', 'nd', 'rd'];
+    let suffix = suffixes[0]; // default to 'th'
+
+    if (n % 100 < 11 || n % 100 > 13) {
+      switch (n % 10) {
+        case 1:
+          suffix = suffixes[1];
+          break;
+        case 2:
+          suffix = suffixes[2];
+          break;
+        case 3:
+          suffix = suffixes[3];
+          break;
+      }
+    }
+
+    return `the ${n}${suffix}`;
+  }
+
+
   useEffect(() => {
     const getCharacterData = async (clerk: string) => {
       try {
@@ -58,6 +87,7 @@ const CharactersPage = ({ user_id }: CharacterPageProps) => {
           character.languages = JSON.parse(character.languages)
           character.proficiencies = JSON.parse(character.proficiencies)
           character.character_stats.feats = JSON.parse(character.character_stats.feats);
+          character.character_stats.class_abilities = JSON.parse(character.character_stats.class_abilities);
           delete character.character_proficiency.character_id;
 
           ['spells', 'weapons', 'inventory'].forEach(key => {
@@ -74,14 +104,21 @@ const CharactersPage = ({ user_id }: CharacterPageProps) => {
       }
     };
     getCharacterData(user_id)
-  }, [])
+  }, [counter])
+
+  useEffect(() => {
+    if (newCharacterRef.current) {
+      newCharacterRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [characters]);
 
   const removeCharacterById = (id: number) => {
     setCharacters(prev => prev ? prev.filter(character => character.id !== id) : null);
-};
+  };
 
 
   const createNpc = async () => {
+    setButtonDisabled(true);
     const inventory = JSON.stringify({
       copper: 0,
       silver: 0,
@@ -119,7 +156,7 @@ const CharactersPage = ({ user_id }: CharacterPageProps) => {
       'character': {
         clerk_user_id: user_id,
         party_id: null,
-        name: 'joe mama',
+        name: `Joeseph Joema The ${numToFunny(counter)}`,
         image_url: null,
         race: ['npc'],
         class: ['npc'],
@@ -214,6 +251,11 @@ const CharactersPage = ({ user_id }: CharacterPageProps) => {
             .insert(DBsubmission.inventory)
           if (error) {
             console.log(error)
+          } else {
+            setTimeout(() => {
+              setButtonDisabled(false);  // Enable the button after a delay
+            }, 5000);
+            setCounter((prev) => prev += 1)
           }
         }
       }
@@ -222,10 +264,14 @@ const CharactersPage = ({ user_id }: CharacterPageProps) => {
 
   return (
     <div className="flex flex-col items-center justify-center ">
-      <button onClick={createNpc} className="btn btn-primary btn-xl font-accent capitalize" >add a new character</button>
+      <button onClick={createNpc} disabled={isButtonDisabled} className="btn btn-primary btn-xl font-accent capitalize m-5" >add a new character</button>
       {characters?.map((chracter, index) => (
-        <CharacterSheet key={index} characterData={chracter} onDelete={removeCharacterById} />
+        <CharacterSheet key={chracter.id} ref={index === 0 ? topCharacterRef : (index === characters.length - 1 ? newCharacterRef : null)} characterData={chracter} onDelete={removeCharacterById} />
       ))}
+      <button className='btn btn-primary btn-circle m-5 p-2' onClick={() => topCharacterRef.current?.scrollIntoView({ behavior: 'smooth' })}>
+        Scroll to Top
+      </button>
+
     </div>
   )
 }

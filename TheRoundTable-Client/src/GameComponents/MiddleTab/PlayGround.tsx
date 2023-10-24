@@ -1,20 +1,62 @@
-import {FC} from "react";
+import React, { useRef } from "react";
+import { TransformWrapper, TransformComponent, ReactZoomPanPinchRef} from "react-zoom-pan-pinch";
 
 
-const PlayGround:FC = () => {
+
+const Controls = ({ zoomIn, zoomOut, resetTransform }) => (
+  <div>
+    <button onClick={() => zoomIn()}>+</button>
+    <button onClick={() => zoomOut()}>-</button>
+    <button onClick={() => resetTransform()}>x</button>
+  </div>
+);
+
+const Component = ({imgSrc}:{imgSrc:string}) => {
+  const transformComponentRef = useRef<ReactZoomPanPinchRef | null>(null);
+
+  const zoomToImage = () => {
+    if (transformComponentRef.current) {
+      const { zoomToElement } = transformComponentRef.current;
+      zoomToElement("imgExample");
+    }
+  };
+
+  return (
+    <TransformWrapper
+
+      initialScale={1}
+      initialPositionX={200}
+      initialPositionY={100}
+      ref={transformComponentRef}
+    >
+      {(utils) => (
+        <React.Fragment>
+          <Controls {...utils} />
+          <TransformComponent>
+            <img src={imgSrc} alt="test" id="imgExample" />
+            <div onClick={zoomToImage}>Example text</div>
+          </TransformComponent>
+        </React.Fragment>
+      )}
+    </TransformWrapper>
+  );
+};
+      
+
+const PlayGround: FC = () => {
 
   return (
     <div className="bg-secondary flex flex-col">
 
       <div className="PlayGround-map h-[30vh] lg:h-[42vh] flex justify-center">
-        <img className="object-contain" src="https://preview.redd.it/high-quality-elden-ring-map-all-grace-sites-6509x6809-jpg-v0-q6m3ni3st4s81.jpg?auto=webp&s=7fb6eb3e3a1f44e933ae85b6b1d630f3123b6003" />
-      </div>
-      {/* <div className="PlayGround-camera">
+        <Component imgSrc='/Aethoria.jpeg'/>
+        {/* <div className="PlayGround-camera">
       </div> */}
+        </div >
 
-      {/* reaction pop up */}
-    </div>
-  )
+        {/* reaction pop up */}
+      </div>
+      )
 }
 
-export default PlayGround
+      export default PlayGround
