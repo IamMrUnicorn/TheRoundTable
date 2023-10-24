@@ -4,7 +4,7 @@ import PlayerToolsMobile from './PlayerToolsMobile'
 import DMTools from './DMTools'
 import ActionLog from './ActionLog'
 import TurnOrder from "./TurnOrder";
-import DMScreen from './DMScreen'
+import {DMScreen} from '../../Components/DMScreen'
 import DMToolsMobile from './DMToolsMobile'
 
 export {
