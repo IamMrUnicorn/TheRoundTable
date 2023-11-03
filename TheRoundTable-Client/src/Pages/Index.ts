@@ -1,10 +1,14 @@
-import LandingPage from "./LandingPage.tsx";
-import ErrorPage from "./ErrorPage.tsx";
-import CharacterImportPage from "./CharacterImportPage.tsx";
-import CharactersPage from "./CharactersPage.tsx";
-import CalendarPage from "./CalendarPage.tsx";
-import PlayerPage from './PlayerPage.tsx'
-import DMPage from './DMPage.tsx'
+import LandingPage from "./LandingPage";
+import ErrorPage from "./ErrorPage";
+import CharacterImportPage from "./CharacterImportPage";
+import CharactersPage from "./CharactersPage";
+import CalendarPage from "./CalendarPage";
+import PlayerPage from './PlayerPage'
+import DMPage from './DMPage'
+import { WaitingPage } from './WaitingPage';
+import { GamePage } from './GamePage';
+import { ActiveParties } from './ActiveParties';
+import SignInPage from './SignInPage';
 
 export {
   LandingPage,
@@ -14,4 +18,8 @@ export {
   CalendarPage,
   PlayerPage,
   DMPage,
+  WaitingPage,
+  GamePage,
+  ActiveParties,
+  SignInPage
 }

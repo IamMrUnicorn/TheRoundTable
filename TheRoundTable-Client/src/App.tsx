@@ -1,35 +1,31 @@
-import { useContext, FC, useState } from 'react'
+import { useContext, FC, useState, useEffect } from 'react'
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { CalendarPage, CharacterImportPage, CharactersPage, ErrorPage, LandingPage} from './Pages/Index.ts'
+import { CalendarPage, CharacterImportPage, CharactersPage, ErrorPage, LandingPage, WaitingPage, GamePage, ActiveParties, SignInPage} from './Pages/Index.ts'
+import { supabaseContext } from './utils/supabase';
 // import { SocketContext } from './socket.ts'
-import { supabaseContext } from './supabase.ts';
-import { useUser } from '@clerk/clerk-react'
+
 
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 
 import './App.css'
-import NavBar from './Components/NavBar.tsx'
-
-import { WaitingPage } from './Pages/WaitingPage.tsx';
-import { GamePage } from './Pages/GamePage.tsx';
-import { ActiveParties } from './Pages/ActiveParties.tsx';
+import NavBar from './Components/NavBar'
 
 
 const App: FC = () => {
 
   const [theme, setTheme] = useState('TheRoundTable')
-  const { user } = useUser();
   // const socket = useContext(SocketContext)
-  const supabase = useContext(supabaseContext)
+  // const [session, setSession] = useState(null);
+  const supabase = useContext(supabaseContext);
 
-  if (!user) {
-    return (
-      <div>
-        not signed in... what? how???
-      </div>
-    )
-  }
+ 
+
+  
+  // if (!session) {
+  //   return <SignInPage />;
+  // }
+
 
 
   return (
@@ -42,12 +38,12 @@ const App: FC = () => {
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<LandingPage />} />
-              <Route path="/parties" element={<ActiveParties user_id={user.id}/>} />
+              {/* <Route path="/parties" element={<ActiveParties user_id={user.id}/>} />
               <Route path="/import" element={<CharacterImportPage user_id={user.id}/>} />
               <Route path="/characters" element={<CharactersPage user_id={user.id}/>} />
               <Route path="/calendar" element={<CalendarPage />} />
               <Route path="/waiting-room/:roomName" element={<WaitingPage user_id={user.id}/>} />
-              <Route path="/rooms/:roomName" element={<GamePage user_id={user.id}/>} />
+              <Route path="/rooms/:roomName" element={<GamePage user_id={user.id}/>} /> */}
               <Route path="*" element={<ErrorPage />} />
             </Routes>
           </BrowserRouter>

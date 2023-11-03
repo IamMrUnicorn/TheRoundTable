@@ -1,5 +1,5 @@
 import { useEffect, useContext, useState } from "react"
-import { supabaseContext } from "../supabase";
+import { supabaseContext } from "../utils/supabase";
 import { LoadingPage } from "./LoadingPage";
 
 

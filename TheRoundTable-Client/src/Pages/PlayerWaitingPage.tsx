@@ -1,7 +1,7 @@
 import { Tldraw } from '@tldraw/tldraw';
 import '@tldraw/tldraw/tldraw.css';
 import { useEffect, useState } from 'react';
-import { supabase } from '../supabase';
+import { supabase } from '../utils/supabase';
 
 export interface waitingPageI {
   user_id: string;

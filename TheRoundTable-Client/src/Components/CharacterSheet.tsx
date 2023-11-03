@@ -6,7 +6,7 @@ import React, { useState, useContext, useCallback } from 'react'
 import { Header, CoreStats, SavingThrows, Skills, LanguageWeapon, Inventory } from './characterSheetComponents/index'
 import { SpellSheet } from './SpellSheet'
 import { LoadingPage } from '../Pages/LoadingPage'
-import { supabaseContext } from '../supabase'
+import { supabaseContext } from '../utils/supabase'
 
 
 export interface characterDataI {

@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from 'react'
-import { supabaseContext } from '../supabase';
+import { supabaseContext } from '../utils/supabase';
 import { DMSetupPage } from "./DMSetupPage";
 import { PlayerWaitingPage } from './PlayerWaitingPage';
 import { LoadingPage } from './LoadingPage';
