@@ -1,4 +1,3 @@
-import { UserButton } from "@clerk/clerk-react";
 import { Dispatch, SetStateAction, useState } from "react";
 
 const themes = ['TheRoundTable', 'Stigander', 'Malarie', 'Bojack', 'Zaris']
@@ -38,7 +37,6 @@ const NavBar = ({ setTheme }: NavProps) => {
             ))}
           </ul>
         </div>
-        <UserButton />
       </div>
 
       {/* smaller screens compact menu button */}
@@ -66,7 +64,6 @@ const NavBar = ({ setTheme }: NavProps) => {
             ))}
           </ul>
         </div>
-        <UserButton />
       </div>
 
     </nav>

@@ -1,64 +1,13 @@
 import { FC, useState, useEffect, useContext } from "react";
-import { useUser } from '@clerk/clerk-react';
 import CreateRoomModal from "../GameComponents/Modals/CreateRoomModal";
-import { supabaseContext } from "../supabase";
+import { supabaseContext } from "../utils/supabase";
 
 const LandingPage: FC = () => {
   const [code, setCode] = useState("");
   const [createRoomClicked, setcreateRoomClicked] = useState(false);
-  const { user } = useUser();
   const supabase = useContext(supabaseContext)
 
-  useEffect(() => {
-    const updateUserInDatabase = async () => {
-      if (!user) return;
 
-      // Check if user already exists in Supabase
-      const { data: existingUser, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('clerk_user_id', user.id)
-        .maybeSingle();
-
-      if (error) {
-        console.error('Error checking user:', error);
-        return;
-      }
-
-      // If user doesn't exist in Supabase, add them
-      if (!existingUser) {
-        const { error: insertError } = await supabase
-          .from('users')
-          .insert([
-            {
-              clerk_user_id: user.id,
-              email: user.emailAddresses[0]?.emailAddress,
-              username: user.username
-            },
-          ]);
-
-        if (insertError) {
-          console.error('Error inserting user:', insertError);
-        }
-      } else {
-        // If user already exists, you can choose to update their record
-        const { error: updateError } = await supabase
-          .from('users')
-          .update({
-            // Update any fields that might have changed
-            email: user.emailAddresses[0]?.emailAddress,
-            username: user.username
-          })
-          .eq('clerk_user_id', user.id);
-
-        if (updateError) {
-          console.error('Error updating user:', updateError);
-        }
-      }
-    };
-
-    updateUserInDatabase();
-  }, [])
   return (
     <div className="h-[95vh] flex flex-col text-white items-center justify-evenly bg-black ">
         <h1 className="title font-neutral">THE ROUND TABLE

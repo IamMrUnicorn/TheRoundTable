@@ -1,7 +1,6 @@
 import { useState, useRef } from "react";
 import { HealthBar } from "../HealthBar";
 import AvatarEditor from 'react-avatar-editor';
-import { useUser } from '@clerk/clerk-react';
 import { Chips } from "primereact/chips";
 import { customChip } from "../../Pages/CharacterImportPage";
 import { CharacterSheetComponentI } from "./CoreStats";
@@ -85,7 +84,6 @@ const CheckboxRow = ({ title }) => (
 );
 
 export const Header = ({ characterData, isEditing, onInputChange,  editableCharacterData } : CharacterSheetComponentI) => {
-  const { user } = useUser();
   const [image, setImage] = useState(null);
   const [editorOpen, setEditorOpen] = useState(false);
   const [scale, setScale] = useState(1);

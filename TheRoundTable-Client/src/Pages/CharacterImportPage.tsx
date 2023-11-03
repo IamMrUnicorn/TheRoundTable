@@ -3,7 +3,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { Chips } from "primereact/chips";
-import { supabaseContext } from '../supabase';
+import { supabaseContext } from '../utils/supabase';
 
 export interface CharacterPageProps {
   user_id: string

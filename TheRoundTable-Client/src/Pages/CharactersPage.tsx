@@ -1,5 +1,5 @@
 import { useEffect, useContext, useState, useRef } from "react";
-import { supabaseContext } from "../supabase";
+import { supabaseContext } from "../utils/supabase";
 import { CharacterSheet, characterDataI } from "../Components/CharacterSheet";
 import { CharacterPageProps } from "./CharacterImportPage";
 
@@ -68,7 +68,7 @@ const CharactersPage = ({ user_id }: CharacterPageProps) => {
           .eq('clerk_user_id', clerk)
 
         if (error || !characterDataI) throw error;
-        const transformedCharacters = await Promise.all(characterDataI.map(async (character: any): Promise<characterDataI> => {
+        const transformedCharacters: characterDataI[] = await Promise.all(characterDataI.map(async (character: any): Promise<characterDataI> => {
           if (character.party_id) {
             const { data: party } = await supabase
               .from('parties')
@@ -229,7 +229,6 @@ const CharactersPage = ({ user_id }: CharacterPageProps) => {
     if (error) {
       console.log(error)
     } else {
-      console.log(data[0])
       const characterId = data[0].id;
       DBsubmission.stats.character_id = characterId;
       DBsubmission.proficiency.character_id = characterId;
@@ -253,7 +252,7 @@ const CharactersPage = ({ user_id }: CharacterPageProps) => {
             console.log(error)
           } else {
             setTimeout(() => {
-              setButtonDisabled(false);  // Enable the button after a delay
+              setButtonDisabled(false);
             }, 5000);
             setCounter((prev) => prev += 1)
           }

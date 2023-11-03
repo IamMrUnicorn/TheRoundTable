@@ -1,12 +1,42 @@
-import { FC } from "react";
-import { SignInButton, SignUpButton } from "@clerk/clerk-react";
+import { FC, useState, useContext } from "react";
+import { supabaseContext } from '../Utils/supabase';
+
 
 
 
 const SignInPage: FC = () => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const supabase = useContext(supabaseContext);
+
+
+  const handleLogInWith = async (provider:string) => {
+    setLoading(true);
+    setError('');
+
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: provider
+    });
+
+    if (error) {
+      setError(error.message);
+    } else {
+      console.log(data)
+      window.location.href = '/'
+    }
+
+    setLoading(false);
+  };
+
+  
 
   return (
     <div className="h-[100vh] flex flex-col text-white items-center justify-evenly bg-black ">
+      {loading 
+        ? (<div className='bg-primary z-30 h-3/4 w-1/4'>
+
+        </div>) 
+      : null}
       <h1 className="title font-neutral">THE ROUND TABLE
         <div className="aurora">
           <div className="aurora__item"></div>
@@ -21,7 +51,8 @@ const SignInPage: FC = () => {
 
         <div className='flex flex-row justify-center'>
           <label className='btn btn-accent capitalize font-accent m-1' >
-            <SignUpButton />
+            {/* <SignUpButton /> */}
+            <button className='btn btn primary font-accent' onClick={()=>setLoading(true)}>Sign Up</button>
           </label>
 
         </div>
@@ -33,7 +64,8 @@ const SignInPage: FC = () => {
 
         <div className='flex flex-row justify-center'>
           <label className='btn btn-accent capitalize font-accent m-1' >
-            <SignInButton />
+            {/* <SignInButton /> */}
+            <button className='btn btn primary font-accent'>Sign In</button>
           </label>
         </div>
       </div>
