@@ -206,7 +206,6 @@ export const GamePage = ({ user_id }: { user_id: string }) => {
     if (error) {
       console.log(error)
     } else {
-      console.log(data)
       if (data![0].setup === false) {
         window.location.href = `/waiting-room/${partyName}`
       }
@@ -219,6 +218,7 @@ export const GamePage = ({ user_id }: { user_id: string }) => {
     
     let partyNameInUrl = decodeURIComponent(window.location.pathname.slice(7));
     getRoomStatus(partyNameInUrl)
+    
     isUserTheDm(partyNameInUrl)
     getRoomIdFromName(partyNameInUrl)
       .then(roomId => {

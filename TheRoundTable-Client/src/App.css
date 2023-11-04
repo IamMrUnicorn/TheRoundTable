@@ -84,6 +84,25 @@
   background-color: rgba(125, 125, 125, 0.8);
 }
 
+/* For Firefox */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* For Chrome, Safari, and Opera */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* For IE and Edge */
+input[type="number"]::-ms-clear {
+  display: none;
+}
+
 .ZTOP {
   z-index: 1000;
 }

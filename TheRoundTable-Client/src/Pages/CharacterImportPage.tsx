@@ -161,6 +161,14 @@ interface CharacterFormData {
   magicalWeapons: string[];
 }
 
+export const customChip = (item: string) => {
+  return (
+    <div className='rounded-lg bg-primary text-center w-min whitespace-nowrap p-1 m-1'>
+      <span className='text-primary-content'>{item}</span>
+    </div>
+  );
+};
+
 const CharacterForm = ({ user_id }: CharacterPageProps) => {
   const supabase = useContext(supabaseContext)
   const { control, handleSubmit, formState: { errors } } = useForm({
@@ -315,19 +323,15 @@ const CharacterForm = ({ user_id }: CharacterPageProps) => {
             .insert(DBsubmission.inventory)
           if (error) {
             console.log(error)
+          } else {
+            window.location.href = '/characters'
           }
         }
       }
     }
   };
 
-  const customChip = (item: string) => {
-    return (
-      <div className='rounded-lg bg-primary text-center w-min whitespace-nowrap p-1 m-1'>
-        <span className='text-primary-content'>{item}</span>
-      </div>
-    );
-  };
+
 
   return (
     <form className='flex flex-col' onSubmit={handleSubmit(onSubmit)}>

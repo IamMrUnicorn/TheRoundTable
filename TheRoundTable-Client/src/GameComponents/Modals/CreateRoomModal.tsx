@@ -33,7 +33,7 @@ const CreateRoomModal = ({setPopup}:CreateRoomModalProps) => {
 
     const RoomInfo = {
       DM_clerk_id: _data.DMcheck === true ? user?.id : null,
-      name: _data.name,
+      name: _data.name.toLowerCase(),
       creator_clerk_id: user?.id,
       setup: false
     }

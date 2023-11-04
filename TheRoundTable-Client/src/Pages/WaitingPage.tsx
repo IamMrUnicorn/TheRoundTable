@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from 'react'
 import { supabaseContext } from '../supabase';
-import { DMSetupPage } from './DMSetupPage';
+import { DMSetupPage } from "./DMSetupPage";
 import { PlayerWaitingPage } from './PlayerWaitingPage';
 import { LoadingPage } from './LoadingPage';
 
@@ -21,7 +21,6 @@ export const WaitingPage = ({user_id}: {user_id: string}) => {
     if (error) {
       console.log(error)
     } else {
-      console.log(data)
       setUserisDM(user_id === data[0].DM_clerk_id ? true : false)
     }
   }
@@ -35,7 +34,7 @@ export const WaitingPage = ({user_id}: {user_id: string}) => {
   useEffect(() =>{
     setPartyNameFromURL()
     isUserTheDm(partyName)
-  }, [userisDM])
+  }, [partyName])
 
   if (userisDM === true) {
     return <DMSetupPage user_id={user_id} />
