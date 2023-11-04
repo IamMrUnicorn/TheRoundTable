@@ -265,12 +265,12 @@ const CharactersPage = ({ user_id }: CharacterPageProps) => {
   return (
     <div className="flex flex-col items-center justify-center ">
       <button onClick={createNpc} disabled={isButtonDisabled} className="btn btn-primary btn-xl font-accent capitalize m-5" >add a new character</button>
-      {characters?.map((chracter, index) => (
-        <CharacterSheet key={chracter.id} ref={index === 0 ? topCharacterRef : (index === characters.length - 1 ? newCharacterRef : null)} characterData={chracter} onDelete={removeCharacterById} />
-      ))}
-      <button className='btn btn-primary btn-circle m-5 p-2' onClick={() => topCharacterRef.current?.scrollIntoView({ behavior: 'smooth' })}>
-        Scroll to Top
-      </button>
+      <div>
+        {characters?.map((chracter, index) => (
+          <CharacterSheet key={chracter.id} ref={index === 0 ? topCharacterRef : (index === characters.length - 1 ? newCharacterRef : null)} characterData={chracter} onDelete={removeCharacterById} />
+        ))}
+        <button className='fixed right-0 bottom-0  btn btn-primary btn-circle m-5 p-2' onClick={() => topCharacterRef.current?.scrollIntoView({ behavior: 'smooth' })}> Scroll to Top </button>
+      </div>
 
     </div>
   )
