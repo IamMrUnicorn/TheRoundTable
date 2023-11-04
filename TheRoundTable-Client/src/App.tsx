@@ -2,6 +2,8 @@ import { useContext, FC, useState, useEffect } from 'react'
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { CalendarPage, CharacterImportPage, CharactersPage, ErrorPage, LandingPage, WaitingPage, GamePage, ActiveParties, SignInPage} from './Pages/Index.ts'
 import { supabaseContext } from './utils/supabase';
+import { Auth } from '@supabase/auth-ui-react'
+import { ThemeSupa } from '@supabase/auth-ui-shared'
 // import { SocketContext } from './socket.ts'
 
 
@@ -10,48 +12,63 @@ import 'primeicons/primeicons.css';
 
 import './App.css'
 import NavBar from './Components/NavBar'
+import { ProfilePage } from './Pages/ProfilePage';
 
 
 const App: FC = () => {
 
+  const [session, setSession] = useState(null)
   const [theme, setTheme] = useState('TheRoundTable')
   // const socket = useContext(SocketContext)
-  // const [session, setSession] = useState(null);
   const supabase = useContext(supabaseContext);
 
- 
 
-  
-  // if (!session) {
-  //   return <SignInPage />;
-  // }
+    useEffect(() => {
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        setSession(session)
+      })
+
+      const {
+        data: { subscription },
+      } = supabase.auth.onAuthStateChange((_event, session) => {
+        setSession(session)
+      })
+
+      return () => subscription.unsubscribe()
+    }, [])
+
+    if (!session) {
+      return <SignInPage />;
+    }
+    else {
+      return (
+        // <SocketContext.Provider value={socket}>
+          <supabaseContext.Provider value={supabase}>
+            <div data-theme={localStorage.getItem('theme') || theme} className='h-screen max-w-screen overflow-x-hidden hiddenScroll'>
+    
+              <NavBar setTheme={setTheme}/>
+    
+              <BrowserRouter>
+                <Routes>
+                  <Route path="/" element={<LandingPage />} />
+                  <Route path="/profile" element={<ProfilePage />} />
+                  <Route path="/parties" element={<ActiveParties user_id={1}/>} />
+                  <Route path="/import" element={<CharacterImportPage user_id={1}/>} />
+                  <Route path="/characters" element={<CharactersPage user_id={1}/>} />
+                  <Route path="/calendar" element={<CalendarPage />} />
+                  <Route path="/waiting-room/:roomName" element={<WaitingPage user_id={1}/>} />
+                  <Route path="/rooms/:roomName" element={<GamePage user_id={1}/>} />
+                  <Route path="*" element={<ErrorPage />} />
+                </Routes>
+              </BrowserRouter>
+    
+            </div>
+          </supabaseContext.Provider>
+        // </SocketContext.Provider>
+      )
+    }
 
 
-
-  return (
-    // <SocketContext.Provider value={socket}>
-      <supabaseContext.Provider value={supabase}>
-        <div data-theme={localStorage.getItem('theme') || theme} className='h-screen max-w-screen overflow-x-hidden hiddenScroll'>
-
-          <NavBar setTheme={setTheme}/>
-
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<LandingPage />} />
-              {/* <Route path="/parties" element={<ActiveParties user_id={user.id}/>} />
-              <Route path="/import" element={<CharacterImportPage user_id={user.id}/>} />
-              <Route path="/characters" element={<CharactersPage user_id={user.id}/>} />
-              <Route path="/calendar" element={<CalendarPage />} />
-              <Route path="/waiting-room/:roomName" element={<WaitingPage user_id={user.id}/>} />
-              <Route path="/rooms/:roomName" element={<GamePage user_id={user.id}/>} /> */}
-              <Route path="*" element={<ErrorPage />} />
-            </Routes>
-          </BrowserRouter>
-
-        </div>
-      </supabaseContext.Provider>
-    // </SocketContext.Provider>
-  )
 }
 
 export default App
