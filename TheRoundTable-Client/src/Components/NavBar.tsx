@@ -37,6 +37,8 @@ const NavBar = ({ setTheme }: NavProps) => {
             ))}
           </ul>
         </div>
+        <button href="/profile">profile</button>
+
       </div>
 
       {/* smaller screens compact menu button */}
@@ -64,6 +66,7 @@ const NavBar = ({ setTheme }: NavProps) => {
             ))}
           </ul>
         </div>
+        <button>profile</button>
       </div>
 
     </nav>
