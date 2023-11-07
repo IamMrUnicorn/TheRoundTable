@@ -1,13 +1,15 @@
 import { useEffect, useContext, useState, useRef } from "react";
-import { supabaseContext } from "../utils/supabase";
+import { supabaseContext } from "../Utils/supabase";
 import { CharacterSheet, characterDataI } from "../Components/CharacterSheet";
-import { CharacterPageProps } from "./CharacterImportPage";
+import { LoadingPage } from "./Index";
+import {getAllCharacterIdsByUser, getCharacterById} from '../Utils/SupabaseFns'
 
-
-const CharactersPage = ({ user_id }: CharacterPageProps) => {
+const CharactersPage = () => {
   const supabase = useContext(supabaseContext)
   const [isButtonDisabled, setButtonDisabled] = useState(false);
+  const [isLoading, setIsloading] = useState(false)
   const [counter, setCounter] = useState(0)
+  const [userId, setuserId] = useState<number | null>(null)
   const [characters, setCharacters] = useState<characterDataI[] | null>(null)
   const topCharacterRef = useRef(null);
   const newCharacterRef = useRef(null);
@@ -35,76 +37,40 @@ const CharactersPage = ({ user_id }: CharacterPageProps) => {
     return `the ${n}${suffix}`;
   }
 
+  const getUserId =async () => {
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('id')
+        .single()
+        if (error) throw error
+        setuserId(data.id)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  
+
+
 
   useEffect(() => {
-    const getCharacterData = async (clerk: string) => {
-      try {
-        const { data: characterDataI, error } = await supabase
-          .from('characters')
-          .select(`
-            id,
-            party_id,
-            name,
-            image_url,
-            race,
-            class,
-            subclass,
-            background,
-            alignment,
-            level,
-            hitdice,
-            languages,
-            proficiencies,
-            character_stats:character_stats (
-              *
-            ),
-            character_proficiency:character_proficiency (
-              *
-            ),
-            character_inventory:character_inventory (
-              *
-            )
-          `)
-          .eq('clerk_user_id', clerk)
+    const fetchAllCharacters = async () => {
+      setIsloading(true)
+      await getUserId()
+      const characterIds = await getAllCharacterIdsByUser(userId);
+      setIsloading(false)
+      if (characterIds) {
+        
+        const characterDetailsPromises = characterIds.map((id) => getCharacterById(id));
+        const characterDetails = await Promise.all(characterDetailsPromises);
 
-        if (error || !characterDataI) throw error;
-        const transformedCharacters: characterDataI[] = await Promise.all(characterDataI.map(async (character: any): Promise<characterDataI> => {
-          if (character.party_id) {
-            const { data: party } = await supabase
-              .from('parties')
-              .select('name')
-              .eq('id', character.party_id)
-              .single();
-            character.party_id = party ? party.name : null;
-          }
-
-          character.character_stats = character.character_stats[0];
-          delete character.character_stats.id;
-          delete character.character_stats.character_id;
-          character.race = JSON.parse(character.race)
-          character.class = JSON.parse(character.class)
-          character.subclass = JSON.parse(character.subclass)
-          character.languages = JSON.parse(character.languages)
-          character.proficiencies = JSON.parse(character.proficiencies)
-          character.character_stats.feats = JSON.parse(character.character_stats.feats);
-          character.character_stats.class_abilities = JSON.parse(character.character_stats.class_abilities);
-          delete character.character_proficiency.character_id;
-
-          ['spells', 'weapons', 'inventory'].forEach(key => {
-            character.character_inventory[key] = JSON.parse(character.character_inventory[key]);
-          });
-
-          return character as characterDataI;
-        }));
-
-        setCharacters(transformedCharacters);
-      } catch (error) {
-        console.log(error);
-        return null;
+        setCharacters(characterDetails.filter((character): character is characterDataI => character !== null));
       }
     };
-    getCharacterData(user_id)
-  }, [counter])
+
+    fetchAllCharacters();
+  }, [counter, userId]);
 
   useEffect(() => {
     if (newCharacterRef.current) {
@@ -119,42 +85,11 @@ const CharactersPage = ({ user_id }: CharacterPageProps) => {
 
   const createNpc = async () => {
     setButtonDisabled(true);
-    const inventory = JSON.stringify({
-      copper: 0,
-      silver: 0,
-      gold: 0,
-      platinum: 0,
-      inventory: []
-    })
-    const spells = JSON.stringify({
-      cantrips: ['light', 'mending'],
-      lvl1: ['healing word'],
-      lvl2: [],
-      lvl3: [],
-      lvl4: [],
-      lvl5: [],
-      lvl6: [],
-      lvl7: [],
-      lvl8: [],
-      lvl9: [],
-    })
-    const weapons = JSON.stringify({
-      heavy: ['hammer'],
-      light: ['cardboard sword'],
-      reach: [],
-      range: [],
-      thrown: [],
-      loading: [],
-      finesse: [],
-      special: [],
-      versatile: [],
-      twoHanded: [],
-      magicalWeapons: []
-    })
+
 
     const DBsubmission = {
       'character': {
-        clerk_user_id: user_id,
+        creator_id: userId,
         party_id: null,
         name: `Joeseph Joema The ${numToFunny(counter)}`,
         image_url: null,
@@ -166,7 +101,9 @@ const CharactersPage = ({ user_id }: CharacterPageProps) => {
         level: 1,
         hitdice: '1 d4',
         languages: ['common'],
-        proficiencies: []
+        locked: false,
+        proficiencies: [],
+        class_abilities: []
       },
       'stats': {
         character_id: '',
@@ -215,9 +152,32 @@ const CharactersPage = ({ user_id }: CharacterPageProps) => {
       },
       'inventory': {
         character_id: '',
-        spells: spells,
-        weapons: weapons,
-        inventory: inventory
+        cantrips: [],
+        lvl1: [],
+        lvl2: [],
+        lvl3: [],
+        lvl4: [],
+        lvl5: [],
+        lvl6: [],
+        lvl7: [],
+        lvl8: [],
+        lvl9: [],
+        heavyW: [],
+        lightW: [],
+        reachW: [],
+        rangedW: [],
+        thrownW: [],
+        loadingW: [],
+        finesseW: [],
+        specialW: [],
+        versatileW: [],
+        twohandedW: [],
+        magicalW: [],
+        copper: 0,
+        silver: 0,
+        gold: 0,
+        platinum: 0,
+        stash: []
       },
     }
 
@@ -260,6 +220,11 @@ const CharactersPage = ({ user_id }: CharacterPageProps) => {
       }
     }
   };
+
+
+  if (isLoading) {
+    return <LoadingPage/>
+  }
 
   return (
     <div className="flex flex-col items-center justify-center ">
