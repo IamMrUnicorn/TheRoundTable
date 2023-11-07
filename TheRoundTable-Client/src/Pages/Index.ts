@@ -1,25 +1,29 @@
 import LandingPage from "./LandingPage";
 import ErrorPage from "./ErrorPage";
-import CharacterImportPage from "./CharacterImportPage";
 import CharactersPage from "./CharactersPage";
 import CalendarPage from "./CalendarPage";
 import PlayerPage from './PlayerPage'
 import DMPage from './DMPage'
-import { WaitingPage } from './WaitingPage';
 import { GamePage } from './GamePage';
 import { ActiveParties } from './ActiveParties';
 import SignInPage from './SignInPage';
+import { ProfilePage } from "./ProfilePage";
+import { LoadingPage } from "./LoadingPage";
+import { PlayerWaitingPage } from "./PlayerWaitingPage";
+import { DMSetupPage } from "./DMSetupPage";
 
 export {
   LandingPage,
   ErrorPage,
-  CharacterImportPage,
   CharactersPage,
   CalendarPage,
   PlayerPage,
   DMPage,
-  WaitingPage,
   GamePage,
   ActiveParties,
-  SignInPage
+  SignInPage,
+  ProfilePage,
+  LoadingPage,
+  PlayerWaitingPage,
+  DMSetupPage,
 }
