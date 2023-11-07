@@ -1,30 +1,14 @@
 import { useEffect, useState } from "react"
-import { supabase } from "../utils/supabase"
+import { supabase } from "../Utils/supabase"
+import { CharacterSheetComponentI } from "./characterSheetComponents/CoreStats"
 
-interface SpellSheetI {
-  spells: {
-    cantrips: string[],
-    lvl1: string[],
-    lvl2: string[],
-    lvl3: string[],
-    lvl4: string[],
-    lvl5: string[],
-    lvl6: string[],
-    lvl7: string[],
-    lvl8: string[],
-    lvl9: string[]
-  }
-}
 
-interface SpellDataI {
-
-}
 
 const SpellCard = ({ spellName }: { spellName: string }) => {
   useEffect(() => {
     const spellLookUp = async (spellName: string) => {
       try {
-        const { data: SpellDataI, error } = await supabase
+        const { data, error } = await supabase
           .from('spells')
           .select('*')
           .eq('Name', spellName)
@@ -70,7 +54,7 @@ const SpellModule = ({ spells, level, spellSlots }: { spells: string[], level: s
 
 
   return (
-    <div className='flex flex-col m-3 flex-grow bg-yellow-100 rounded-3xl text-black px-5 pb-4 py-2'>
+    <div className='flex flex-col m-3 flex-grow bg-neutral rounded-3xl text-black px-5 pb-4 py-2'>
       <div className='flex flex-row py-2'>
         <div className='flex flex-col'>
           <div className='font-primary capitalize pb-4 text-3xl '>
@@ -118,13 +102,17 @@ const SpellModule = ({ spells, level, spellSlots }: { spells: string[], level: s
   )
 }
 
+
+
 const spellSlotMapping = [0, 4, 3, 3, 3, 3, 2, 2, 1, 1];
 
-export const SpellSheet = ({ spells }: SpellSheetI) => {
-
+export const SpellSheet = ({characterData, editableCharacterData, isEditing, onInputChange}:CharacterSheetComponentI ) => {
+  // console.log(Object.entries(characterData.character_inventory).filter(([key])=>key.startsWith('lvl')))
   return (
     <div className="rounded-3xl w-5/6 mx-auto flex flex-row flex-wrap gap-2">
-      {Object.entries(spells).map((spell, index) => (
+      {Object.entries(characterData.character_inventory)
+      .filter(([key])=>key.startsWith('lvl'))
+      .map((spell, index) => (
         <SpellModule level={spell[0]} spellSlots={spellSlotMapping[index]} spells={spell[1]} key={index} />
       ))}
     </div>
