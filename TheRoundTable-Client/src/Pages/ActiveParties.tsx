@@ -1,112 +1,119 @@
 import { useEffect, useContext, useState } from "react"
-import { supabaseContext } from "../utils/supabase";
+import { supabase, supabaseContext } from "../Utils/supabase";
 import { LoadingPage } from "./LoadingPage";
 
 
 
-const PartyModule = ({ partyName, partyStatus }: { partyName: string, partyStatus: boolean }) => (
-  <div className="flex flex-row justify-between p-5 bg-primary font-primary rounded-3xl">
-    <div>
-      <p className="text-3xl capitalize underline">{partyName}</p>
-      <span className="p-5 font-accent capitalize"> status: {partyStatus ? 'ready' : 'not ready'}</span>
-    </div>
-    <div>
-      <a href={`/rooms/${partyName}`} className="btn btn-secondary capitalize font-accent"> go to room</a>
-    </div>
-  </div>
-)
-
-
-export const ActiveParties = ({ user_id }: { user_id: string }) => {
-  type partiesT = {
-    name: string,
-    setup: boolean
-  }
-  const supabase = useContext(supabaseContext)
-  const [parties, setParties] = useState<partiesT[] | null>([])
-  const [dmParties, setDmParties] = useState<partiesT[] | null>([]);
-
-  const getRoomIds = async () => {
-    let { data, error } = await supabase
-      .from('characters')
-      .select('party_id, name')
-      .eq('clerk_user_id', user_id)
-
-    if (error) {
-      console.log(error);
-      return null;
-    } else {
-      return data?.filter((dbEntry: { party_id: string, name: string }) => dbEntry.party_id !== null);
+const PartyModule = ({ partyId, partyName, partyStatus }: { partyId:number, partyName: string, partyStatus: boolean }) => {
+  const [isLeaving, setIsLeaving] = useState(false)
+  const handleLeaveRoom = async () => {
+    try {
+      const {data, error} = await supabase
+      .from('party_members')
+      .delete()
+      .eq('party_id', partyId)
+      if (error) throw error
+    } catch (error) {
+      console.log(error)
     }
   }
+  return (
+    <div className="flex flex-row justify-between p-5 bg-primary font-primary rounded-3xl">
+      <div>
+        <p className="text-3xl capitalize underline">{partyName}</p>
+        <span className="p-5 font-accent capitalize"> status: {partyStatus ? 'ready' : 'not ready'}</span>
+      </div>
+      <div>
+        <button onClick={()=>setIsLeaving(!isLeaving)} className="btn btn-secondary capitalize font-accent">{isLeaving ? 'are you sure? click to cancel' : 'leave room'}</button>
+        {isLeaving && <button onClick={()=>handleLeaveRoom()} className="btn btn-secondary capitalize font-accent"> click to confirm </button>}
+        <a href={`/rooms/${partyName}`} className="btn btn-secondary capitalize font-accent"> go to room</a>
+      </div>
+    </div>
+  )
+}
 
-  const getPartyInfo = async (id: string) => {
-    let { data, error } = await supabase
-      .from('parties')
-      .select('name, setup')
-      .eq('id', id);
-    if (error) {
-      console.log(error);
-      return null; // Return null or some error indication
-    } else {
-      return data;
-    }
+
+export const ActiveParties = () => {
+  type Party = {
+    id: number;
+    name: string;
+    setup: boolean;
   };
 
-  const getDmRooms = async () => {
-    let { data, error } = await supabase
-      .from('parties')
-      .select('name, setup')
-      .eq('DM_clerk_id', user_id);
+  const supabase = useContext(supabaseContext);
+  const [loading, setLoading] = useState(true);
+  const [playerParties, setPlayerParties] = useState<Party[]>([]);
+  const [dmParties, setDmParties] = useState<Party[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
-    if (error) {
-      console.log(error);
-      return null;
-    } else {
-      return data;
-    }
-  };
 
   useEffect(() => {
     const fetchData = async () => {
-      let roomsWithChar = await getRoomIds();
-      if (!roomsWithChar) return; // Exit if there's no data or an error occurred
+      setLoading(true);
+      try {
+        let { data: userData } = await supabase.auth.getUser();
+        let userID = userData.user.id;
 
-      const promises = roomsWithChar.map(async (room) => {
-        return await getPartyInfo(room.party_id);
-      });
+        let { data, error } = await supabase
+          .from('users')
+          .select(`
+            id,
+            party_members (
+              is_dm,
+              party:parties (id, name, setup)
+            )
+          `)
+          .eq('user_id', userID)
 
-      const allParties = await Promise.all(promises);
-      setParties(allParties[0]);
+        if (error) throw error;
+        if (!data || data.length === 0) throw new Error('No data received');
 
-      const dmRoomsData = await getDmRooms();
-      if (dmRoomsData) {
-        setDmParties(dmRoomsData);
+        const partyMemberData = data.flatMap(u => u.party_members) ;
+        const playerPartiesData: Party[] = partyMemberData
+          .filter(p => !p.is_dm)
+          .map(p => p.party)
+          .flat();
+        
+          const dmPartiesData: Party[] = partyMemberData
+          .filter(p => p.is_dm)
+          .map(p => p.party)
+          .flat(); 
+
+        setPlayerParties(playerPartiesData);
+        setDmParties(dmPartiesData);
+      } catch (e) {
+        setError('Failed to fetch data');
+        console.error(e);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchData();
   }, []);
 
-  if (!parties || !dmParties) {
-    return <LoadingPage />
+  if (loading) {
+    return <LoadingPage />;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
   }
 
   return (
-    <div className="flex flex-row m-5 ">
-      <div className="flex flex-col m-5 w-1/2 ">
+    <div className="flex flex-row m-5">
+      <div className="flex flex-col gap-2 m-5 w-1/2">
         <h2 className="text-2xl mt-5 mb-3 font-accent">Rooms you play in:</h2>
-        {parties.map((party, index) => (
-          <PartyModule partyName={party.name} partyStatus={party.setup} key={index} />
+        {playerParties.map((party) => (
+          <PartyModule partyName={party.name} partyStatus={party.setup} partyId={party.id} key={party.id} />
         ))}
       </div>
-      <div className="flex flex-col m-5 w-1/2 ">
+      <div className="flex flex-col gap-2 m-5 w-1/2">
         <h2 className="text-2xl mt-5 mb-3 font-accent">Rooms you DM:</h2>
-        {dmParties.map((party, index) => (
-          <PartyModule partyName={party.name} partyStatus={party.setup} key={index} />
+        {dmParties.map((party) => (
+          <PartyModule partyName={party.name} partyStatus={party.setup} partyId={party.id} key={party.id} />
         ))}
       </div>
     </div>
   );
-
-}
+};
