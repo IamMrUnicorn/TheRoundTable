@@ -1,9 +1,7 @@
 import { useContext, FC, useState, useEffect } from 'react'
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { CalendarPage, CharacterImportPage, CharactersPage, ErrorPage, LandingPage, WaitingPage, GamePage, ActiveParties, SignInPage} from './Pages/Index.ts'
-import { supabaseContext } from './utils/supabase';
-import { Auth } from '@supabase/auth-ui-react'
-import { ThemeSupa } from '@supabase/auth-ui-shared'
+import { CalendarPage, CharactersPage, ErrorPage, LandingPage, GamePage, ActiveParties, SignInPage, ProfilePage} from './Pages/Index.ts'
+import { supabaseContext } from './Utils/supabase.ts';
 // import { SocketContext } from './socket.ts'
 
 
@@ -12,7 +10,7 @@ import 'primeicons/primeicons.css';
 
 import './App.css'
 import NavBar from './Components/NavBar'
-import { ProfilePage } from './Pages/ProfilePage';
+
 
 
 const App: FC = () => {
@@ -22,15 +20,13 @@ const App: FC = () => {
   // const socket = useContext(SocketContext)
   const supabase = useContext(supabaseContext);
 
-
+// subscribe to auth state
     useEffect(() => {
       supabase.auth.getSession().then(({ data: { session } }) => {
         setSession(session)
       })
 
-      const {
-        data: { subscription },
-      } = supabase.auth.onAuthStateChange((_event, session) => {
+      const {data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
         setSession(session)
       })
 
@@ -52,12 +48,10 @@ const App: FC = () => {
                 <Routes>
                   <Route path="/" element={<LandingPage />} />
                   <Route path="/profile" element={<ProfilePage />} />
-                  <Route path="/parties" element={<ActiveParties user_id={1}/>} />
-                  <Route path="/import" element={<CharacterImportPage user_id={1}/>} />
-                  <Route path="/characters" element={<CharactersPage user_id={1}/>} />
+                  <Route path="/parties" element={<ActiveParties/>} />
+                  <Route path="/characters" element={<CharactersPage/>} />
                   <Route path="/calendar" element={<CalendarPage />} />
-                  <Route path="/waiting-room/:roomName" element={<WaitingPage user_id={1}/>} />
-                  <Route path="/rooms/:roomName" element={<GamePage user_id={1}/>} />
+                  <Route path="/rooms/:roomName" element={<GamePage/>} />
                   <Route path="*" element={<ErrorPage />} />
                 </Routes>
               </BrowserRouter>
