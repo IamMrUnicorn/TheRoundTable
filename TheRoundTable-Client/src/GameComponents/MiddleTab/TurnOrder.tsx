@@ -1,8 +1,8 @@
-import { Character } from "../../Pages/GamePage"
+import { characterDataI } from "../../Components/CharacterSheet"
 
 interface TurnOrderProps {
-  OrderedCharacters: Character[] | null,
-  selectedCharacter?: Character | null
+  OrderedCharacters: characterDataI[] | undefined,
+  selectedCharacter?: characterDataI | null
 }
 const TurnOrder = ({OrderedCharacters, selectedCharacter}:TurnOrderProps) => {
 

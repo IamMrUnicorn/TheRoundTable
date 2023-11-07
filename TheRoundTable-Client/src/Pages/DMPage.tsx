@@ -6,8 +6,7 @@ import { ActionModal, BonusActionModal, RollModal, SpellsModal, TalkModal, Weapo
 
 import { party, messages, sessionDetails } from '../exampleData'
 
-
-import { Character } from "./GamePage.js";
+import { characterDataI } from "../Components/CharacterSheet.js";
 import { FileBin } from "../GameComponents/LeftTab/FileBin.js";
 
 // include an "old school" option that just full screens the DM screen
@@ -28,7 +27,7 @@ import { FileBin } from "../GameComponents/LeftTab/FileBin.js";
 
 
 
-const DMPage = ({ party }: {party: Character[] | null}) => {
+const DMPage = ({ party }: {party: characterDataI[] | undefined}) => {
   const [popup, setPopup] = useState('none')
 
 

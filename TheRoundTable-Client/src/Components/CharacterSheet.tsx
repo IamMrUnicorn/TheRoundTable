@@ -1,16 +1,14 @@
-import { Chips } from 'primereact/chips'
-import { InputText } from 'primereact/inputtext'
-import { InputNumber } from 'primereact/inputnumber'
-import React, { useState, useContext, useCallback } from 'react'
+import React, { useState, useContext, useCallback, useEffect } from 'react'
 
 import { Header, CoreStats, SavingThrows, Skills, LanguageWeapon, Inventory } from './characterSheetComponents/index'
 import { SpellSheet } from './SpellSheet'
 import { LoadingPage } from '../Pages/LoadingPage'
-import { supabaseContext } from '../supabase'
+import { supabaseContext } from '../Utils/supabase'
 
 
 export interface characterDataI {
-  id: number
+  id: number,
+  creator_id:number,
   party_id: string | null,
   name: string,
   image_url: string | null,
@@ -23,6 +21,8 @@ export interface characterDataI {
   hitdice: string,
   languages: string[],
   proficiencies: string[],
+  class_abilities: string[] | null,
+  locked: boolean,
   character_stats: {
     status: string,
     currenthp: number,
@@ -41,6 +41,7 @@ export interface characterDataI {
     spellcast_ability: string,
     feats: {title: string, description:string}[],
     class_abilities: {title: string, description:string}[],
+    [key: string]: string[] | number | string | {title: string, description:string}[];
   },
   character_proficiency: {
     strength: boolean,
@@ -67,53 +68,70 @@ export interface characterDataI {
     intimidation: boolean,
     performance: boolean,
     persuasion: boolean
+    [key: string]: boolean;
   },
   character_inventory: {
-    character_id: 9,
-    spells: {
-      cantrips: string[],
-      lvl1: string[],
-      lvl2: string[],
-      lvl3: string[],
-      lvl4: string[],
-      lvl5: string[],
-      lvl6: string[],
-      lvl7: string[],
-      lvl8: string[],
-      lvl9: string[]
-    },
-    weapons: {
-      heavy: string[],
-      light: string[],
-      reach: string[],
-      range: string[],
-      thrown: string[],
-      loading: string[],
-      finesse: string[],
-      special: string[],
-      versatile: string[],
-      twoHanded: string[],
-      magicalWeapons: string[]
-    },
-    inventory: {
-      copper: number,
-      silver: number,
-      gold: number,
-      platinum: number,
-      inventory: string[]
-    }
+    character_id: number,
+    cantrips: string[],
+    lvl1: string[],
+    lvl2: string[],
+    lvl3: string[],
+    lvl4: string[],
+    lvl5: string[],
+    lvl6: string[],
+    lvl7: string[],
+    lvl8: string[],
+    lvl9: string[],
+    heavyW: string[],
+    lightW: string[],
+    reachW: string[],
+    rangedW: string[],
+    thrownW: string[],
+    loadingW: string[],
+    finesseW: string[],
+    specialW: string[],
+    versatileW: string[],
+    twohandedW: string[],
+    magicalW: string[],
+    copper: number,
+    silver: number,
+    gold: number,
+    platinum: number,
+    stash: string[]
+    [key: string]: string[] | number;
   }
+  [key: string]: any
 }
 
-const CharacterSheetMain = (props :{ characterData: characterDataI, onDelete: (id: number) => void }, ref) => {
+const CharacterSheetMain = (props :{ characterData: characterDataI, onDelete: (id: number) => void }, ref: any) => {
   const [isFlipped, setIsFlipped] = useState(false);
   const [isHidden, setIsHidden] = useState(false);
   const [isEditing, setIsEditing] = useState(false)
-  const [editableCharacterData, setEditableCharacterData] = useState(props.characterData)
   const [isDeleting, setIsDeleting] = useState(false)
   const [isDeleted, setIsDeleted] = useState(false)
-  const [isLocked, setIsLocked] = useState(false)
+  const [isLocked, setIsLocked] = useState(props.characterData.locked)
+  const [editableCharacterData, setEditableCharacterData] = useState(props.characterData)
+  
   const supabase = useContext(supabaseContext)
+
+
+  useEffect(() => {
+    const updateLockStatus = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('characters')
+          .update({ locked: isLocked })
+          .eq('id', props.characterData.id)
+          .select();
+        if (error) throw error;
+        // Handle the successful response if needed
+      } catch (error) {
+        console.error(error);
+      }
+    };
+  
+    updateLockStatus();
+  }, [isLocked]);
 
   const toggleFlip = () => {
     setIsFlipped(!isFlipped);
@@ -123,17 +141,12 @@ const CharacterSheetMain = (props :{ characterData: characterDataI, onDelete: (i
   };
 
 
-
-
-
-  const handleInputChange = useCallback((value: any, property1: string, property2:String, property3:String) => {
+  const handleInputChange = useCallback((value: any, property1: string, property2:String | undefined) => {
     const newCharacterData = { ...editableCharacterData }
-    if (property3 === undefined && property2 === undefined) {
+    if (property2 === undefined) {
       newCharacterData[property1] = value
-    } else if (property3 === undefined) {
-      newCharacterData[property1][property2] = value
     } else {
-      newCharacterData[property1][property2][property3] = value
+      newCharacterData[property1][property2] = value
     }
     setEditableCharacterData(newCharacterData)
   }, [])
@@ -165,12 +178,13 @@ const CharacterSheetMain = (props :{ characterData: characterDataI, onDelete: (i
 
       // Finally, delete the character
       await deleteFromTable('characters', 'id', characterId);
-      props.onDelete(characterId);
+      setTimeout(()=> {
+        props.onDelete(characterId);
+      }, 5000)
     } catch (error) {
       console.log(error);
     }
   };
-
 
 
 
@@ -187,7 +201,7 @@ const CharacterSheetMain = (props :{ characterData: characterDataI, onDelete: (i
         transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)'
       }}>
         <button className={`btn btn-primary font-accent capitalize m-5 ${isDeleting || isEditing || isDeleted ? 'btn-disabled' : ''}`} onClick={toggleFlip}>Flip For Spell Sheet</button>
-        <button className='btn btn-primary font-accent capitalize m-5' onClick={()=>setIsLocked(!isLocked)}>{ isLocked ? 'Unlock Character Sheet' : 'Lock Character Sheet'}</button>
+        <button className='btn btn-primary font-accent capitalize m-5' onClick={()=> setIsLocked(!isLocked)}>{ isLocked ? 'Unlock Character Sheet' : 'Lock Character Sheet'}</button>
         {isLocked ? null : <div>
           <button className={`btn btn-primary font-accent capitalize m-5 ${isDeleting || isDeleted ? 'btn-disabled' : ''}`} onClick={() => { setIsEditing(!isEditing) }}>{isEditing ? 'click to discard changes' : 'Edit Character'}</button>
           {isEditing ? <button className="btn btn-primary font-accent capitalize m-5" onClick={() => setEditableCharacterData(props.characterData)}>Click Me To Reset Values To Default</button> : null}
@@ -219,7 +233,7 @@ const CharacterSheetMain = (props :{ characterData: characterDataI, onDelete: (i
       }}>
         <button className="btn btn-primary font-accent capitalize ml-44 m-5" onClick={toggleFlip}>Flip Back For Character Sheet</button>
         <button className="btn btn-primary font-accent capitalize m-5" onClick={() => { console.log('edit') }}>Edit</button>
-        <SpellSheet spells={props.characterData.character_inventory.spells} />
+        <SpellSheet characterData={props.characterData} isEditing={isEditing} onInputChange={handleInputChange} editableCharacterData={editableCharacterData}/>
       </div>
     </div>
   )

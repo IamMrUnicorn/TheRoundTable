@@ -1,7 +1,7 @@
 import { useState, useEffect, useContext, useMemo, useRef } from "react"
 
 import { LoadingPage } from "../Pages/LoadingPage"
-import { supabaseContext } from "../supabase"
+import { supabaseContext } from "../Utils/supabase"
 import Fuse from 'fuse.js';
 
 export const DMScreen = () => {

@@ -2,7 +2,7 @@ import { CharacterPageProps } from "./CharacterImportPage";
 import { DMScreen } from "../Components/DMScreen";
 
 
-export const DMSetupPage = ({ user_id }: CharacterPageProps) => {
+export const DMSetupPage = () => {
 
   return (
     <div className="m-10">

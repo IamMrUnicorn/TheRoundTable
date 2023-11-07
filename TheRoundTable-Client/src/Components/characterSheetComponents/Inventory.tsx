@@ -1,6 +1,12 @@
 import { Feats } from './Feats'
 import { Chips } from "primereact/chips";
-import { customChip } from "../../Pages/CharacterImportPage";
+export const customChip = (item: string) => {
+  return (
+    <div className='rounded-lg bg-primary text-center w-min whitespace-nowrap p-1 m-1'>
+      <span className='text-primary-content'>{item}</span>
+    </div>
+  );
+};
 
 import { CharacterSheetComponentI } from './CoreStats'
 
@@ -12,29 +18,29 @@ export const Inventory = ({ characterData, editableCharacterData, isEditing, onI
         <p className='h-20 text-center pt-4 rounded-full w-20 mr-4 border border-solid border-black bg-orange-400'>
           Copper <br /> 
           {isEditing 
-            ? <input type='number' min='0' max='9999999' className='w-1/2' value={editableCharacterData.character_inventory.inventory.copper} onChange={(e)=>onInputChange(e.target.value || 0, 'character_inventory', 'inventory', 'copper')} /> 
-            : <span className='text-2xl'>{characterData.character_inventory.inventory.copper}</span>} 
+            ? <input type='number' min='0' max='9999999' className='w-1/2' value={editableCharacterData.character_inventory.copper} onChange={(e)=>onInputChange(e.target.value || 0, 'character_inventory', 'copper')} /> 
+            : <span className='text-2xl'>{characterData.character_inventory.copper}</span>} 
         </p>
         
         <p className='h-20 text-center pt-4 rounded-full w-20 mr-4 border border-solid border-black bg-slate-400'>
           Silver <br /> 
           {isEditing 
-            ? <input type='number' min='0' max='9999999' className='w-1/2' value={editableCharacterData.character_inventory.inventory.silver} onChange={(e)=>onInputChange(e.target.value || 0, 'character_inventory', 'inventory', 'silver')} /> 
-            : <span className='text-2xl'>{characterData.character_inventory.inventory.silver}</span>} 
+            ? <input type='number' min='0' max='9999999' className='w-1/2' value={editableCharacterData.character_inventory.silver} onChange={(e)=>onInputChange(e.target.value || 0, 'character_inventory', 'silver')} /> 
+            : <span className='text-2xl'>{characterData.character_inventory.silver}</span>} 
         </p>
         
         <p className='h-20 text-center pt-4 rounded-full w-20 mr-4 border border-solid border-black bg-yellow-400'>
           Gold <br /> 
           {isEditing 
-            ? <input type='number' min='0' max='9999999' className='w-1/2' value={editableCharacterData.character_inventory.inventory.gold} onChange={(e)=>onInputChange(e.target.value || 0, 'character_inventory', 'inventory', 'gold')} /> 
-            : <span className='text-2xl'>{characterData.character_inventory.inventory.gold}</span>} 
+            ? <input type='number' min='0' max='9999999' className='w-1/2' value={editableCharacterData.character_inventory.gold} onChange={(e)=>onInputChange(e.target.value || 0, 'character_inventory', 'gold')} /> 
+            : <span className='text-2xl'>{characterData.character_inventory.gold}</span>} 
         </p>
         
         <p className='h-20 text-center pt-4 rounded-full w-20 mr-4 border border-solid border-black bg-slate-200'>
           Platinum <br /> 
           {isEditing 
-            ? <input type='number' min='0' max='9999999' className='w-1/2' value={editableCharacterData.character_inventory.inventory.platinum} onChange={(e)=>onInputChange(e.target.value || 0, 'character_inventory', 'inventory', 'platinum')} /> 
-            : <span className='text-2xl'>{characterData.character_inventory.inventory.platinum}</span>} 
+            ? <input type='number' min='0' max='9999999' className='w-1/2' value={editableCharacterData.character_inventory.platinum} onChange={(e)=>onInputChange(e.target.value || 0, 'character_inventory', 'platinum')} /> 
+            : <span className='text-2xl'>{characterData.character_inventory.platinum}</span>} 
         </p>
         
       </div>
@@ -43,8 +49,8 @@ export const Inventory = ({ characterData, editableCharacterData, isEditing, onI
           <h4 className='p-2 font-primary text-xl capitalize'>Items:</h4>
           
           {isEditing
-            ?  <Chips value={editableCharacterData.character_inventory.inventory.inventory} onChange={(e) => onInputChange(e.value || [], 'character_inventory', 'inventory', 'inventory')} itemTemplate={customChip} pt={{inputToken: {className: 'text-black bg-white p-1'}, container: {className: 'flex flex-col'}}}/>
-            : characterData.character_inventory.inventory.inventory.map((item, index) => (
+            ?  <Chips value={editableCharacterData.character_inventory.stash} onChange={(e) => onInputChange(e.value || [], 'character_inventory', 'stash')} itemTemplate={customChip} pt={{inputToken: {className: 'text-black bg-white p-1'}, container: {className: 'flex flex-col'}}}/>
+            : characterData.character_inventory.stash.map((item, index) => (
               <p className='pl-5 font-accent' key={index}>{item}</p>
             ))
           }

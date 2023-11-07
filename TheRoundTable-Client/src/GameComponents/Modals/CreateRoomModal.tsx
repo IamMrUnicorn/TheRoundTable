@@ -1,9 +1,8 @@
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import {useForm, Controller} from 'react-hook-form'
-import { useUser } from '@clerk/clerk-react'
 import { useContext } from 'react'
-import { supabaseContext } from '../../supabase'
+import { supabaseContext } from '../../Utils/supabase'
 
 
 
@@ -24,7 +23,6 @@ const schema = yup.object().shape({
 const CreateRoomModal = ({setPopup}:CreateRoomModalProps) => {
   
   const supabase = useContext(supabaseContext)
-  const { user } = useUser()
   const { control, handleSubmit, formState: { errors } } = useForm({
     resolver: yupResolver(schema)
   })

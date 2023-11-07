@@ -1,8 +1,7 @@
-import { Character } from "../../Pages/PlayerPage"
-
+import { characterDataI } from "../../Components/CharacterSheet"
 
 interface PlayerProps {
-  character: Character
+  character: characterDataI
   info: string
 }
 
@@ -15,7 +14,7 @@ const PlayerCard = ({ character, info }: PlayerProps) => {
 
         <div className="avatar p-2">
           <div className="w-20 self-center h-20 rounded-full ring ring-primary ring-offset-base-100">
-            <img src={character.image_url ? character.image_url : ''}></img>
+            <img src={character.image_url ? character.image_url : 'https://tr.rbxcdn.com/70108dc7da4e002c8e5d2c1dcf0825fb/420/420/Hat/Png'}></img>
           </div>
         </div>
 
@@ -29,7 +28,7 @@ const PlayerCard = ({ character, info }: PlayerProps) => {
               <p className='capitalize font-primary' key={index}>{race}</p>
             ))}
           </div>
-            <p className="font-primary">HP: ?? <i className="fa-solid fa-briefcase-medical"></i></p>
+            <p className="font-primary">HP: {character.character_stats.currenthp} /{character.character_stats.maxhp} <i className="fa-solid fa-briefcase-medical"></i></p>
         </div>
 
         <div className="flex flex-col">

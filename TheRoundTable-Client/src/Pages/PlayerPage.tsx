@@ -6,8 +6,7 @@ import { ActionModal, BonusActionModal, RollModal, SpellsModal, TalkModal, Weapo
 
 import { party, messages, sessionDetails } from '../exampleData'
 
-
-import { Character } from "./GamePage.js";
+import { characterDataI } from "../Components/CharacterSheet";
 
 // make the player section on the left like a collapsable side tab
 /**
@@ -26,7 +25,7 @@ import { Character } from "./GamePage.js";
 
 
 
-const PlayerPage = ({ party, usersCharacter  }: {party: Character[] | null, usersCharacter: Character | null}) => {
+const PlayerPage = ({ party, usersCharacter  }: {party: characterDataI[] | undefined, usersCharacter: characterDataI | undefined}) => {
   const [popup, setPopup] = useState('none')
 
 

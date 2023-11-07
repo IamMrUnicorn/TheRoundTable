@@ -1,9 +1,9 @@
 
 import { PlayerCard } from "./Index";
-import { Character } from "../../Pages/GamePage";
+import { characterDataI } from "../../Components/CharacterSheet";
 
 interface PartyProps {
-  party: Character[] | null
+  party: characterDataI[] | undefined
   DMview: boolean
 }
 
@@ -18,14 +18,14 @@ const PartySection = ({party, DMview}:PartyProps) => {
 
   if (DMview === true) return (
     <div className="bg-primary h-3/4 rounded-lg m-3 flex flex-col hiddenScroll">
-      {party?.map((character:Character, index) => (
+      {party?.map((character:characterDataI, index) => (
         <PlayerCard key={index} character={character} info='max'/>
       ))}
     </div>
   )
   return (
     <div className="bg-primary h-2/3 flex flex-col hiddenScroll">
-      {party?.map((character:Character, index) => (
+      {party?.map((character:characterDataI, index) => (
         <PlayerCard key={index} character={character} info='min'/>
       ))}
     </div>
