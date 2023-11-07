@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { HealthBar } from "../HealthBar";
 import AvatarEditor from 'react-avatar-editor';
 import { Chips } from "primereact/chips";
-import { customChip } from "../../Pages/CharacterImportPage";
+import { customChip } from "./Inventory";
 import { CharacterSheetComponentI } from "./CoreStats";
 
 const ImageEditor = ({ image, setImage, editorOpen, setEditorOpen, scale, setScale }) => {
@@ -84,7 +84,7 @@ const CheckboxRow = ({ title }) => (
 );
 
 export const Header = ({ characterData, isEditing, onInputChange,  editableCharacterData } : CharacterSheetComponentI) => {
-  const [image, setImage] = useState(null);
+  const [image, setImage] = useState(characterData.image_url || 'https://tr.rbxcdn.com/70108dc7da4e002c8e5d2c1dcf0825fb/420/420/Hat/Png');
   const [editorOpen, setEditorOpen] = useState(false);
   const [scale, setScale] = useState(1);
 

@@ -12,7 +12,7 @@ const CORE_STATS = [
 export interface CharacterSheetComponentI { 
     characterData: characterDataI, 
     isEditing:boolean, 
-    onInputChange?:(value:any, property1:string, property2?:string, property3?:string)=>void, 
+    onInputChange:(value:any, property1:string, property2?:string, property3?:string)=>void, 
     editableCharacterData: characterDataI
   }
 export const CoreStats = ({ characterData, isEditing, onInputChange, editableCharacterData }: CharacterSheetComponentI) => {
