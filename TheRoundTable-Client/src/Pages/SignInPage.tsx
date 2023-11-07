@@ -14,7 +14,7 @@ const SignInPage: FC = () => {
   const supabase = useContext(supabaseContext);
 
 
-  const handleEmailChange = (e) => {
+  const handleEmailChange = (e:any) => {
     setTempEmail(e.target.value)
     const value = e.target.value;
     // Simple regex for email validation
@@ -41,11 +41,12 @@ const SignInPage: FC = () => {
       setError(error.message);
     } else {
       console.log(data)
-      // window.location.href = '/'
     }
 
     setLoading(false);
   };
+
+
 
   const handleLogInWithOTP = async () => {
     setLoading(true);
@@ -59,7 +60,7 @@ const SignInPage: FC = () => {
       setError(error.message);
     } else {
       console.log(data)
-      window.location.href = '/'
+      setError('email sent, check your inbox for the magic link')
     }
 
     setLoading(false);
@@ -94,15 +95,15 @@ const SignInPage: FC = () => {
         </div>
       </h1>
 
-        {error && <p>{error}</p>}
+        {error && <p className="font-primary text-xl ">{error}</p>}
       <div className='flex flex-col justify-center'>
         <h3 className='text-4xl font-primary'>Get started by creating an account </h3>
 
         <div className='flex flex-row justify-center'>
           <label className='btn btn-accent capitalize font-accent m-1' >
             {/* <SignUpButton /> */}
-            <button className='btn btn primary font-accent' onClick={() => setOpenInput((prev)=>!prev)}>{openInput ? 'cancel' : 'Sign Up'}</button>
-            {openInput && <div className='flex flex-row'> <input className='text-black' type='email' placeholder='enter your email' value={tempEmail} onChange={handleEmailChange}/> <button className='btn btn-primary' disabled={loading} > send link </button></div>}
+            <button className='btn primary font-accent' onClick={() => setOpenInput((prev)=>!prev)}>{openInput ? 'cancel' : 'Sign Up'}</button>
+            {openInput && <div className='flex flex-row'> <input className='text-black' type='email' placeholder='enter your email' value={tempEmail} onChange={handleEmailChange}/> <button className='btn btn-primary' onClick={handleLogInWithOTP} disabled={loading} > send link </button></div>}
           </label>
 
         </div>
@@ -115,7 +116,7 @@ const SignInPage: FC = () => {
         <div className='flex flex-row justify-center'>
           <label className='btn btn-accent capitalize font-accent m-1' >
             {/* <SignInButton /> */}
-            <button className='btn btn primary font-accent' onClick={() => setOpenModal(true)} >Sign In</button>
+            <button className='btn primary font-accent' onClick={() => setOpenModal(true)} >Sign In</button>
           </label>
         </div>
       </div>

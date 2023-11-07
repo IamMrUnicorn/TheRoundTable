@@ -1,6 +1,6 @@
 import { FC, useState, useEffect, useContext } from "react";
 import CreateRoomModal from "../GameComponents/Modals/CreateRoomModal";
-import { supabaseContext } from "../utils/supabase";
+import { supabaseContext } from "../Utils/supabase";
 
 const LandingPage: FC = () => {
   const [code, setCode] = useState("");
