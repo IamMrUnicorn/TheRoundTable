@@ -67,17 +67,22 @@ const SignInPage: FC = () => {
   return (
     <div className="h-[100vh] flex flex-col text-white items-center justify-evenly bg-black ">
       {openModal
-        ? (<div className='bg-primary absolute bg-opacity-40 h-screen w-screen z-30 '>
-          <div className=' w-1/4 '>
-            <button onClick={() => setOpenModal(false)}>X</button>
-            <input value={email} className="text-black" onChange={(e) => { console.log(e.target.value); setEmail(e.target.value) }} />
-            <button onClick={handleLogInWithOTP}>magic email</button>
-            <div className='flex flex-row gap-2'>
-              <button onClick={() => handleLogInWithProvider('google')}>google</button>
-              <button onClick={() => handleLogInWithProvider('facebook')}>facebook</button>
-              <button onClick={() => handleLogInWithProvider('azure')}>microsoft</button>
+        ? (<div  className='bg-secondary flex flex-row items-center justify-center absolute bg-opacity-60 h-screen w-screen z-30 '>
+          <div className='flex flex-col bg-accent relative rounded-3xl p-4 justify-center  items-center w-1/3'>
+            <button className='absolute top-0 left-0 bg-black rounded-lg h-8 w-8 hover:bg-red-600' onClick={() => setOpenModal(false)}>X</button>
+            <div className='flex flex-col p-1 gap-3'>
+              <p className='font-primary text-xl pt-4 p-2'>Continue with a magic link sent to your email</p>
+              <div className='p-2 flex flex-row justify-center gap-2'>
+                <input value={email} className="text-black rounded-lg p-2 font-accent" onChange={(e) => { console.log(e.target.value); setEmail(e.target.value) }} />
+                <button className='btn capitalize font-accent hover:bg-primary hover:bg-yellow-400 hover:text-black' onClick={handleLogInWithOTP}>magic link</button>
+              </div>
+              <div className='font-primary self-center flex flex-row text-xl'> <span className='bg-black h-1 grow'/> <p>Or</p> <span className='bg-black h-1 grow'/></div>
+              <div className='flex flex-col p-2 justify-center gap-2'>
+                <button className='btn font-accent capitalize hover:text-black hover:bg-white ' onClick={() => handleLogInWithProvider('google')}> continue with <i className="fa-brands fa-google"/></button>
+                <button className='btn font-accent capitalize hover:text-white hover:bg-blue-400 ' onClick={() => handleLogInWithProvider('facebook')}> continue with <i className="fa-brands fa-facebook"/></button>
+                <button className='btn font-accent capitalize hover:text-white hover:bg-green-400 ' onClick={() => handleLogInWithProvider('azure')}> continue with <i className="fa-brands fa-microsoft"/></button>
+              </div>
             </div>
-
           </div>
         </div>)
         : null}
