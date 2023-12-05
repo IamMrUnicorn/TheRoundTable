@@ -14,7 +14,7 @@ export const ProfilePage = () => {
     setProfileData(user)
   }
 
-  const handleSignOut =async () => {
+  const handleSignOut = async () => {
     let { error } = await supabase.auth.signOut()
   }
 
@@ -22,9 +22,12 @@ export const ProfilePage = () => {
     getProfileData()
   }, [])
 
-  if (isLoading) return <LoadingPage/>                 
+  if (isLoading) return <LoadingPage/>
+
   return (
     <div className='bg-white'>
+      <button className="btn btn-primary capitalize font-accent" onClick={handleSignOut}>Edit</button>
+
       <label>
         Name
         {isEditing ? <input type='text'/> : <p>{profileData.user_metadata ? profileData.user_metadata.full_name : 'none'}</p>}

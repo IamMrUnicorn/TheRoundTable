@@ -2,7 +2,7 @@ import { useEffect, useContext, useState, useRef } from "react";
 import { supabaseContext } from "../Utils/supabase";
 import { CharacterSheet, characterDataI } from "../Components/CharacterSheet";
 import { LoadingPage } from "./Index";
-import {getAllCharacterIdsByUser, getCharacterById} from '../Utils/SupabaseFns'
+import { getAllCharacterIdsByUser, getCharacterById, insertIntoSupabase } from '../Utils/SupabaseFns'
 
 const CharactersPage = () => {
   const supabase = useContext(supabaseContext)
@@ -15,7 +15,6 @@ const CharactersPage = () => {
   const newCharacterRef = useRef(null);
 
   const numToFunny = (n: number) => {
-
 
     const suffixes = ['th', 'st', 'nd', 'rd'];
     let suffix = suffixes[0]; // default to 'th'
@@ -37,21 +36,18 @@ const CharactersPage = () => {
     return `the ${n}${suffix}`;
   }
 
-  const getUserId =async () => {
+  const getUserId = async () => {
     try {
       const { data, error } = await supabase
         .from('users')
         .select('id')
         .single()
-        if (error) throw error
-        setuserId(data.id)
+      if (error) throw error
+      setuserId(data.id)
     } catch (error) {
       console.log(error)
     }
   }
-
-  
-
 
 
   useEffect(() => {
@@ -61,7 +57,7 @@ const CharactersPage = () => {
       const characterIds = await getAllCharacterIdsByUser(userId);
       setIsloading(false)
       if (characterIds) {
-        
+
         const characterDetailsPromises = characterIds.map((id) => getCharacterById(id));
         const characterDetails = await Promise.all(characterDetailsPromises);
 
@@ -85,7 +81,6 @@ const CharactersPage = () => {
 
   const createNpc = async () => {
     setButtonDisabled(true);
-
 
     const DBsubmission = {
       'character': {
@@ -181,59 +176,72 @@ const CharactersPage = () => {
       },
     }
 
+    try {
+      const insertCharacter = await insertIntoSupabase('characters', DBsubmission.character);
+      const characterId = insertCharacter.data[0].id;
 
-    const { data, error } = await supabase
-      .from('characters')
-      .insert(DBsubmission.character)
-      .select();
-    if (error) {
-      console.log(error)
-    } else {
-      const characterId = data[0].id;
       DBsubmission.stats.character_id = characterId;
       DBsubmission.proficiency.character_id = characterId;
       DBsubmission.inventory.character_id = characterId;
-      const { error } = await supabase
-        .from('character_stats')
-        .insert(DBsubmission.stats);
-      if (error) {
-        console.log(error)
-      } else {
-        const { error } = await supabase
-          .from('character_proficiency')
-          .insert(DBsubmission.proficiency);
-        if (error) {
-          console.log(error)
-        } else {
-          const { error } = await supabase
-            .from('character_inventory')
-            .insert(DBsubmission.inventory)
-          if (error) {
-            console.log(error)
-          } else {
-            setTimeout(() => {
-              setButtonDisabled(false);
-            }, 5000);
-            setCounter((prev) => prev += 1)
-          }
-        }
-      }
+
+      await insertIntoSupabase('character_stats', DBsubmission.stats);
+      await insertIntoSupabase('character_proficiency', DBsubmission.proficiency);
+      await insertIntoSupabase('character_inventory', DBsubmission.inventory);
+
+      setCounter(prev => prev + 1);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setTimeout(() => {
+        setButtonDisabled(false);
+      }, 5000);
     }
+  };
+
+  const updateCharacter = (id: number, newCharData: characterDataI) => {
+    console.log(id, characters);
+    setCharacters(prev => {
+      return prev.map(character => {
+        if (character.id === id) {
+          return newCharData;
+        }
+        return character;
+      });
+    });
   };
 
 
   if (isLoading) {
-    return <LoadingPage/>
+    return <LoadingPage />
   }
 
   return (
     <div className="flex flex-col items-center justify-center ">
-      <button onClick={createNpc} disabled={isButtonDisabled} className="btn btn-primary btn-xl font-accent capitalize m-5" >add a new character</button>
+      <button 
+        className="btn btn-primary btn-xl font-accent capitalize m-5" 
+        onClick={createNpc} 
+        disabled={isButtonDisabled} 
+      >
+        add a new character
+      </button>
       <div>
         {characters?.map((chracter, index) => (
-          <CharacterSheet key={chracter.id} ref={index === 0 ? topCharacterRef : (index === characters.length - 1 ? newCharacterRef : null)} characterData={chracter} onDelete={removeCharacterById} />
+          <CharacterSheet
+            key={chracter.id}
+            ref={index === 0 ? topCharacterRef : (index === characters.length - 1 ? newCharacterRef : null)}
+            characterData={chracter}
+            characterIndex={index}
+            onDelete={removeCharacterById}
+            onChange={updateCharacter}
+          />
         ))}
-        <button className='fixed right-0 bottom-0  btn btn-primary btn-circle m-5 p-2' onClick={() => topCharacterRef.current?.scrollIntoView({ behavior: 'smooth' })}> Scroll to Top </button>
+
+        <button
+          className='fixed right-0 bottom-0  btn btn-primary btn-circle m-5 p-2'
+          onClick={() => topCharacterRef.current?.scrollIntoView({ behavior: 'smooth' })}
+        >
+          Scroll to Top
+        </button>
       </div>
 
     </div>

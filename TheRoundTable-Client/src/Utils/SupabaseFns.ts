@@ -33,6 +33,39 @@ export const getAllCharacterIdsByPartyId = async (partyId:number) => {
   }
 }
 
+export const insertIntoSupabase = async (tableName: string, data: any) => {
+  const response = await supabase.from(tableName).insert(data).select();
+  if (response.error) throw response.error;
+  return response;
+};
+
+export const updateInSupabase = async (tableName: string, newValues: any, matchCondition: any) => {
+  const { data, error } = await supabase
+    .from(tableName)
+    .update(newValues)
+    .match(matchCondition);
+
+  if (error) throw error;
+  return data;
+};
+
+export const bulkUpdateCharacterData = async (characterId: number, characterData: any) => {
+  try {
+    // Update the main character table
+    await updateInSupabase('characters', characterData.character, { id: characterId });
+
+    // Update related tables
+    await updateInSupabase('character_stats', characterData.stats, { character_id: characterId });
+    await updateInSupabase('character_proficiency', characterData.proficiency, { character_id: characterId });
+    await updateInSupabase('character_inventory', characterData.inventory, { character_id: characterId });
+
+    console.log('All updates successful');
+  } catch (error) {
+    console.error('Error in bulk update:', error);
+  }
+}
+
+
 export const getCharacterById = async (characterID: number): Promise<characterDataI | null> => {
   try {
     const { data: characterData, error } = await supabase

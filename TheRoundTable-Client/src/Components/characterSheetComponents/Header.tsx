@@ -49,27 +49,27 @@ const ImageEditor = ({ image, setImage, editorOpen, setEditorOpen, scale, setSca
 }
 
 
-export const InfoBlock = ({ label, content, isEditing, onInputChange, cnPassThrough, editableContent, property1, property2, property3 }: { label:string, content:string, editableContent:string, cnPassThrough?:string, isEditing:boolean,  property1: string, property2?: string, property3?: string, onInputChange?:(value:any, property1:string, property2?:string, property3?:string)=>void}) => {
+export const InfoBlock = ({ label, content, isEditing, onInputChange, cnPassThrough, editableContent, property1, property2 }: { label: string, content: string, editableContent: string, cnPassThrough?: string, isEditing: boolean, property1: string, property2?: string, onInputChange?: (value: any, property1: string, property2?: string) => void }) => {
 
   return (
-      <div className="flex flex-col items-center">
-          <div className="underline">
-              {isEditing 
-                  ? Array.isArray(content)
-                      ? <Chips
-                            value={editableContent}
-                            onChange={(e) => onInputChange(e.value || [], property1, property2, property3)}
-                            itemTemplate={customChip}
-                            pt={{inputToken: {className: 'text-black bg-white p-1'}, container: {className: 'flex flex-col-reverse'}}}
-                        />
-                      : <input className='w-11/12 text-center' value={editableContent} onChange={(e)=>onInputChange(e.target.value, property1, property2, property3)} />
-                  : Array.isArray(content) 
-                      ? content.map((item, index) => <p className={cnPassThrough} key={index}>{item}</p>) 
-                      : <p className={cnPassThrough}>{content}</p>
-              }
-          </div>
-          <label className="text-sm font-primary capitalize">{label}</label>
+    <div className="flex flex-col items-center">
+      <div className="underline">
+        {isEditing
+          ? Array.isArray(content)
+            ? <Chips
+              value={editableContent}
+              onChange={(e) => onInputChange(e.value, property1, property2)}
+              itemTemplate={customChip}
+              pt={{ inputToken: { className: 'text-black bg-white p-1' }, container: { className: 'flex flex-col-reverse' } }}
+            />
+            : <input className='w-11/12 text-center' value={editableContent} onChange={(e) => onInputChange(e.target.value, property1, property2)} />
+          : Array.isArray(content)
+            ? content.map((item, index) => <p className={cnPassThrough} key={index}>{item}</p>)
+            : <p className={cnPassThrough}>{content}</p>
+        }
       </div>
+      <label className="text-sm font-primary capitalize">{label}</label>
+    </div>
   );
 };
 
@@ -83,7 +83,7 @@ const CheckboxRow = ({ title }) => (
   </div>
 );
 
-export const Header = ({ characterData, isEditing, onInputChange,  editableCharacterData } : CharacterSheetComponentI) => {
+export const Header = ({ characterData, isEditing, onInputChange, editableCharacterData }: CharacterSheetComponentI) => {
   const [image, setImage] = useState(characterData.image_url || 'https://tr.rbxcdn.com/70108dc7da4e002c8e5d2c1dcf0825fb/420/420/Hat/Png');
   const [editorOpen, setEditorOpen] = useState(false);
   const [scale, setScale] = useState(1);
@@ -108,15 +108,15 @@ export const Header = ({ characterData, isEditing, onInputChange,  editableChara
           <InfoBlock isEditing={isEditing} onInputChange={onInputChange} label="alignment" content={characterData.alignment} property1='alignment' editableContent={editableCharacterData.alignment} cnPassThrough="whitespace-nowrap" />
         </div>
         <div className="flex flex-row justify-center font-accent capitalize text-lg gap-1">
-          <InfoBlock isEditing={isEditing} onInputChange={onInputChange} label="Class" content={characterData.class} property1='class' editableContent={editableCharacterData.class}/>
-          <InfoBlock isEditing={isEditing} onInputChange={onInputChange} label="Subclass" content={characterData.subclass} property1='subclass' editableContent={editableCharacterData.subclass}/>
-          <InfoBlock isEditing={isEditing} onInputChange={onInputChange} label="Level" content={characterData.level} property1='level' editableContent={editableCharacterData.level}/>
+          <InfoBlock isEditing={isEditing} onInputChange={onInputChange} label="Class" content={characterData.class} property1='class' editableContent={editableCharacterData.class} />
+          <InfoBlock isEditing={isEditing} onInputChange={onInputChange} label="Subclass" content={characterData.subclass} property1='subclass' editableContent={editableCharacterData.subclass} />
+          <InfoBlock isEditing={isEditing} onInputChange={onInputChange} label="Level" content={characterData.level} property1='level' editableContent={editableCharacterData.level} />
         </div>
       </div>
 
       {isEditing ? <div className='flex flex-col w-1/4 p-1'>
-        <InfoBlock isEditing={isEditing} onInputChange={onInputChange} label="currentHP" content={`${characterData.character_stats.currenthp}`} property1='character_stats' property2='currenthp' editableContent={`${editableCharacterData.character_stats.currenthp}`}/>
-        <InfoBlock isEditing={isEditing} onInputChange={onInputChange} label="maxHP" content={`${characterData.character_stats.maxhp}`} property1='character_stats' property2='maxhp' editableContent={`${editableCharacterData.character_stats.currenthp}`}/>
+        <InfoBlock isEditing={isEditing} onInputChange={onInputChange} label="currentHP" content={`${characterData.character_stats.currenthp}`} property1='character_stats' property2='currenthp' editableContent={`${editableCharacterData.character_stats.currenthp}`} />
+        <InfoBlock isEditing={isEditing} onInputChange={onInputChange} label="maxHP" content={`${characterData.character_stats.maxhp}`} property1='character_stats' property2='maxhp' editableContent={`${editableCharacterData.character_stats.maxhp}`} />
       </div> : <div className="flex flex-col p-2 font-accent capitalize text-lg w-1/4">
         <HealthBar currentHealth={characterData.character_stats.currenthp} maxHealth={characterData.character_stats.maxhp} />
         <div className="flex flex-row justify-center">
@@ -126,15 +126,15 @@ export const Header = ({ characterData, isEditing, onInputChange,  editableChara
         <CheckboxRow title="success" />
         <CheckboxRow title="failures" />
       </div>}
-      
+
       <div className="flex flex-col font-accent w-1/4">
         <div className="flex flex-row justify-around h-1/2">
           <InfoBlock isEditing={isEditing} onInputChange={onInputChange} cnPassThrough="text-4xl p-4" label="AC" content={`${characterData.character_stats.ac}`} property1='character_stats' property2='ac' editableContent={`${editableCharacterData.character_stats.ac}`} />
-          <InfoBlock isEditing={isEditing} onInputChange={onInputChange} cnPassThrough="text-4xl p-4" label="speed" content={`${characterData.character_stats.speed}ft`} property1='character_stats' property2='speed' editableContent={`${editableCharacterData.character_stats.speed}`}/>
+          <InfoBlock isEditing={isEditing} onInputChange={onInputChange} cnPassThrough="text-4xl p-4" label="speed" content={`${characterData.character_stats.speed}ft`} property1='character_stats' property2='speed' editableContent={`${editableCharacterData.character_stats.speed}`} />
         </div>
         <div className="flex flex-row justify-around h-1/2">
-          <InfoBlock isEditing={isEditing} onInputChange={onInputChange} cnPassThrough="text-4xl p-4" label="initiative" content={`+${characterData.character_stats.initiative}`} property1='character_stats' property2='initiative' editableContent={`${editableCharacterData.character_stats.initiative}`}/>
-          <InfoBlock isEditing={isEditing} onInputChange={onInputChange} cnPassThrough="text-4xl p-4" label="proficiency bonus" content={`+${characterData.character_stats.proficiency}`} property1='character_stats' property2='proficiency' editableContent={`${editableCharacterData.character_stats.proficiency}`}/>
+          <InfoBlock isEditing={isEditing} onInputChange={onInputChange} cnPassThrough="text-4xl p-4" label="initiative" content={`+${characterData.character_stats.initiative}`} property1='character_stats' property2='initiative' editableContent={`${editableCharacterData.character_stats.initiative}`} />
+          <InfoBlock isEditing={isEditing} onInputChange={onInputChange} cnPassThrough="text-4xl p-4" label="proficiency bonus" content={`+${characterData.character_stats.proficiency}`} property1='character_stats' property2='proficiency' editableContent={`${editableCharacterData.character_stats.proficiency}`} />
         </div>
       </div>
     </div>

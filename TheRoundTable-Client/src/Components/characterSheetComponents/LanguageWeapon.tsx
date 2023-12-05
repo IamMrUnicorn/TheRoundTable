@@ -38,13 +38,13 @@ export const LanguageWeapon = ({ characterData, editableCharacterData, isEditing
                 <AccordionTab key={index} className='font-primary capitalize py-1 my-1' header={type.replace('W', '')}>
                   {weaponList.length ? (
                     isEditing
-                      ? <Chips value={editableCharacterData.character_inventory[type]} onChange={(e) => onInputChange(e.value || [], 'inventory', type)} itemTemplate={customChip} pt={{ inputToken: { className: 'text-black bg-white p-1' }, container: { className: 'flex flex-row-reverse' } }} />
+                      ? <Chips value={editableCharacterData.character_inventory[type]} onChange={(e) => onInputChange(e.value || [], 'character_inventory', type)} itemTemplate={customChip} pt={{ inputToken: { className: 'text-black bg-white p-1' }, container: { className: 'flex flex-row-reverse' } }} />
                       : weaponList.map((weapon, weaponIndex) => (
                         <p className="font-accent pl-5" key={weaponIndex}> {weapon} </p>
                       ))
                   ) : (
                     isEditing
-                      ? <Chips value={editableCharacterData.character_inventory[type]} onChange={(e) => onInputChange(e.value || [], 'inventory', type)} itemTemplate={customChip} pt={{ inputToken: { className: 'text-black bg-white p-1' }, container: { className: 'flex flex-row-reverse' } }} />
+                      ? <Chips value={editableCharacterData.character_inventory[type]} onChange={(e) => onInputChange(e.value || [], 'character_inventory', type)} itemTemplate={customChip} pt={{ inputToken: { className: 'text-black bg-white p-1' }, container: { className: 'flex flex-row-reverse' } }} />
                       : <p className='bg-red-300 p-1 pl-3 font-accent rounded-lg capitalize'>empty</p>
                   )}
                 </AccordionTab>
