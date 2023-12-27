@@ -11,6 +11,8 @@ import { ProfilePage } from "./ProfilePage";
 import { LoadingPage } from "./LoadingPage";
 import { PlayerWaitingPage } from "./PlayerWaitingPage";
 import { DMSetupPage } from "./DMSetupPage";
+import IntroPage from "./IntroPage";
+import { InfoPage } from "./InfoPage";
 
 export {
   LandingPage,
@@ -26,4 +28,6 @@ export {
   LoadingPage,
   PlayerWaitingPage,
   DMSetupPage,
+  IntroPage,
+  InfoPage,
 }
