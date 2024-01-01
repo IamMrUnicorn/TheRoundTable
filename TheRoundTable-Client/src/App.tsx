@@ -1,6 +1,6 @@
 import { useContext, FC, useState, useEffect } from 'react'
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { CalendarPage, CharactersPage, ErrorPage, LandingPage, GamePage, ActiveParties, SignInPage, ProfilePage, IntroPage, InfoPage } from './Pages/Index.ts'
+import { CalendarPage, CharactersPage, ErrorPage, LandingPage, GamePage, ActiveParties, SignInPage, IntroPage, InfoPage } from './Pages/Index.ts'
 import { supabaseContext } from './Utils/supabase.ts';
 // import { SocketContext } from './socket.ts'
 
@@ -47,7 +47,6 @@ const App: FC = () => {
             <Routes>
               <Route path="/" element={<LandingPage />} />
               <Route path="/info" element={<InfoPage/>} />
-              <Route path="/profile" element={<ProfilePage />} />
               <Route path="/parties" element={<ActiveParties />} />
               <Route path="/characters" element={<CharactersPage />} />
               <Route path="/calendar" element={<CalendarPage />} />

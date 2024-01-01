@@ -1,4 +1,6 @@
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useState, useContext } from "react";
+import { supabaseContext } from "../Utils/supabase"
+
 
 const themes = ['TheRoundTable', 'Stigander', 'Malarie', 'Bojack', 'Zaris']
 interface NavProps {
@@ -6,11 +8,16 @@ interface NavProps {
 }
 
 const NavBar = ({ setTheme }: NavProps) => {
+  const supabase = useContext(supabaseContext)
 
   const [MenuState, setMenuState] = useState(false)
 
   const OpenCloseMenu = () => {
     setMenuState(!MenuState)
+  }
+
+  const handleSignOut = async () => {
+    let { error } = await supabase.auth.signOut()
   }
 
   return (
@@ -37,7 +44,7 @@ const NavBar = ({ setTheme }: NavProps) => {
             ))}
           </ul>
         </div>
-        <a className="btn btn-neutral btn-sm font-accent capitalize" href="/profile">Profile<i className="fa-solid fa-user"/></a>
+        <button className="btn btn-neutral btn-sm font-accent capitalize" onClick={handleSignOut}>Sign Out<i className="fa-solid fa-arrow-right-from-bracket"/></button>
 
       </div>
 
@@ -66,7 +73,7 @@ const NavBar = ({ setTheme }: NavProps) => {
             ))}
           </ul>
         </div>
-        <a className="btn btn-neutral btn-sm font-accent  btn-circle" href="/profile"><i className="fa-solid fa-user"/></a>
+        <button className="btn btn-neutral btn-sm btn-circle font-accent capitalize" onClick={handleSignOut}><i className="fa-solid fa-arrow-right-from-bracket"/></button>
       </div>
 
     </nav>
