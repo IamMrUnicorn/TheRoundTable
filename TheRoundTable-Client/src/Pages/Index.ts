@@ -7,10 +7,11 @@ import DMPage from './DMPage'
 import { GamePage } from './GamePage';
 import { ActiveParties } from './ActiveParties';
 import SignInPage from './SignInPage';
-import { ProfilePage } from "./ProfilePage";
 import { LoadingPage } from "./LoadingPage";
 import { PlayerWaitingPage } from "./PlayerWaitingPage";
 import { DMSetupPage } from "./DMSetupPage";
+import IntroPage from "./IntroPage";
+import { InfoPage } from "./InfoPage";
 
 export {
   LandingPage,
@@ -22,8 +23,9 @@ export {
   GamePage,
   ActiveParties,
   SignInPage,
-  ProfilePage,
   LoadingPage,
   PlayerWaitingPage,
   DMSetupPage,
+  IntroPage,
+  InfoPage,
 }

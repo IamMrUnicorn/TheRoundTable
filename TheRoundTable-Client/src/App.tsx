@@ -1,6 +1,6 @@
 import { useContext, FC, useState, useEffect } from 'react'
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { CalendarPage, CharactersPage, ErrorPage, LandingPage, GamePage, ActiveParties, SignInPage, ProfilePage} from './Pages/Index.ts'
+import { CalendarPage, CharactersPage, ErrorPage, LandingPage, GamePage, ActiveParties, SignInPage, IntroPage, InfoPage } from './Pages/Index.ts'
 import { supabaseContext } from './Utils/supabase.ts';
 // import { SocketContext } from './socket.ts'
 
@@ -20,50 +20,53 @@ const App: FC = () => {
   // const socket = useContext(SocketContext)
   const supabase = useContext(supabaseContext);
 
-// subscribe to auth state
-    useEffect(() => {
-      supabase.auth.getSession().then(({ data: { session } }) => {
-        setSession(session)
-      })
+  // subscribe to auth state
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session)
+    })
 
-      const {data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-        setSession(session)
-      })
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session)
+    })
 
-      return () => subscription.unsubscribe()
-    }, [])
-
-    if (!session) {
-      return <SignInPage />;
-    }
-    else {
-      return (
-        // <SocketContext.Provider value={socket}>
-          <supabaseContext.Provider value={supabase}>
-            <div data-theme={localStorage.getItem('theme') || theme} className='h-screen max-w-screen overflow-x-hidden hiddenScroll'>
-    
-              <NavBar setTheme={setTheme}/>
-    
-              <BrowserRouter>
-                <Routes>
-                  <Route path="/" element={<LandingPage />} />
-                  <Route path="/profile" element={<ProfilePage />} />
-                  <Route path="/parties" element={<ActiveParties/>} />
-                  <Route path="/characters" element={<CharactersPage/>} />
-                  <Route path="/calendar" element={<CalendarPage />} />
-                  <Route path="/rooms/:roomName" element={<GamePage/>} />
-                  <Route path="*" element={<ErrorPage />} />
-                </Routes>
-              </BrowserRouter>
-    
-            </div>
-          </supabaseContext.Provider>
-        // </SocketContext.Provider>
-      )
-    }
+    return () => subscription.unsubscribe()
+  }, [])
 
 
+  return (
+    // <SocketContext.Provider value={socket}>
+    <supabaseContext.Provider value={supabase}>
+      <div data-theme={localStorage.getItem('theme') || theme} className='h-screen max-w-screen overflow-x-hidden hiddenScroll'>
+
+        {!session ? null : <NavBar setTheme={setTheme} />}
+
+        <BrowserRouter>
+          {session ? (
+
+            <Routes>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/info" element={<InfoPage/>} />
+              <Route path="/parties" element={<ActiveParties />} />
+              <Route path="/characters" element={<CharactersPage />} />
+              <Route path="/calendar" element={<CalendarPage />} />
+              <Route path="/rooms/:roomName" element={<GamePage />} />
+              <Route path="*" element={<ErrorPage />} />
+            </Routes>
+          ) : (
+            <Routes>
+              <Route path="/" element={<IntroPage />} />
+              <Route path="/signin" element={<SignInPage />} />
+            </Routes>
+          )}
+        </BrowserRouter>
+
+      </div>
+    </supabaseContext.Provider>
+    // </SocketContext.Provider>
+  )
 }
+
 
 export default App
 
@@ -77,7 +80,5 @@ export default App
 // continue development on file bin component
 // UPDATE AND FURTHER DEVELOP MODALS
 // MORE INTERTWINING OF REAL DATA 
-// ALLOW USERS TO EDIT CHARACTERS ONCE THEY ARE UPLOADED
-// ALLOW USERS TO DELETE CHARACTERS FROM CHARACTER SHEET
 
 // try to get class / subclass details from dndapi or maybe even manual upload

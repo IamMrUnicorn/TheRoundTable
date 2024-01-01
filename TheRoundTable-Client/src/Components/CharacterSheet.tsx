@@ -4,6 +4,7 @@ import { Header, CoreStats, SavingThrows, Skills, LanguageWeapon, Inventory } fr
 import { SpellSheet } from './SpellSheet'
 import { LoadingPage } from '../Pages/LoadingPage'
 import { supabaseContext } from '../Utils/supabase'
+import { bulkUpdateCharacterData } from '../Utils/SupabaseFns'
 
 
 export interface characterDataI {
@@ -103,7 +104,7 @@ export interface characterDataI {
   [key: string]: any
 }
 
-const CharacterSheetMain = (props :{ characterData: characterDataI, onDelete: (id: number) => void }, ref: any) => {
+const CharacterSheetMain = (props :{ characterData: characterDataI, characterIndex:number, onChange:(id: number, newCharData: characterDataI) => void, onDelete: (id: number) => void }, ref: any) => {
   const [isFlipped, setIsFlipped] = useState(false);
   const [isHidden, setIsHidden] = useState(false);
   const [isEditing, setIsEditing] = useState(false)
@@ -140,20 +141,57 @@ const CharacterSheetMain = (props :{ characterData: characterDataI, onDelete: (i
     }, 500);
   };
 
+  const handleInputChange = useCallback((value: any, property1: string, property2:string | undefined) => {
+    setEditableCharacterData( (previousData) => {
 
-  const handleInputChange = useCallback((value: any, property1: string, property2:String | undefined) => {
-    const newCharacterData = { ...editableCharacterData }
-    if (property2 === undefined) {
-      newCharacterData[property1] = value
-    } else {
-      newCharacterData[property1][property2] = value
-    }
-    setEditableCharacterData(newCharacterData)
+      const newCharacterData = { ...previousData }
+      if (property2 === undefined) {
+        newCharacterData[property1] = value
+      } else {
+        newCharacterData[property1][property2] = value
+      }
+
+      return newCharacterData
+    })
   }, [])
 
-  const handleSubmit = () => {
-    console.log(editableCharacterData)
+  const mapCharacterDataToDBSubmission = (characterData: characterDataI) => {
+    return {
+      character: {
+        id: characterData.id,
+        creator_id: characterData.creator_id,
+        party_id: characterData.party_id,
+        name: characterData.name,
+        image_url: characterData.image_url,
+        race: characterData.race,
+        class: characterData.class,
+        subclass: characterData.subclass,
+        background: characterData.background,
+        alignment: characterData.alignment,
+        level: characterData.level,
+        hitdice: characterData.hitdice,
+        languages: characterData.languages,
+        locked: characterData.locked,
+        proficiencies: characterData.proficiencies,
+        class_abilities: characterData.class_abilities
+      },
+      stats: characterData.character_stats,
+      proficiency: characterData.character_proficiency,
+      inventory: characterData.character_inventory
+    };
   }
+
+  const handleSubmit = async () => {
+    const DBsubmission = mapCharacterDataToDBSubmission(editableCharacterData);
+    try {
+      await bulkUpdateCharacterData(editableCharacterData.id, DBsubmission);  
+    } catch (error) {
+      console.error(error);
+    } finally {
+      props.onChange(editableCharacterData.id, editableCharacterData)
+      setIsEditing(false);
+    }
+  };
 
   const deleteFromTable = async (tableName: string, colName: string, characterId: number) => {
     const { error } = await supabase
@@ -200,15 +238,20 @@ const CharacterSheetMain = (props :{ characterData: characterDataI, onDelete: (i
         transition: 'all 0.5s ease-in-out',
         transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)'
       }}>
+
         <button className={`btn btn-primary font-accent capitalize m-5 ${isDeleting || isEditing || isDeleted ? 'btn-disabled' : ''}`} onClick={toggleFlip}>Flip For Spell Sheet</button>
         <button className='btn btn-primary font-accent capitalize m-5' onClick={()=> setIsLocked(!isLocked)}>{ isLocked ? 'Unlock Character Sheet' : 'Lock Character Sheet'}</button>
-        {isLocked ? null : <div>
-          <button className={`btn btn-primary font-accent capitalize m-5 ${isDeleting || isDeleted ? 'btn-disabled' : ''}`} onClick={() => { setIsEditing(!isEditing) }}>{isEditing ? 'click to discard changes' : 'Edit Character'}</button>
-          {isEditing ? <button className="btn btn-primary font-accent capitalize m-5" onClick={() => setEditableCharacterData(props.characterData)}>Click Me To Reset Values To Default</button> : null}
-          {isEditing ? <button className="btn btn-primary font-accent capitalize m-5" onClick={() => console.log('save')}>Click Me To Save Changes</button> : null}
-          <button className={`btn btn-primary font-accent capitalize m-5 ${isEditing || isDeleted ? 'btn-disabled' : ''}`} onClick={() => { setIsDeleting(!isDeleting) }}>{isDeleting ? 'Are You Sure? Click Me To Cancel' : 'Delete Character'}</button>
-          {isDeleting ? <button className={`btn btn-primary font-accent capitalize m-5 ${isDeleted ? 'btn-disabled' : ''}`} onClick={handleDelete}>Click Me To Confirm Deletion</button> : null}
-        </div> }
+        {
+          isLocked 
+            ? null 
+            : <div>
+                <button className={`btn btn-primary font-accent capitalize m-5 ${isDeleting || isDeleted ? 'btn-disabled' : ''}`} onClick={() => { setIsEditing(!isEditing) }}>{isEditing ? 'click to discard changes' : 'Edit Character'}</button>
+                {isEditing ? <button className="btn btn-primary font-accent capitalize m-5" onClick={() => setEditableCharacterData(props.characterData)}>Click Me To Reset Values To Default</button> : null}
+                {isEditing ? <button className="btn btn-primary font-accent capitalize m-5" onClick={handleSubmit}>Click Me To Save Changes</button> : null}
+                <button className={`btn btn-primary font-accent capitalize m-5 ${isEditing || isDeleted ? 'btn-disabled' : ''}`} onClick={() => { setIsDeleting(!isDeleting) }}>{isDeleting ? 'Are You Sure? Click Me To Cancel' : 'Delete Character'}</button>
+                {isDeleting ? <button className={`btn btn-primary font-accent capitalize m-5 ${isDeleted ? 'btn-disabled' : ''}`} onClick={handleDelete}>Click Me To Confirm Deletion</button> : null}
+              </div> 
+        }
 
         <div className="flex flex-col p-8 bg-neutral rounded-3xl ">
           <Header characterData={props.characterData} isEditing={isEditing} onInputChange={handleInputChange} editableCharacterData={editableCharacterData} />
@@ -241,158 +284,13 @@ const CharacterSheetMain = (props :{ characterData: characterDataI, onDelete: (i
 
 export const CharacterSheet = React.memo(React.forwardRef(CharacterSheetMain));
 
-/*
-const handleSave = async () => {
-  const inventory = JSON.stringify({
-    copper: editableCharacterData.character_inventory.inventory.copper,
-    silver: editableCharacterData.character_inventory.inventory.silver,
-    gold: editableCharacterData.character_inventory.inventory.gold,
-    platinum: editableCharacterData.character_inventory.inventory.platinum,
-    inventory: editableCharacterData.character_inventory.inventory.inventory
-  })
-  const spells = JSON.stringify({
-    cantrips: editableCharacterData.character_inventory.spells.cantrips,
-    lvl1: editableCharacterData.character_inventory.spells.lvl1,
-    lvl2: editableCharacterData.character_inventory.spells.lvl2,
-    lvl3: editableCharacterData.character_inventory.spells.lvl3,
-    lvl4: editableCharacterData.character_inventory.spells.lvl4,
-    lvl5: editableCharacterData.character_inventory.spells.lvl5,
-    lvl6: editableCharacterData.character_inventory.spells.lvl6,
-    lvl7: editableCharacterData.character_inventory.spells.lvl7,
-    lvl8: editableCharacterData.character_inventory.spells.lvl8,
-    lvl9: editableCharacterData.character_inventory.spells.lvl9,
-  })
-  const weapons = JSON.stringify({
-    heavy: editableCharacterData.character_inventory.weapons.heavy,
-    light: editableCharacterData.character_inventory.weapons.light,
-    reach: editableCharacterData.character_inventory.weapons.reach,
-    range: editableCharacterData.character_inventory.weapons.range,
-    thrown: editableCharacterData.character_inventory.weapons.thrown,
-    loading: editableCharacterData.character_inventory.weapons.loading,
-    finesse: editableCharacterData.character_inventory.weapons.finesse,
-    special: editableCharacterData.character_inventory.weapons.special,
-    versatile: editableCharacterData.character_inventory.weapons.versatile,
-    twoHanded: editableCharacterData.character_inventory.weapons.twoHanded,
-    magicalWeapons: editableCharacterData.character_inventory.weapons.magicalWeapons
-  })
-
-  const DBsubmission = {
-    'character': {
-      clerk_user_id: user_id,
-      party_id: null,
-      name: formData.name,
-      image_url: null,
-      race: JSON.stringify(formData.race),
-      class: JSON.stringify(formData.class),
-      subclass: JSON.stringify(formData.subclass),
-      background: formData.background,
-      alignment: formData.alignment,
-      level: formData.level,
-      hitdice: formData.hitDice,
-      languages: JSON.stringify(formData.languages),
-      proficiencies: JSON.stringify(formData.proficiencies)
-    },
-    'stats': {
-      character_id: '',
-      status: 'healthy',
-      currenthp: formData.maxHP,
-      maxhp: formData.maxHP,
-      ac: formData.AC,
-      proficiency: formData.proficiency,
-      initiative: formData.initiative,
-      speed: formData.speed,
-      strength: formData.strength,
-      dexterity: formData.dexterity,
-      constitution: formData.constitution,
-      intelligence: formData.intelligence,
-      wisdom: formData.wisdom,
-      charisma: formData.charisma,
-      spell_dc: formData.spellDC,
-      feats: JSON.stringify(formData.feats),
-    },
-    'proficiency': {
-      character_id: '',
-      strength: formData.strengthProficient,
-      dexterity: formData.dexterityProficient,
-      constitution: formData.constitutionProficient,
-      intelligence: formData.intelligenceProficient,
-      wisdom: formData.wisdomProficient,
-      charisma: formData.charismaProficient,
-      athletics: formData.athleticsProficient,
-      acrobatics: formData.acrobaticsProficient,
-      sleightofhand: formData.sleightOfHandProficient,
-      stealth: formData.stealthProficient,
-      arcana: formData.arcanaProficient,
-      history: formData.historyProficient,
-      investigation: formData.investigationProficient,
-      nature: formData.natureProficient,
-      religion: formData.religionProficient,
-      animalhandling: formData.animalHandlingProficient,
-      insight: formData.insightProficient,
-      medicine: formData.medicineProficient,
-      perception: formData.perceptionProficient,
-      survival: formData.survivalProficient,
-      deception: formData.deceptionProficient,
-      intimidation: formData.intimidationProficient,
-      performance: formData.performanceProficient,
-      persuasion: formData.persuasionProficient,
-    },
-    'inventory': {
-      character_id: '',
-      spells: spells,
-      weapons: weapons,
-      inventory: inventory
-    },
-  }
-  const character = JSON.stringify(DBsubmission)
-
-  localStorage.setItem('Main_character', character)
-
-  console.log(DBsubmission.character)
-  const { data, error } = await supabase
-    .from('characters')
-    .insert(DBsubmission.character)
-    .select();
-  if (error) {
-    console.log(error)
-  } else {
-    console.log(data[0])
-    const characterId = data[0].id;
-    DBsubmission.stats.character_id = characterId;
-    DBsubmission.proficiency.character_id = characterId;
-    DBsubmission.inventory.character_id = characterId;
-    const { error } = await supabase
-      .from('character_stats')
-      .insert(DBsubmission.stats);
-    if (error) {
-      console.log(error)
-    } else {
-      const { error } = await supabase
-        .from('character_proficiency')
-        .insert(DBsubmission.proficiency);
-      if (error) {
-        console.log(error)
-      } else {
-        const { error } = await supabase
-          .from('character_inventory')
-          .insert(DBsubmission.inventory)
-        if (error) {
-          console.log(error)
-        } else {
-          window.location.href = '/characters'
-        }
-      }
-    }
-  }
-}; */
-
 /**
- * make class & subclass specific modules, maybe pop-up modals 
+ * !!make class & subclass specific modules, maybe pop-up modals 
  * 
+ * add question marks to everything
+ * show how to calculate values for different stat points
  * 
  * make it new player friendly!,
- * show how to calculate values for different stat points
  * explain what dice are used for what
- * add question marks to everything
  * add push pull and carry values, = to strength
  */
