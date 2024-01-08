@@ -21,7 +21,7 @@ const NavBar = ({ setTheme }: NavProps) => {
   }
 
   return (
-    <nav className="flex flex-row justify-between bg-secondary min-h-[5vh]">
+    <nav className="sticky top-0 ZTOP flex flex-row justify-between bg-secondary min-h-[5vh]">
       <div className="bg-accent flex flex-col justify-center w-[50vw] xl:w-[30vw] rounded-md hover:bg-opacity-80 ">
         <a href='/' className="text-neutral text-center md:text-3xl font-primary hover:text-opacity-90">The Round Table <i className="fa-solid fa-dungeon"></i> <i className="fa-solid fa-dragon"></i></a>
       </div>
@@ -31,8 +31,8 @@ const NavBar = ({ setTheme }: NavProps) => {
       <div className="hidden xl:flex xl:flex-row xl:justify-end xl:gap-2 xl:items-center xl:mr-2 ">
 
         <a href="/info" className="btn btn-neutral btn-sm font-accent capitalize">info <i className="fa-solid fa-lightbulb" /></a>
+        <a className="btn btn-neutral btn-sm font-accent capitalize" href='/guide'>new to dnd <i className="fa-solid fa-graduation-cap" /></a>
         <a href="/calendar" className="btn btn-neutral btn-sm font-accent capitalize">calendar <i className="fa-solid fa-calendar-days" /></a>
-        <a className="btn btn-neutral btn-sm font-accent capitalize" target="_blank" href='https://www.google.com/search?q=how+to+play+dnd&oq=how+to+play+dnd'>new to dnd <i className="fa-solid fa-graduation-cap" /></a>
         <a href="/parties" className="btn btn-neutral btn-sm font-accent capitalize">Active Parties<i className="fa-solid fa-users" /></a>
         <a href="/characters" className="btn btn-neutral btn-sm font-accent capitalize">view characters <i className="fa-solid fa-user-group" /></a>
 
