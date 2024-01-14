@@ -44,7 +44,7 @@ const NavBar = ({ setTheme }: NavProps) => {
             ))}
           </ul>
         </div>
-        <button className="btn btn-neutral btn-sm font-accent capitalize" onClick={handleSignOut}>Sign Out<i className="fa-solid fa-arrow-right-from-bracket"/></button>
+        <a href="/" className="btn btn-neutral btn-sm font-accent capitalize" onClick={handleSignOut}>Sign Out<i className="fa-solid fa-arrow-right-from-bracket"/></a>
 
       </div>
 
