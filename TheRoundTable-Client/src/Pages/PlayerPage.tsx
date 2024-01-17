@@ -25,7 +25,7 @@ import { characterDataI } from "../Components/CharacterSheet";
 
 
 
-const PlayerPage = ({ party, usersCharacter  }: {party: characterDataI[] | undefined, usersCharacter: characterDataI | undefined}) => {
+const PlayerPage = ({ party, usersCharacter  }: {party: characterDataI[] | undefined, usersCharacter: characterDataI | null}) => {
   const [popup, setPopup] = useState('none')
 
 

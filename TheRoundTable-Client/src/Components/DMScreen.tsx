@@ -206,7 +206,7 @@ export const DMScreen = () => {
   }
 
   return (
-    <div className="grid grid-cols-10 grid-rows-40  ">
+    <div className="grid grid-cols-10 grid-rows-40 h-1/6 ">
       <NoteBlock />
       <DClookup />
 

@@ -23,10 +23,10 @@ const PartyModule = ({ partyId, partyName, partyStatus }: { partyId:number, part
         <p className="text-3xl capitalize underline">{partyName}</p>
         <span className="p-5 font-accent capitalize"> status: {partyStatus ? 'ready' : 'not ready'}</span>
       </div>
-      <div>
-        <button onClick={()=>setIsLeaving(!isLeaving)} className="btn btn-secondary capitalize font-accent">{isLeaving ? 'are you sure? click to cancel' : 'leave room'}</button>
-        {isLeaving && <button onClick={()=>handleLeaveRoom()} className="btn btn-secondary capitalize font-accent"> click to confirm </button>}
+      <div className="flex flex-row gap-3">
         <a href={`/rooms/${partyName}`} className="btn btn-secondary capitalize font-accent"> go to room</a>
+        {isLeaving && <button onClick={()=>handleLeaveRoom()} className="btn btn-secondary capitalize font-accent"> click to confirm </button>}
+        <button onClick={()=>setIsLeaving(!isLeaving)} className="btn btn-secondary capitalize font-accent">{isLeaving ? 'are you sure? click to cancel' : 'leave room'}</button>
       </div>
     </div>
   )
@@ -66,6 +66,7 @@ export const ActiveParties = () => {
           .eq('user_id', userID)
 
         if (error) throw error;
+        console.log(data)
         if (!data || data.length === 0) throw new Error('No data received');
 
         const partyMemberData = data.flatMap(u => u.party_members) ;
