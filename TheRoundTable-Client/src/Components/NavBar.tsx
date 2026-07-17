@@ -17,8 +17,22 @@ const NavBar = ({ setTheme }: NavProps) => {
   }
 
   const handleSignOut = async () => {
-    let { error } = await supabase.auth.signOut()
-  }
+    try {
+      const response = await fetch('https://wnetxltswtgrkyimwhmc.supabase.co/auth/v1/logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          apikey: 'your-anon-key',
+          Authorization: `Bearer ${supabase.auth.session()?.access_token}`,
+        },
+      });
+  
+      if (!response.ok) throw new Error('Sign-out failed');
+      console.log('Sign-out successful');
+    } catch (error) {
+      console.error('Error:', error.message);
+    }
+  };
 
   return (
     <nav className="sticky top-0 ZTOP flex flex-row justify-between bg-secondary min-h-[5vh]">

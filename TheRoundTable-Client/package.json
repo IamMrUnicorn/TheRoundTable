@@ -13,7 +13,7 @@
     "@hookform/resolvers": "^3.1.1",
     "@supabase/auth-ui-react": "^0.4.6",
     "@supabase/auth-ui-shared": "^0.1.8",
-    "@supabase/supabase-js": "^2.38.4",
+    "@supabase/supabase-js": "^2.48.1",
     "@tldraw/tldraw": "^2.0.0-alpha.14",
     "autoprefixer": "^10.4.14",
     "axios": "^1.4.0",
