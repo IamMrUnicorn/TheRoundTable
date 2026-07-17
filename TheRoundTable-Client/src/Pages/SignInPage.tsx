@@ -9,6 +9,7 @@ const SignInPage: FC = () => {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [tempEmail, setTempEmail] = useState('');
+  const [error, setError] = useState('');
   const supabase = useContext(supabaseContext);
 
   const handleEmailChange = (e: any) => {
@@ -78,6 +79,7 @@ const SignInPage: FC = () => {
 
 
       <div className='flex flex-col m-20 justify-center '>
+        <p>{error}</p>
         <div className='flex flex-row justify-center '>
           <label className='flex flex-row gap-2 capitalize font-accent m-1' >
             <button className='btn btn-primary font-accent' onClick={() => setOpenInput((prev) => !prev)}>{openInput ? 'cancel' : 'Sign Up'}</button>

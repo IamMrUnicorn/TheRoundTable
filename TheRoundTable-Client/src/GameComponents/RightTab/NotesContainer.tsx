@@ -1,5 +1,5 @@
 import { Tldraw } from '@tldraw/tldraw'
-import '@tldraw/tldraw/tldraw.css'
+
 
 const NotesContainer = () => {
   return (

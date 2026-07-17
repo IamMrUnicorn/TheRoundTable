@@ -1,6 +1,6 @@
 import { useContext, FC, useState, useEffect } from 'react'
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { CalendarPage, CharactersPage, ErrorPage, LandingPage, GamePage, ActiveParties, SignInPage, IntroPage, InfoPage } from './Pages/Index.ts'
+import { CalendarPage, CharactersPage, ErrorPage, LandingPage, GamePage, ActiveParties, SignInPage, IntroPage, InfoPage, LoadingPage } from './Pages/Index.ts'
 import { supabaseContext } from './Utils/supabase.ts';
 // import { SocketContext } from './socket.ts'
 
@@ -10,12 +10,13 @@ import 'primeicons/primeicons.css';
 
 import './App.css'
 import NavBar from './Components/NavBar'
+import GuidePage from './Pages/GuidePage.tsx';
 
 
 
 const App: FC = () => {
 
-  const [session, setSession] = useState(null)
+  const [session, setSession] = useState()
   const [theme, setTheme] = useState('TheRoundTable')
   // const socket = useContext(SocketContext)
   const supabase = useContext(supabaseContext);
@@ -33,7 +34,8 @@ const App: FC = () => {
     return () => subscription.unsubscribe()
   }, [])
 
-
+  if (session === undefined) return <LoadingPage/>
+  
   return (
     // <SocketContext.Provider value={socket}>
     <supabaseContext.Provider value={supabase}>
@@ -48,6 +50,7 @@ const App: FC = () => {
               <Route path="/" element={<LandingPage />} />
               <Route path="/info" element={<InfoPage/>} />
               <Route path="/parties" element={<ActiveParties />} />
+              <Route path="/guide" element={<GuidePage />} />
               <Route path="/characters" element={<CharactersPage />} />
               <Route path="/calendar" element={<CalendarPage />} />
               <Route path="/rooms/:roomName" element={<GamePage />} />

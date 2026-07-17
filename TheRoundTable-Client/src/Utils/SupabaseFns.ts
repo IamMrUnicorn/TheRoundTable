@@ -1,5 +1,6 @@
 import { supabase } from "./supabase";
 import { characterDataI } from "../Components/CharacterSheet";
+import { PartyMember } from "../Pages/GamePage";
 
 
 
@@ -19,15 +20,16 @@ export const getAllCharacterIdsByUser = async (userId: number | null): Promise<n
   }
 };
 
-export const getAllCharacterIdsByPartyId = async (partyId:number) => {
+export const getAllCharacterIdsByPartyId = async (partyId: number) => {
   try {
-    const {data: partyMembers, error} = await supabase
-    .from('party_members')
-    .select('character_id')
-    .eq('party_id',partyId)
+    const { data: partyMembers, error } = await supabase
+      .from('party_members')
+      .select('character_id, user_id')
+      .eq('party_id', partyId)
+      .is('is_dm', false);
     if (error) throw error
-    if (!partyMembers) return null
-    return partyMembers.map((pm) => pm.character_id);
+    if (!partyMembers) return []
+    return partyMembers as PartyMember[];
   } catch (error) {
     console.log(error)
   }
@@ -68,7 +70,7 @@ export const bulkUpdateCharacterData = async (characterId: number, characterData
 
 export const getCharacterById = async (characterID: number): Promise<characterDataI | null> => {
   try {
-    const { data: characterData, error } = await supabase
+    const { data: characterDataI, error } = await supabase
       .from('characters')
       .select(`
         *,
@@ -79,17 +81,17 @@ export const getCharacterById = async (characterID: number): Promise<characterDa
       .eq('id', characterID)
       .single();
 
-    if (error || !characterData) throw error;
-    // console.log(characterData)
+    if (error || !characterDataI) throw error;
+    // console.log(characterDataI)
     // todo more transformations go here
-    characterData.languages = JSON.parse(characterData.languages)
-    characterData.race = JSON.parse(characterData.race);
-    characterData.class = JSON.parse(characterData.class);
-    characterData.subclass = JSON.parse(characterData.subclass);
-    characterData.proficiencies = JSON.parse(characterData.proficiencies);
-    characterData.character_stats.feats = JSON.parse(characterData.character_stats.feats);
+    characterDataI.languages = JSON.parse(characterDataI.languages)
+    characterDataI.race = JSON.parse(characterDataI.race);
+    characterDataI.class = JSON.parse(characterDataI.class);
+    characterDataI.subclass = JSON.parse(characterDataI.subclass);
+    characterDataI.proficiencies = JSON.parse(characterDataI.proficiencies);
+    characterDataI.character_stats.feats = JSON.parse(characterDataI.character_stats.feats);
 
-    return characterData;
+    return characterDataI;
   } catch (error) {
     console.error(error);
     return null;

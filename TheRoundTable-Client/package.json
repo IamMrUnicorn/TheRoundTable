@@ -13,7 +13,7 @@
     "@hookform/resolvers": "^3.1.1",
     "@supabase/auth-ui-react": "^0.4.6",
     "@supabase/auth-ui-shared": "^0.1.8",
-    "@supabase/supabase-js": "^2.38.4",
+    "@supabase/supabase-js": "^2.48.1",
     "@tldraw/tldraw": "^2.0.0-alpha.14",
     "autoprefixer": "^10.4.14",
     "axios": "^1.4.0",
@@ -33,6 +33,7 @@
     "yup": "^1.2.0"
   },
   "devDependencies": {
+    "@tailwindcss/typography": "^0.5.10",
     "@types/react": "^18.0.37",
     "@types/react-dom": "^18.0.11",
     "@typescript-eslint/eslint-plugin": "^5.59.0",
