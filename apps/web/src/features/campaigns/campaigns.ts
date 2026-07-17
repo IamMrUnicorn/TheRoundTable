@@ -96,3 +96,69 @@ export async function getCampaign(campaignId: number) {
   if (error) throw error
   return data as CampaignDetail
 }
+
+export async function updateCampaignSettings(
+  campaignId: number,
+  input: {
+    cadence: string
+    description: string
+    name: string
+    preferredSessionMinutes: number
+    status: string
+    timezone: string
+  },
+) {
+  const { data, error } = await supabase
+    .from('campaigns')
+    .update({
+      cadence: input.cadence,
+      description: input.description.trim(),
+      name: input.name.trim(),
+      preferred_session_minutes: input.preferredSessionMinutes,
+      status: input.status,
+      timezone: input.timezone.trim(),
+    })
+    .eq('id', campaignId)
+    .select('*')
+    .single()
+  if (error) throw error
+  return data
+}
+
+export async function rotateInviteCode(campaignId: number) {
+  const inviteCode = crypto
+    .randomUUID()
+    .replaceAll('-', '')
+    .slice(0, 8)
+    .toUpperCase()
+  const { data, error } = await supabase
+    .from('campaigns')
+    .update({ invite_code: inviteCode })
+    .eq('id', campaignId)
+    .select('invite_code')
+    .single()
+  if (error) throw error
+  return data.invite_code
+}
+
+export async function updateMemberRole(
+  campaignId: number,
+  userId: string,
+  role: string,
+) {
+  const { error } = await supabase
+    .from('campaign_members')
+    .update({ role })
+    .eq('campaign_id', campaignId)
+    .eq('user_id', userId)
+  if (error) throw error
+}
+
+export async function removeCampaignMember(campaignId: number, userId: string) {
+  const { error } = await supabase
+    .from('campaign_members')
+    .delete()
+    .eq('campaign_id', campaignId)
+    .eq('user_id', userId)
+  if (error) throw error
+}

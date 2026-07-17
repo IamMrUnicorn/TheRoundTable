@@ -5,6 +5,7 @@ import {
   KeyRound,
   Plus,
   Shield,
+  UserRound,
   Users,
   X,
 } from 'lucide-react'
@@ -17,8 +18,12 @@ import {
   listCampaigns,
 } from '../features/campaigns/campaigns'
 import { useAuth } from '../features/auth/auth-context'
+import {
+  createCharacter,
+  listOwnedCharacters,
+} from '../features/characters/characters'
 
-type Panel = 'create' | 'join' | null
+type Panel = 'character' | 'create' | 'join' | null
 
 function errorMessage(error: unknown) {
   return error instanceof Error ? error.message : 'Something went wrong.'
@@ -32,10 +37,19 @@ export function DashboardPage() {
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [inviteCode, setInviteCode] = useState('')
+  const [characterName, setCharacterName] = useState('')
+  const [ancestry, setAncestry] = useState('')
+  const [className, setClassName] = useState('')
+  const [characterCampaign, setCharacterCampaign] = useState('')
 
   const campaigns = useQuery({
     queryKey: ['campaigns', identity?.id],
     queryFn: () => listCampaigns(identity!.id),
+    enabled: Boolean(identity),
+  })
+  const characters = useQuery({
+    queryKey: ['characters', identity?.id],
+    queryFn: () => listOwnedCharacters(identity!.id),
     enabled: Boolean(identity),
   })
 
@@ -59,6 +73,20 @@ export function DashboardPage() {
       navigate(`/campaigns/${campaignId}`)
     },
   })
+  const characterMutation = useMutation({
+    mutationFn: () =>
+      createCharacter({
+        ancestry,
+        campaignId: characterCampaign ? Number(characterCampaign) : null,
+        className,
+        name: characterName,
+        ownerId: identity!.id,
+      }),
+    onSuccess: async (character) => {
+      await queryClient.invalidateQueries({ queryKey: ['characters'] })
+      navigate(`/characters/${character.id}`)
+    },
+  })
 
   function submitCreate(event: FormEvent) {
     event.preventDefault()
@@ -77,9 +105,14 @@ export function DashboardPage() {
           <Dices aria-hidden="true" />
           <span>The Round Table</span>
         </Link>
-        <button className="secondary-button" onClick={() => void signOut()}>
-          Sign out
-        </button>
+        <div className="heading-actions">
+          <Link className="text-link" to="/profile">
+            Profile
+          </Link>
+          <button className="secondary-button" onClick={() => void signOut()}>
+            Sign out
+          </button>
+        </div>
       </header>
 
       <section className="dashboard-content">
@@ -93,6 +126,12 @@ export function DashboardPage() {
             </p>
           </div>
           <div className="heading-actions">
+            <button
+              className="secondary-button"
+              onClick={() => setPanel('character')}
+            >
+              <UserRound aria-hidden="true" size={18} /> New character
+            </button>
             <button
               className="secondary-button"
               onClick={() => setPanel('join')}
@@ -149,7 +188,7 @@ export function DashboardPage() {
                   {createMutation.isPending ? 'Creating…' : 'Create campaign'}
                 </button>
               </form>
-            ) : (
+            ) : panel === 'join' ? (
               <form onSubmit={submitJoin}>
                 <div>
                   <p className="eyebrow">Find your party</p>
@@ -174,6 +213,68 @@ export function DashboardPage() {
                 )}
                 <button disabled={joinMutation.isPending}>
                   {joinMutation.isPending ? 'Joining…' : 'Join the table'}
+                </button>
+              </form>
+            ) : (
+              <form
+                onSubmit={(event) => {
+                  event.preventDefault()
+                  if (characterName.trim()) characterMutation.mutate()
+                }}
+              >
+                <div>
+                  <p className="eyebrow">New hero</p>
+                  <h2>Create a character</h2>
+                </div>
+                <label htmlFor="character-name">Character name</label>
+                <input
+                  id="character-name"
+                  maxLength={80}
+                  required
+                  value={characterName}
+                  onChange={(event) => setCharacterName(event.target.value)}
+                  placeholder="Seraphina Dawn"
+                />
+                <label htmlFor="ancestry">Ancestry</label>
+                <input
+                  id="ancestry"
+                  maxLength={80}
+                  value={ancestry}
+                  onChange={(event) => setAncestry(event.target.value)}
+                  placeholder="Human, Elf, Dwarf…"
+                />
+                <label htmlFor="class-name">Class</label>
+                <input
+                  id="class-name"
+                  maxLength={80}
+                  value={className}
+                  onChange={(event) => setClassName(event.target.value)}
+                  placeholder="Fighter, Wizard, Cleric…"
+                />
+                <label htmlFor="character-campaign">
+                  Campaign <span>(optional)</span>
+                </label>
+                <select
+                  id="character-campaign"
+                  value={characterCampaign}
+                  onChange={(event) => setCharacterCampaign(event.target.value)}
+                >
+                  <option value="">Unassigned</option>
+                  {campaigns.data?.map((campaign) => (
+                    <option key={campaign.id} value={campaign.id}>
+                      {campaign.name}
+                    </option>
+                  ))}
+                </select>
+                {characterMutation.isError && (
+                  <p className="form-message error">
+                    {errorMessage(characterMutation.error)}
+                  </p>
+                )}
+                <button disabled={characterMutation.isPending}>
+                  {characterMutation.isPending
+                    ? 'Creating…'
+                    : 'Create character'}
                 </button>
               </form>
             )}
@@ -226,6 +327,51 @@ export function DashboardPage() {
                 <p>{campaign.description || 'No campaign description yet.'}</p>
                 <span className="card-link">
                   Enter campaign <ArrowRight aria-hidden="true" size={17} />
+                </span>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        <section className="campaign-section">
+          <div className="section-heading">
+            <div>
+              <p className="eyebrow">Your heroes</p>
+              <h2>Characters</h2>
+            </div>
+            <span>{characters.data?.length ?? 0} characters</span>
+          </div>
+          {characters.isLoading && (
+            <p className="muted-copy">Gathering your characters…</p>
+          )}
+          {characters.data?.length === 0 && (
+            <div className="empty-state">
+              <UserRound aria-hidden="true" />
+              <h3>No characters yet.</h3>
+              <p>Create a hero and assign them to one of your campaigns.</p>
+            </div>
+          )}
+          <div className="campaign-grid">
+            {characters.data?.map((character) => (
+              <Link
+                className="campaign-card character-card"
+                key={character.id}
+                to={`/characters/${character.id}`}
+              >
+                <div className="campaign-card-meta">
+                  <span>
+                    <UserRound size={15} /> Level {character.level}
+                  </span>
+                  <span>{character.class_name || 'Unclassed'}</span>
+                </div>
+                <h3>{character.name}</h3>
+                <p>
+                  {character.ancestry || 'Unknown ancestry'} ·{' '}
+                  {character.current_hp}/{character.max_hp} HP · AC{' '}
+                  {character.armor_class}
+                </p>
+                <span className="card-link">
+                  Open character sheet <ArrowRight size={17} />
                 </span>
               </Link>
             ))}

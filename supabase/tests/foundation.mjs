@@ -106,6 +106,61 @@ assert.deepEqual(sharedProfiles, [
   { id: owner.id, display_name: ownerEmail.split('@')[0] },
 ])
 
+const { data: characterRows, response: characterResponse } = await request(
+  '/rest/v1/characters',
+  {
+    token: owner.token,
+    method: 'POST',
+    body: {
+      owner_id: owner.id,
+      campaign_id: campaignId,
+      name: 'Ember Vale',
+      ancestry: 'Human',
+      class_name: 'Fighter',
+    },
+  },
+)
+assert.equal(characterResponse.status, 201)
+assert.equal(characterRows[0].name, 'Ember Vale')
+
+const characterId = characterRows[0].id
+const { data: partyCharacters, response: partyCharactersResponse } =
+  await request(
+    `/rest/v1/characters?campaign_id=eq.${campaignId}&select=id,name`,
+    { token: outsider.token },
+  )
+assert.equal(partyCharactersResponse.status, 200)
+assert.deepEqual(partyCharacters, [{ id: characterId, name: 'Ember Vale' }])
+
+const { data: forbiddenCampaignUpdate, response: forbiddenCampaignUpdateResponse } =
+  await request(`/rest/v1/campaigns?id=eq.${campaignId}`, {
+    token: outsider.token,
+    method: 'PATCH',
+    body: { cadence: 'monthly' },
+  })
+assert.equal(forbiddenCampaignUpdateResponse.status, 200)
+assert.deepEqual(forbiddenCampaignUpdate, [])
+
+const { data: roleUpdate, response: roleUpdateResponse } = await request(
+  `/rest/v1/campaign_members?campaign_id=eq.${campaignId}&user_id=eq.${outsider.id}`,
+  {
+    token: owner.token,
+    method: 'PATCH',
+    body: { role: 'game_master' },
+  },
+)
+assert.equal(roleUpdateResponse.status, 200)
+assert.equal(roleUpdate[0].role, 'game_master')
+
+const { data: forbiddenUpdate, response: forbiddenUpdateResponse } =
+  await request(`/rest/v1/characters?id=eq.${characterId}`, {
+    token: outsider.token,
+    method: 'PATCH',
+    body: { name: 'Stolen Hero' },
+  })
+assert.equal(forbiddenUpdateResponse.status, 200)
+assert.deepEqual(forbiddenUpdate, [])
+
 const { response: invalidJoinResponse } = await request(
   '/rest/v1/rpc/join_campaign',
   {

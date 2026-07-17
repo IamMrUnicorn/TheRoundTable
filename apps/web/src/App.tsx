@@ -5,6 +5,8 @@ import { AuthProvider } from './features/auth/AuthProvider'
 import { useAuth } from './features/auth/auth-context'
 import { DashboardPage } from './pages/DashboardPage'
 import { CampaignPage } from './pages/CampaignPage'
+import { CharacterPage } from './pages/CharacterPage'
+import { ProfilePage } from './pages/ProfilePage'
 import { SignInPage } from './pages/SignInPage'
 import './App.css'
 
@@ -56,6 +58,22 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <CampaignPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/characters/:characterId"
+        element={
+          <ProtectedRoute>
+            <CharacterPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <ProfilePage />
           </ProtectedRoute>
         }
       />

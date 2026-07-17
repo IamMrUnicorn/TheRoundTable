@@ -6,6 +6,7 @@ create table public.profiles (
   id uuid primary key references auth.users (id) on delete cascade,
   display_name text not null check (char_length(display_name) between 1 and 80),
   avatar_path text,
+  timezone text not null default 'UTC' check (char_length(timezone) between 1 and 100),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -18,6 +19,11 @@ create table public.campaigns (
   invite_code text not null unique default upper(substr(replace(gen_random_uuid()::text, '-', ''), 1, 8))
     check (invite_code ~ '^[A-F0-9]{8}$'),
   description text not null default '' check (char_length(description) <= 2000),
+  timezone text not null default 'UTC' check (char_length(timezone) between 1 and 100),
+  cadence text not null default 'weekly'
+    check (cadence in ('weekly', 'biweekly', 'monthly', 'irregular')),
+  preferred_session_minutes smallint not null default 180
+    check (preferred_session_minutes between 30 and 720),
   status text not null default 'forming'
     check (status in ('forming', 'active', 'paused', 'completed', 'archived')),
   created_at timestamptz not null default now(),
@@ -35,9 +41,38 @@ create table public.campaign_members (
   primary key (campaign_id, user_id)
 );
 
+create table public.characters (
+  id bigint generated always as identity primary key,
+  owner_id uuid not null references public.profiles (id) on delete cascade,
+  campaign_id bigint references public.campaigns (id) on delete set null,
+  name text not null check (char_length(name) between 1 and 80),
+  ancestry text not null default '' check (char_length(ancestry) <= 80),
+  class_name text not null default '' check (char_length(class_name) <= 80),
+  subclass text not null default '' check (char_length(subclass) <= 80),
+  background text not null default '' check (char_length(background) <= 120),
+  level smallint not null default 1 check (level between 1 and 20),
+  armor_class smallint not null default 10 check (armor_class between 0 and 99),
+  current_hp integer not null default 1 check (current_hp between 0 and 9999),
+  max_hp integer not null default 1 check (max_hp between 1 and 9999),
+  speed smallint not null default 30 check (speed between 0 and 999),
+  strength smallint not null default 10 check (strength between 1 and 30),
+  dexterity smallint not null default 10 check (dexterity between 1 and 30),
+  constitution smallint not null default 10 check (constitution between 1 and 30),
+  intelligence smallint not null default 10 check (intelligence between 1 and 30),
+  wisdom smallint not null default 10 check (wisdom between 1 and 30),
+  charisma smallint not null default 10 check (charisma between 1 and 30),
+  notes text not null default '' check (char_length(notes) <= 10000),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  check (current_hp <= max_hp)
+);
+
 create index campaigns_owner_id_idx on public.campaigns (owner_id);
 create index campaign_members_user_id_status_idx
   on public.campaign_members (user_id, status);
+create index characters_owner_id_idx on public.characters (owner_id);
+create index characters_campaign_id_idx on public.characters (campaign_id)
+  where campaign_id is not null;
 
 create function private.set_updated_at()
 returns trigger
@@ -60,6 +95,10 @@ for each row execute function private.set_updated_at();
 
 create trigger campaign_members_set_updated_at
 before update on public.campaign_members
+for each row execute function private.set_updated_at();
+
+create trigger characters_set_updated_at
+before update on public.characters
 for each row execute function private.set_updated_at();
 
 create function private.add_campaign_owner_as_member()
@@ -227,6 +266,7 @@ grant execute on function public.join_campaign(text) to authenticated;
 alter table public.profiles enable row level security;
 alter table public.campaigns enable row level security;
 alter table public.campaign_members enable row level security;
+alter table public.characters enable row level security;
 
 create policy profiles_select_own
 on public.profiles for select
@@ -294,12 +334,55 @@ using (
   or (select private.is_campaign_owner(campaign_id))
 );
 
+create policy characters_select_owner_or_campaign_member
+on public.characters for select
+to authenticated
+using (
+  owner_id = (select auth.uid())
+  or (
+    campaign_id is not null
+    and (select private.is_campaign_member(campaign_id))
+  )
+);
+
+create policy characters_insert_owner
+on public.characters for insert
+to authenticated
+with check (
+  owner_id = (select auth.uid())
+  and (
+    campaign_id is null
+    or (select private.is_campaign_member(campaign_id))
+  )
+);
+
+create policy characters_update_owner
+on public.characters for update
+to authenticated
+using (owner_id = (select auth.uid()))
+with check (
+  owner_id = (select auth.uid())
+  and (
+    campaign_id is null
+    or (select private.is_campaign_member(campaign_id))
+  )
+);
+
+create policy characters_delete_owner
+on public.characters for delete
+to authenticated
+using (owner_id = (select auth.uid()));
+
 grant usage on schema public to authenticated;
 revoke all on table public.profiles from anon, authenticated;
 revoke all on table public.campaigns from anon, authenticated;
 revoke all on table public.campaign_members from anon, authenticated;
+revoke all on table public.characters from anon, authenticated;
 revoke all on sequence public.campaigns_id_seq from anon, authenticated;
+revoke all on sequence public.characters_id_seq from anon, authenticated;
 grant select, update on table public.profiles to authenticated;
 grant select, insert, update, delete on table public.campaigns to authenticated;
 grant select, insert, update, delete on table public.campaign_members to authenticated;
+grant select, insert, update, delete on table public.characters to authenticated;
 grant usage, select on sequence public.campaigns_id_seq to authenticated;
+grant usage, select on sequence public.characters_id_seq to authenticated;

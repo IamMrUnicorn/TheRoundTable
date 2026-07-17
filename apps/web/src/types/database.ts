@@ -61,41 +61,140 @@ export type Database = {
       }
       campaigns: {
         Row: {
+          cadence: string
           created_at: string
           description: string
           id: number
           invite_code: string
           name: string
           owner_id: string
+          preferred_session_minutes: number
           slug: string
           status: string
+          timezone: string
           updated_at: string
         }
         Insert: {
+          cadence?: string
           created_at?: string
           description?: string
           id?: never
           invite_code?: string
           name: string
           owner_id: string
+          preferred_session_minutes?: number
           slug: string
           status?: string
+          timezone?: string
           updated_at?: string
         }
         Update: {
+          cadence?: string
           created_at?: string
           description?: string
           id?: never
           invite_code?: string
           name?: string
           owner_id?: string
+          preferred_session_minutes?: number
           slug?: string
           status?: string
+          timezone?: string
           updated_at?: string
         }
         Relationships: [
           {
             foreignKeyName: 'campaigns_owner_id_fkey'
+            columns: ['owner_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      characters: {
+        Row: {
+          ancestry: string
+          armor_class: number
+          background: string
+          campaign_id: number | null
+          charisma: number
+          class_name: string
+          constitution: number
+          created_at: string
+          current_hp: number
+          dexterity: number
+          id: number
+          intelligence: number
+          level: number
+          max_hp: number
+          name: string
+          notes: string
+          owner_id: string
+          speed: number
+          strength: number
+          subclass: string
+          updated_at: string
+          wisdom: number
+        }
+        Insert: {
+          ancestry?: string
+          armor_class?: number
+          background?: string
+          campaign_id?: number | null
+          charisma?: number
+          class_name?: string
+          constitution?: number
+          created_at?: string
+          current_hp?: number
+          dexterity?: number
+          id?: never
+          intelligence?: number
+          level?: number
+          max_hp?: number
+          name: string
+          notes?: string
+          owner_id: string
+          speed?: number
+          strength?: number
+          subclass?: string
+          updated_at?: string
+          wisdom?: number
+        }
+        Update: {
+          ancestry?: string
+          armor_class?: number
+          background?: string
+          campaign_id?: number | null
+          charisma?: number
+          class_name?: string
+          constitution?: number
+          created_at?: string
+          current_hp?: number
+          dexterity?: number
+          id?: never
+          intelligence?: number
+          level?: number
+          max_hp?: number
+          name?: string
+          notes?: string
+          owner_id?: string
+          speed?: number
+          strength?: number
+          subclass?: string
+          updated_at?: string
+          wisdom?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'characters_campaign_id_fkey'
+            columns: ['campaign_id']
+            isOneToOne: false
+            referencedRelation: 'campaigns'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'characters_owner_id_fkey'
             columns: ['owner_id']
             isOneToOne: false
             referencedRelation: 'profiles'
@@ -109,6 +208,7 @@ export type Database = {
           created_at: string
           display_name: string
           id: string
+          timezone: string
           updated_at: string
         }
         Insert: {
@@ -116,6 +216,7 @@ export type Database = {
           created_at?: string
           display_name: string
           id: string
+          timezone?: string
           updated_at?: string
         }
         Update: {
@@ -123,6 +224,7 @@ export type Database = {
           created_at?: string
           display_name?: string
           id?: string
+          timezone?: string
           updated_at?: string
         }
         Relationships: []

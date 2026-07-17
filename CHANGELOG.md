@@ -6,6 +6,20 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 
 ## [Unreleased]
 
+### Added
+
+- Added an authenticated profile/preferences page with editable display name and IANA timezone.
+- Added timezone, cadence, and preferred session-duration fields to campaigns as prerequisites for collaborative scheduling.
+- Added owner-only campaign settings, invite-code rotation, member role management, and member removal controls.
+- Added self-service campaign leaving for non-owner members.
+- Added player-owned characters with optional campaign assignment.
+- Added a character collection to the main dashboard and a streamlined character creation flow.
+- Added editable character sheets covering identity, ancestry, class, subclass, background, level, hit points, armor class, six core abilities, and notes.
+- Added computed ability modifiers and read-only sheets for fellow campaign members.
+- Added party character listings inside campaign workspaces.
+- Added constrained character storage, indexed owner/campaign relationships, automatic timestamps, least-privilege grants, and complete Row Level Security policies.
+- Added integration coverage proving campaign members can view assigned characters while only character owners can modify them.
+
 ### Planned
 
 - Character creation and character-to-campaign assignment.
