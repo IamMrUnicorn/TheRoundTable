@@ -1,0 +1,37 @@
+@import 'tailwindcss';
+
+:root {
+  --font-display: Georgia, 'Times New Roman', serif;
+  --font-body: Inter, ui-sans-serif, system-ui, sans-serif;
+  --ink: #f3eee4;
+  --muted: #aaa99f;
+  --gold: #d4a45c;
+  --line: rgb(242 229 204 / 13%);
+  font-family: var(--font-body);
+  color: var(--ink);
+  background: #0d1413;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  min-height: 100%;
+  background: #0d1413;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+}
+
+::selection {
+  background: var(--gold);
+  color: #1b1309;
+}

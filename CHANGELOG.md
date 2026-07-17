@@ -1,0 +1,202 @@
+# Changelog
+
+All notable changes to The Round Table V5 are documented in this file.
+
+This project follows the spirit of [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). V5 is a ground-up rebuild, so this first entry records both the new application foundation and the first complete campaign workflow. The previous `TheRoundTable-Client` and `TheRoundTable-Server` directories remain in the repository as historical reference while the new application is developed under `apps/web`.
+
+## [Unreleased]
+
+### Planned
+
+- Character creation and character-to-campaign assignment.
+- Campaign member management for Game Masters.
+- Session scheduling, campaign notes, and preparation tools.
+- Character sheets, party views, encounters, initiative, and live tabletop features.
+- Production email delivery through a custom SMTP provider.
+- Broader component and browser-level end-to-end test coverage.
+
+## [5.0.0-foundation] - 2026-07-17
+
+### Overview
+
+- Began V5 as a clean rebuild rather than continuing to layer changes onto the earlier client/server architecture.
+- Preserved the central product concept from V2 and V4: Game Masters create campaign rooms, players join parties, and campaign membership controls access.
+- Replaced the earlier prototype flow with a typed React application backed directly by Supabase Auth, Postgres, Row Level Security, and generated database types.
+- Established campaigns as the first complete vertical slice, from authentication and database authorization through the hosted user interface.
+
+### Application foundation
+
+- Added an npm workspace at the repository root with the new web application located at `apps/web`.
+- Standardized development on Node.js 24 through `.nvmrc` and the root package engine declaration.
+- Added root commands for development, production builds, linting, tests, formatting, database tests, and consolidated verification.
+- Added and locked the V5 dependency set, including:
+  - React 19 and React DOM.
+  - TypeScript 6.
+  - Vite 8.
+  - React Router.
+  - TanStack Query.
+  - Supabase JavaScript client.
+  - Zod and React Hook Form for future validated forms.
+  - Lucide icons.
+  - Tailwind CSS tooling.
+  - Vitest and Testing Library.
+  - oxlint and Prettier.
+- Added repository ignore rules for environment files, dependencies, build output, coverage, and Supabase CLI state.
+- Added a safe `.env.example` while keeping `.env.local` and its hosted Supabase publishable key out of version control.
+
+### Authentication
+
+- Added passwordless email authentication through Supabase magic links.
+- Added a shared authentication provider that:
+  - Loads trusted identity claims from the current Supabase session.
+  - Responds to authentication state changes.
+  - Exposes the authenticated user ID and email to protected application features.
+  - Supports sign-out and immediate local identity cleanup.
+- Added protected routes that redirect signed-out visitors to the sign-in page.
+- Added signed-in redirects so authenticated users do not remain on the sign-in screen.
+- Verified hosted magic-link sign-in against the new Supabase project.
+
+### User interface
+
+- Added a responsive dark green, parchment-gold visual foundation for V5.
+- Added a dedicated magic-link sign-in screen with loading, success, and error feedback.
+- Replaced the placeholder dashboard with a functional campaign hub.
+- Added responsive application navigation and sign-out controls.
+- Added campaign loading, empty, success, and failure states.
+- Added accessible labels and semantic form controls for campaign creation and joining.
+- Added mobile layouts for campaign actions, cards, workspace panels, and authentication screens.
+
+### Campaign creation
+
+- Added a campaign creation form with:
+  - A required campaign name.
+  - An optional description.
+  - Client-side length constraints matching database constraints.
+  - Pending and failure feedback.
+- Added collision-resistant, URL-safe campaign slugs.
+- Added automatic eight-character hexadecimal invite codes.
+- Added automatic owner membership whenever a campaign is created.
+- Added campaign status support for forming, active, paused, completed, and archived campaigns.
+- Added automatic routing into the newly created campaign workspace.
+
+### Campaign discovery and joining
+
+- Added dashboard cards for every campaign the current user owns or has actively joined.
+- Added membership role and campaign status indicators to campaign cards.
+- Added secure invite-code joining with case-insensitive code normalization.
+- Limited joinable campaigns to forming, active, or paused campaigns.
+- Added safe rejoining for memberships previously marked declined or removed.
+- Prevented invite codes from exposing campaign records before membership is established.
+- Added automatic navigation into a campaign after a successful join.
+- Added clear invalid or unavailable invite-code feedback.
+
+### Campaign workspace
+
+- Added protected campaign routes at `/campaigns/:campaignId`.
+- Added campaign headers containing campaign name, description, and status.
+- Added an invite-code card with clipboard copying.
+- Added an active party roster showing shared campaign members and their roles.
+- Added graceful loading and access-denied states for invalid or inaccessible campaign routes.
+- Added the initial workspace structure that future sessions, characters, notes, encounters, and tabletop features can extend.
+
+### Database schema
+
+- Added declarative Supabase schemas under `supabase/schemas`.
+- Added versioned and reproducible database migrations under `supabase/migrations`.
+- Added `public.profiles` with:
+  - A one-to-one foreign key to `auth.users`.
+  - Display name and optional avatar path.
+  - Created and updated timestamps.
+- Added `public.campaigns` with:
+  - Identity primary keys.
+  - Profile-backed ownership.
+  - Unique slugs and invite codes.
+  - Constrained names, descriptions, and statuses.
+  - Created and updated timestamps.
+- Added `public.campaign_members` with:
+  - Composite campaign/user primary keys.
+  - Owner, Game Master, player, and observer roles.
+  - Invited, active, declined, and removed states.
+  - Joined, created, and updated timestamps.
+- Added indexes supporting ownership lookups, membership listing, foreign keys, and RLS predicates.
+- Added reusable timestamp triggers for mutable records.
+- Added automatic profile creation after a new Supabase Auth user is inserted.
+- Added automatic campaign-owner membership triggers.
+- Added migration backfilling so pre-existing campaign owners receive owner memberships.
+
+### Database security
+
+- Enabled Row Level Security on every exposed public table.
+- Revoked anonymous access to profiles, campaigns, campaign memberships, and campaign sequences.
+- Granted authenticated users only the table operations required by the application.
+- Restricted profile reads to the current user and active members of a shared campaign.
+- Restricted profile updates to the owning user.
+- Restricted campaign reads to owners and active campaign members.
+- Restricted campaign creation, updates, and deletion to the appropriate owner identity.
+- Restricted membership reads to the membership owner, campaign members, and campaign owner.
+- Restricted membership administration to campaign owners while allowing users to leave their own campaigns.
+- Added private, indexed membership and ownership helper functions for performant RLS checks.
+- Added explicit `auth.uid()` validation inside privileged database functions.
+- Set empty function search paths to prevent object-shadowing attacks.
+- Revoked default function execution from `PUBLIC` and anonymous roles.
+- Hardened the hosted platform `rls_auto_enable()` function by removing execution access from public client roles while retaining its internal event-trigger behavior.
+- Split code-based campaign joining into:
+  - A public `SECURITY INVOKER` RPC exposed to authenticated clients.
+  - A private `SECURITY DEFINER` implementation that performs the protected invite-code lookup and membership write.
+- Removed the hosted database advisor warning for an exposed authenticated `SECURITY DEFINER` RPC.
+
+### Supabase development environment
+
+- Added Supabase CLI configuration for local Postgres 17 development.
+- Configured local authentication URLs for the Vite development server.
+- Added local Studio, API, Auth, Storage, Realtime, and Mailpit services through the Supabase Docker stack.
+- Added a seed file placeholder for future deterministic development fixtures.
+- Linked the CLI to the new hosted Supabase project.
+- Deployed and verified all V5 migrations against the hosted database.
+- Generated TypeScript database types from the hosted schema for compile-time query safety.
+
+### Testing and verification
+
+- Added a repeatable database integration test using unique local users and campaigns on every run.
+- Verified automatic profile creation after sign-up.
+- Verified automatic owner membership after campaign creation.
+- Verified outsiders cannot list campaigns before joining.
+- Verified invite codes can be normalized and used to join securely.
+- Verified joined users can list the campaign afterward.
+- Verified active campaign members can see the appropriate shared profile information.
+- Verified invalid invite codes fail without creating memberships.
+- Verified anonymous users cannot access profiles.
+- Added an application routing test for signed-out visitors.
+- Added root verification commands that run linting, unit tests, TypeScript compilation, production builds, and formatting checks.
+- Confirmed clean database resets can recreate the complete schema from migrations.
+- Confirmed declarative schemas and migrations have zero drift.
+- Confirmed database lint reports no schema errors.
+- Confirmed local database advisors report no warning-level issues.
+- Confirmed hosted database lint reports no schema errors.
+- Confirmed npm reports no known dependency vulnerabilities at the time of this release.
+
+### Hosted configuration notes
+
+- The hosted project currently uses Supabase's default email provider for magic links.
+- Supabase's default provider is intended for initial testing and currently has a very small project-wide email allowance, which can produce `email rate limit exceeded` during repeated multi-user tests.
+- Local development can use Mailpit at `http://127.0.0.1:54324` without consuming hosted email allowance.
+- A custom SMTP provider should be configured before production or broader user testing.
+- Supabase currently reports leaked-password protection as disabled. V5 currently uses passwordless magic links, but this should still be reviewed if password authentication is introduced.
+- Newly created indexes may appear as unused in hosted advisors until real campaign traffic exercises them; they are retained because they support foreign keys, membership queries, and RLS predicates.
+
+### Tooling and infrastructure
+
+- Installed and verified Docker Desktop integration for the local Supabase stack.
+- Installed and pinned the local Supabase CLI.
+- Updated the development runtime to Node.js 24 and npm 12.
+- Added production build output reporting through Vite.
+- Confirmed the complete dependency installation has no npm audit findings.
+
+### Historical compatibility
+
+- Kept the previous `TheRoundTable-Client` and `TheRoundTable-Server` implementations unchanged as product and feature references.
+- Did not migrate the earlier custom Express, Socket.IO, and prototype SQL architecture into the V5 runtime.
+- Deferred character sheets, spells, guides, maps, chat, audio, initiative, and live-game tools until they can be rebuilt on the new authenticated campaign and membership foundation.
+
+[Unreleased]: https://github.com/IamMrUnicorn/TheRoundTable/compare/v5.0.0-foundation...HEAD
+[5.0.0-foundation]: https://github.com/IamMrUnicorn/TheRoundTable/releases/tag/v5.0.0-foundation

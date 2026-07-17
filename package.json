@@ -1,0 +1,23 @@
+{
+  "name": "the-round-table-v5",
+  "private": true,
+  "version": "0.1.0",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace @round-table/web",
+    "build": "npm run build --workspace @round-table/web",
+    "lint": "npm run lint --workspace @round-table/web",
+    "test": "npm run test --workspace @round-table/web",
+    "test:coverage": "npm run test:coverage --workspace @round-table/web",
+    "format": "npm run format --workspace @round-table/web",
+    "format:check": "npm run format:check --workspace @round-table/web",
+    "check": "npm run lint && npm run test && npm run build && npm run format:check",
+    "test:db": "node supabase/tests/foundation.mjs",
+    "supabase": "supabase"
+  }
+}

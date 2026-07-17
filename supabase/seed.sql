@@ -1,0 +1,1 @@
+-- Local-only seed data will be added after the first authentication fixtures exist.
