@@ -27,6 +27,10 @@ import {
   markAllNotificationsRead,
   markNotificationRead,
 } from '../features/notifications/notifications'
+import {
+  listMyInvitations,
+  respondCampaignInvitation,
+} from '../features/invitations/invitations'
 
 type Panel = 'character' | 'create' | 'join' | null
 
@@ -60,6 +64,11 @@ export function DashboardPage() {
   const notifications = useQuery({
     queryKey: ['notifications', identity?.id],
     queryFn: () => listNotifications(identity!.id),
+    enabled: Boolean(identity),
+  })
+  const invitations = useQuery({
+    queryKey: ['invitations', identity?.id],
+    queryFn: listMyInvitations,
     enabled: Boolean(identity),
   })
 
@@ -106,6 +115,14 @@ export function DashboardPage() {
     mutationFn: () => markAllNotificationsRead(identity!.id),
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: ['notifications'] }),
+  })
+  const respondInvitation = useMutation({
+    mutationFn: ({ token, accept }: { token: string; accept: boolean }) =>
+      respondCampaignInvitation(token, accept),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['invitations'] })
+      await queryClient.invalidateQueries({ queryKey: ['campaigns'] })
+    },
   })
 
   function submitCreate(event: FormEvent) {
@@ -437,6 +454,55 @@ export function DashboardPage() {
             ))}
           </div>
         </section>
+
+        {Boolean(invitations.data?.length) && (
+          <section className="campaign-section">
+            <div className="section-heading">
+              <div>
+                <p className="eyebrow">Your invitations</p>
+                <h2>Join a new table</h2>
+              </div>
+            </div>
+            <div className="invitation-list">
+              {invitations.data?.map((item) => (
+                <article key={item.id}>
+                  <div>
+                    <strong>
+                      {item.campaigns?.name ?? 'Campaign invitation'}
+                    </strong>
+                    <span>
+                      Invited as {item.role.replace('_', ' ')} · expires{' '}
+                      {new Date(item.expires_at).toLocaleDateString()}
+                    </span>
+                  </div>
+                  <div className="heading-actions">
+                    <button
+                      onClick={() =>
+                        respondInvitation.mutate({
+                          token: item.token,
+                          accept: true,
+                        })
+                      }
+                    >
+                      Accept
+                    </button>
+                    <button
+                      className="secondary-button"
+                      onClick={() =>
+                        respondInvitation.mutate({
+                          token: item.token,
+                          accept: false,
+                        })
+                      }
+                    >
+                      Decline
+                    </button>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+        )}
       </section>
     </main>
   )

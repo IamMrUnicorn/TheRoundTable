@@ -164,6 +164,60 @@ export type Database = {
           },
         ]
       }
+      campaign_invitations: {
+        Row: {
+          campaign_id: number
+          created_at: string
+          expires_at: string
+          id: number
+          invited_by: string
+          invited_email: string
+          role: string
+          status: string
+          token: string
+          updated_at: string
+        }
+        Insert: {
+          campaign_id: number
+          created_at?: string
+          expires_at?: string
+          id?: never
+          invited_by: string
+          invited_email: string
+          role?: string
+          status?: string
+          token?: string
+          updated_at?: string
+        }
+        Update: {
+          campaign_id?: number
+          created_at?: string
+          expires_at?: string
+          id?: never
+          invited_by?: string
+          invited_email?: string
+          role?: string
+          status?: string
+          token?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'campaign_invitations_campaign_id_fkey'
+            columns: ['campaign_id']
+            isOneToOne: false
+            referencedRelation: 'campaigns'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'campaign_invitations_invited_by_fkey'
+            columns: ['invited_by']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       campaign_members: {
         Row: {
           campaign_id: number
@@ -539,6 +593,10 @@ export type Database = {
     }
     Functions: {
       join_campaign: { Args: { campaign_code: string }; Returns: number }
+      respond_campaign_invitation: {
+        Args: { invitation_token: string; should_accept: boolean }
+        Returns: number
+      }
     }
     Enums: {
       [_ in never]: never

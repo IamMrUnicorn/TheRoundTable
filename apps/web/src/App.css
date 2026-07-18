@@ -692,6 +692,54 @@ button:disabled {
   margin: 0;
   color: var(--muted);
 }
+.invitation-admin {
+  margin-top: 1rem;
+}
+.invitation-admin form {
+  display: grid;
+  grid-template-columns: 1fr 12rem auto;
+  align-items: end;
+  gap: 0.7rem;
+}
+.invitation-admin label {
+  display: grid;
+  gap: 0.35rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+.invitation-admin input,
+.invitation-admin select {
+  border: 1px solid var(--line);
+  border-radius: 0.6rem;
+  padding: 0.75rem;
+  background: #101817;
+  color: var(--ink);
+}
+.invitation-list {
+  display: grid;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+.invitation-list article {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 0.7rem;
+  padding: 0.8rem 1rem;
+  background: #151f1d;
+}
+.invitation-list article > div:first-child {
+  display: grid;
+  gap: 0.2rem;
+}
+.invitation-list span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  text-transform: capitalize;
+}
 
 .section-heading {
   display: flex;
@@ -1014,6 +1062,9 @@ button:disabled {
 }
 
 @media (max-width: 800px) {
+  .invitation-admin form {
+    grid-template-columns: 1fr;
+  }
   .announcement-form,
   .announcement-list {
     grid-template-columns: 1fr;

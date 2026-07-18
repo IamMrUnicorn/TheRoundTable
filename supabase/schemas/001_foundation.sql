@@ -144,6 +144,19 @@ create table public.notifications (
   created_at timestamptz not null default now()
 );
 
+create table public.campaign_invitations (
+  id bigint generated always as identity primary key,
+  campaign_id bigint not null references public.campaigns (id) on delete cascade,
+  invited_by uuid not null references public.profiles (id) on delete cascade,
+  invited_email text not null check (char_length(invited_email) between 3 and 320),
+  role text not null default 'player' check (role in ('game_master', 'player', 'observer')),
+  token uuid not null unique default gen_random_uuid(),
+  status text not null default 'pending' check (status in ('pending', 'accepted', 'declined', 'cancelled', 'expired')),
+  expires_at timestamptz not null default (now() + interval '14 days'),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
 create index campaigns_owner_id_idx on public.campaigns (owner_id);
 create index campaign_members_user_id_status_idx
   on public.campaign_members (user_id, status);
@@ -161,6 +174,9 @@ create index campaign_announcements_author_id_idx on public.campaign_announcemen
 create index notifications_recipient_unread_idx on public.notifications (recipient_id, created_at desc) where read_at is null;
 create index notifications_campaign_id_idx on public.notifications (campaign_id) where campaign_id is not null;
 create index notifications_session_id_idx on public.notifications (session_id) where session_id is not null;
+create unique index campaign_invitations_pending_email_idx on public.campaign_invitations (campaign_id, invited_email) where status = 'pending';
+create index campaign_invitations_email_status_idx on public.campaign_invitations (invited_email, status, expires_at);
+create index campaign_invitations_invited_by_idx on public.campaign_invitations (invited_by);
 
 create function private.set_updated_at()
 returns trigger
@@ -226,6 +242,38 @@ revoke execute on function private.notify_session_change() from public, anon, au
 create trigger notify_after_campaign_announcement after insert on public.campaign_announcements for each row execute function private.notify_campaign_announcement();
 create trigger notify_after_session_insert after insert on public.sessions for each row execute function private.notify_session_change();
 create trigger notify_after_session_schedule_change after update of starts_at, ends_at, status on public.sessions for each row when (old.* is distinct from new.*) execute function private.notify_session_change();
+
+create trigger campaign_invitations_set_updated_at before update on public.campaign_invitations for each row execute function private.set_updated_at();
+
+create function private.respond_campaign_invitation(invitation_token uuid, should_accept boolean)
+returns bigint language plpgsql security definer set search_path = '' as $$
+declare
+  invitation public.campaign_invitations;
+  current_user_id uuid := (select auth.uid());
+  current_email text := lower(coalesce((select auth.jwt() ->> 'email'), ''));
+begin
+  if current_user_id is null then raise exception 'Authentication is required.' using errcode = '42501'; end if;
+  select * into invitation from public.campaign_invitations
+  where token = invitation_token and status = 'pending' and expires_at > now() and invited_email = current_email
+  for update;
+  if invitation.id is null then raise exception 'Invitation is invalid, expired, or belongs to another account.' using errcode = 'P0001'; end if;
+  if should_accept then
+    insert into public.campaign_members (campaign_id, user_id, role, status, joined_at)
+    values (invitation.campaign_id, current_user_id, invitation.role, 'active', now())
+    on conflict (campaign_id, user_id) do update set role = excluded.role, status = 'active', joined_at = coalesce(public.campaign_members.joined_at, excluded.joined_at), updated_at = now();
+  end if;
+  update public.campaign_invitations set status = case when should_accept then 'accepted' else 'declined' end where id = invitation.id;
+  return invitation.campaign_id;
+end;
+$$;
+
+create function public.respond_campaign_invitation(invitation_token uuid, should_accept boolean)
+returns bigint language sql security invoker set search_path = '' as $$ select private.respond_campaign_invitation(invitation_token, should_accept); $$;
+
+revoke execute on function private.respond_campaign_invitation(uuid, boolean) from public, anon;
+revoke execute on function public.respond_campaign_invitation(uuid, boolean) from public, anon;
+grant execute on function private.respond_campaign_invitation(uuid, boolean) to authenticated;
+grant execute on function public.respond_campaign_invitation(uuid, boolean) to authenticated;
 
 create function private.add_campaign_owner_as_member()
 returns trigger
@@ -411,6 +459,7 @@ alter table public.sessions enable row level security;
 alter table public.session_attendance enable row level security;
 alter table public.campaign_announcements enable row level security;
 alter table public.notifications enable row level security;
+alter table public.campaign_invitations enable row level security;
 
 create policy profiles_select_own
 on public.profiles for select
@@ -546,6 +595,11 @@ create policy notifications_select_own on public.notifications for select to aut
 create policy notifications_update_own on public.notifications for update to authenticated using (recipient_id = (select auth.uid())) with check (recipient_id = (select auth.uid()));
 create policy notifications_delete_own on public.notifications for delete to authenticated using (recipient_id = (select auth.uid()));
 
+create policy invitations_select_manager_or_recipient on public.campaign_invitations for select to authenticated using ((select private.is_campaign_manager(campaign_id)) or invited_email = lower(coalesce((select auth.jwt()) ->> 'email', '')));
+create policy invitations_insert_managers on public.campaign_invitations for insert to authenticated with check (invited_by = (select auth.uid()) and (select private.is_campaign_manager(campaign_id)));
+create policy invitations_update_managers on public.campaign_invitations for update to authenticated using ((select private.is_campaign_manager(campaign_id))) with check ((select private.is_campaign_manager(campaign_id)));
+create policy invitations_delete_managers on public.campaign_invitations for delete to authenticated using ((select private.is_campaign_manager(campaign_id)));
+
 grant usage on schema public to authenticated;
 revoke all on table public.profiles from anon, authenticated;
 revoke all on table public.campaigns from anon, authenticated;
@@ -554,11 +608,13 @@ revoke all on table public.characters from anon, authenticated;
 revoke all on table public.availability_rules, public.availability_exceptions, public.sessions, public.session_attendance from anon, authenticated;
 revoke all on table public.campaign_announcements from anon, authenticated;
 revoke all on table public.notifications from anon, authenticated;
+revoke all on table public.campaign_invitations from anon, authenticated;
 revoke all on sequence public.campaigns_id_seq from anon, authenticated;
 revoke all on sequence public.characters_id_seq from anon, authenticated;
 revoke all on sequence public.availability_rules_id_seq, public.availability_exceptions_id_seq, public.sessions_id_seq from anon, authenticated;
 revoke all on sequence public.campaign_announcements_id_seq from anon, authenticated;
 revoke all on sequence public.notifications_id_seq from anon, authenticated;
+revoke all on sequence public.campaign_invitations_id_seq from anon, authenticated;
 grant select, update on table public.profiles to authenticated;
 grant select, insert, update, delete on table public.campaigns to authenticated;
 grant select, insert, update, delete on table public.campaign_members to authenticated;
@@ -566,6 +622,8 @@ grant select, insert, update, delete on table public.characters to authenticated
 grant select, insert, update, delete on table public.availability_rules, public.availability_exceptions, public.sessions, public.session_attendance to authenticated;
 grant select, insert, update, delete on table public.campaign_announcements to authenticated;
 grant select, update, delete on table public.notifications to authenticated;
+grant select, insert, update, delete on table public.campaign_invitations to authenticated;
+grant usage, select on sequence public.campaign_invitations_id_seq to authenticated;
 grant usage, select on sequence public.campaigns_id_seq to authenticated;
 grant usage, select on sequence public.characters_id_seq to authenticated;
 grant usage, select on sequence public.availability_rules_id_seq, public.availability_exceptions_id_seq, public.sessions_id_seq to authenticated;

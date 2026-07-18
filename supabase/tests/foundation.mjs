@@ -41,6 +41,8 @@ const runId = Date.now()
 const ownerEmail = `owner-${runId}@example.com`
 const owner = await signUp(ownerEmail)
 const outsider = await signUp(`outsider-${runId}@example.com`)
+const inviteeEmail = `invitee-${runId}@example.com`
+const invitee = await signUp(inviteeEmail)
 
 const { data: ownProfile, response: ownProfileResponse } = await request(
   '/rest/v1/profiles?select=id,display_name',
@@ -75,6 +77,21 @@ const { data: ownerMembership, response: membershipResponse } = await request(
 )
 assert.equal(membershipResponse.status, 200)
 assert.deepEqual(ownerMembership, [{ role: 'owner', status: 'active' }])
+
+const { data: invitationRows, response: invitationResponse } = await request('/rest/v1/campaign_invitations', {
+  token: owner.token,
+  method: 'POST',
+  body: { campaign_id: campaignId, invited_by: owner.id, invited_email: inviteeEmail, role: 'observer' },
+})
+assert.equal(invitationResponse.status, 201)
+
+const { data: inviteeInvitations, response: inviteeInvitationsResponse } = await request('/rest/v1/campaign_invitations?select=token,role,status', { token: invitee.token })
+assert.equal(inviteeInvitationsResponse.status, 200)
+assert.equal(inviteeInvitations[0].role, 'observer')
+
+const { data: acceptedCampaignId, response: acceptInvitationResponse } = await request('/rest/v1/rpc/respond_campaign_invitation', { token: invitee.token, method: 'POST', body: { invitation_token: invitationRows[0].token, should_accept: true } })
+assert.equal(acceptInvitationResponse.status, 200)
+assert.equal(acceptedCampaignId, campaignId)
 
 const { data: outsiderCampaigns, response: outsiderCampaignResponse } =
   await request('/rest/v1/campaigns?select=id', { token: outsider.token })

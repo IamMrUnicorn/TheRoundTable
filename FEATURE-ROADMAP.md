@@ -31,7 +31,7 @@ This is the source-of-truth checklist for the entire application. Completed work
 - [x] Personal character collection.
 - [ ] Upcoming-session overview.
 - [ ] Availability requests requiring a response.
-- [ ] Pending invitations and unread announcements.
+- [x] Pending invitations and unread announcements.
 - [ ] Recent campaign activity.
 - [ ] Character updates requiring attention.
 - [ ] Recently opened notes/sheets and preparation shortcuts.
@@ -84,8 +84,8 @@ This is the source-of-truth checklist for the entire application. Completed work
 ## 6. Invitations and notifications
 
 - [x] Join codes.
-- [ ] Direct email invitations and invitation links.
-- [ ] Pending invitation screen with accept/decline.
+- [ ] Direct email invitations and invitation links. *(Email-targeted in-app invitations complete; outbound email delivery and shareable links pending.)*
+- [x] Pending invitation screen with accept/decline.
 - [ ] Optional member-approval workflow.
 - [ ] Session, scheduling, announcement, and character notifications. *(Session and announcement notifications complete.)*
 - [ ] Email, browser, and in-app delivery preferences.

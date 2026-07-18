@@ -22,6 +22,11 @@ import {
   updateMemberRole,
 } from '../features/campaigns/campaigns'
 import { listCampaignCharacters } from '../features/characters/characters'
+import {
+  cancelCampaignInvitation,
+  createCampaignInvitation,
+  listCampaignInvitations,
+} from '../features/invitations/invitations'
 
 export function CampaignPage() {
   const { campaignId: campaignIdParam } = useParams()
@@ -42,6 +47,7 @@ export function CampaignPage() {
     body: '',
     isPinned: false,
   })
+  const [invitation, setInvitation] = useState({ email: '', role: 'player' })
   const campaign = useQuery({
     queryKey: ['campaign', campaignId],
     queryFn: () => getCampaign(campaignId),
@@ -55,6 +61,11 @@ export function CampaignPage() {
   const announcements = useQuery({
     queryKey: ['announcements', campaignId],
     queryFn: () => listAnnouncements(campaignId),
+    enabled: campaignId > 0,
+  })
+  const invitations = useQuery({
+    queryKey: ['campaign-invitations', campaignId],
+    queryFn: () => listCampaignInvitations(campaignId),
     enabled: campaignId > 0,
   })
   useEffect(() => {
@@ -115,6 +126,28 @@ export function CampaignPage() {
     onSuccess: () =>
       queryClient.invalidateQueries({
         queryKey: ['announcements', campaignId],
+      }),
+  })
+  const sendInvitation = useMutation({
+    mutationFn: () =>
+      createCampaignInvitation({
+        campaignId,
+        email: invitation.email,
+        invitedBy: identity!.id,
+        role: invitation.role,
+      }),
+    onSuccess: async () => {
+      setInvitation({ email: '', role: 'player' })
+      await queryClient.invalidateQueries({
+        queryKey: ['campaign-invitations', campaignId],
+      })
+    },
+  })
+  const cancelInvitation = useMutation({
+    mutationFn: cancelCampaignInvitation,
+    onSuccess: () =>
+      queryClient.invalidateQueries({
+        queryKey: ['campaign-invitations', campaignId],
       }),
   })
 
@@ -279,6 +312,84 @@ export function CampaignPage() {
                     ))}
                   </div>
                 </section>
+
+                {isManager && (
+                  <section className="workspace-panel invitation-admin">
+                    <div className="section-heading">
+                      <div>
+                        <p className="eyebrow">Grow the party</p>
+                        <h2>Direct invitations</h2>
+                      </div>
+                    </div>
+                    <form
+                      onSubmit={(event: FormEvent) => {
+                        event.preventDefault()
+                        sendInvitation.mutate()
+                      }}
+                    >
+                      <label>
+                        Email address
+                        <input
+                          type="email"
+                          required
+                          maxLength={320}
+                          value={invitation.email}
+                          onChange={(event) =>
+                            setInvitation({
+                              ...invitation,
+                              email: event.target.value,
+                            })
+                          }
+                        />
+                      </label>
+                      <label>
+                        Role
+                        <select
+                          value={invitation.role}
+                          onChange={(event) =>
+                            setInvitation({
+                              ...invitation,
+                              role: event.target.value,
+                            })
+                          }
+                        >
+                          <option value="player">Player</option>
+                          <option value="game_master">Game Master</option>
+                          <option value="observer">Observer</option>
+                        </select>
+                      </label>
+                      <button disabled={sendInvitation.isPending}>
+                        Create invitation
+                      </button>
+                    </form>
+                    {sendInvitation.isSuccess && (
+                      <p className="form-message success">
+                        Invitation created. It will appear when that email signs
+                        in.
+                      </p>
+                    )}
+                    <div className="invitation-list">
+                      {invitations.data?.map((item) => (
+                        <article key={item.id}>
+                          <div>
+                            <strong>{item.invited_email}</strong>
+                            <span>
+                              {item.role.replace('_', ' ')} · {item.status}
+                            </span>
+                          </div>
+                          {item.status === 'pending' && (
+                            <button
+                              className="danger-button"
+                              onClick={() => cancelInvitation.mutate(item.id)}
+                            >
+                              Cancel
+                            </button>
+                          )}
+                        </article>
+                      ))}
+                    </div>
+                  </section>
+                )}
 
                 <div className="workspace-grid">
                   <section className="workspace-panel">
