@@ -1159,6 +1159,70 @@ button:disabled {
   display: grid;
   gap: 1rem;
 }
+.character-inventory-panel {
+  display: grid;
+  gap: 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: 0.9rem;
+  padding: 1rem;
+  background: rgb(212 164 92 / 4%);
+}
+.character-inventory-panel > header,
+.character-inventory-list article,
+.inventory-item-controls,
+.character-inventory-list footer {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+.character-inventory-panel > header,
+.character-inventory-list article {
+  justify-content: space-between;
+}
+.character-inventory-panel h3,
+.character-inventory-list h4,
+.character-inventory-list p {
+  margin: 0.15rem 0;
+}
+.character-inventory-form {
+  display: grid;
+  grid-template-columns: 2fr 0.6fr 1fr 1fr 1fr 1fr;
+  gap: 0.55rem;
+}
+.character-inventory-form input,
+.character-inventory-form select,
+.character-inventory-form textarea {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 0.55rem;
+  padding: 0.65rem;
+  background: #151f1d;
+  color: var(--ink);
+}
+.character-inventory-form textarea,
+.character-inventory-form button {
+  grid-column: 1 / -1;
+}
+.character-inventory-list {
+  display: grid;
+  gap: 0.55rem;
+}
+.character-inventory-list article {
+  border-top: 1px solid var(--line);
+  padding-top: 0.75rem;
+}
+.character-inventory-list article > div:first-child > span,
+.character-inventory-list footer span {
+  color: var(--gold);
+  font-size: 0.7rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+.inventory-item-controls button {
+  min-height: 2rem;
+  padding: 0.3rem 0.55rem;
+}
 .memory-toolbar,
 .memory-create-form {
   display: grid;
@@ -2640,11 +2704,14 @@ button:disabled {
     flex-direction: column;
   }
   .memory-toolbar,
-  .memory-create-form {
+  .memory-create-form,
+  .character-inventory-form {
     grid-template-columns: 1fr;
   }
   .memory-summary-field,
-  .memory-create-form button {
+  .memory-create-form button,
+  .character-inventory-form textarea,
+  .character-inventory-form button {
     grid-column: auto;
   }
   .notes-field {

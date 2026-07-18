@@ -54,6 +54,8 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 - Added structured character memories for notes, items, relationships, locations, discoveries, objectives, damage, healing, rests, conditions, rolls, actions, and custom events.
 - Added private or party-shared memory visibility, campaign/session provenance, real and in-world time, locations, sources, references, player annotations, tags, pins, and extensible structured metadata.
 - Added a searchable and filterable Memory timeline with manual capture, sharing and privacy controls, responsive provenance summaries, and RLS tests proving private memories never leak to party members.
+- Added character-owned inventory and equipment with quantities, categories, locations, per-item weight, value, descriptions, equipped/attuned state, and responsive controls inside Memory.
+- Added database-generated inventory memories so item gains, quantity/equipment changes, and removals retain an automatic, structured provenance trail without relying on client-side duplicate writes.
 - Added an atomic invitation-response database workflow that validates the authenticated email, prevents expired or reused invitations, and creates campaign membership on acceptance.
 - Added least-privilege grants, Row Level Security, supporting indexes, and three-user integration coverage for the complete invitation lifecycle.
 - Added player-owned characters with optional campaign assignment.

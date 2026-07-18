@@ -401,6 +401,24 @@ const { response: pinMemoryResponse } = await request(`/rest/v1/character_memori
 assert.equal(pinMemoryResponse.status, 200)
 assert.equal(privateMemoryRows[0].visibility, 'private')
 
+const { data: characterInventoryRows, response: characterInventoryResponse } = await request('/rest/v1/character_inventory_items', { token: owner.token, method: 'POST', body: { character_id: characterId, name: 'Moonstone Key', description: 'A silver key veined with blue light.', quantity: 1, category: 'quest', location: 'Belt pouch', weight: 0.1, value: 'priceless' } })
+assert.equal(characterInventoryResponse.status, 201)
+const inventoryId = characterInventoryRows[0].id
+const { data: partyInventory, response: partyInventoryResponse } = await request(`/rest/v1/character_inventory_items?character_id=eq.${characterId}&select=id,name,quantity`, { token: outsider.token })
+assert.equal(partyInventoryResponse.status, 200)
+assert.deepEqual(partyInventory, [{ id: inventoryId, name: 'Moonstone Key', quantity: 1 }])
+const { data: forbiddenInventoryUpdate, response: forbiddenInventoryUpdateResponse } = await request(`/rest/v1/character_inventory_items?id=eq.${inventoryId}`, { token: outsider.token, method: 'PATCH', body: { quantity: 99 } })
+assert.equal(forbiddenInventoryUpdateResponse.status, 200)
+assert.deepEqual(forbiddenInventoryUpdate, [])
+const { response: inventoryUpdateResponse } = await request(`/rest/v1/character_inventory_items?id=eq.${inventoryId}`, { token: owner.token, method: 'PATCH', body: { quantity: 2, is_equipped: true } })
+assert.equal(inventoryUpdateResponse.status, 200)
+const { data: inventoryMemories } = await request(`/rest/v1/character_memories?character_id=eq.${characterId}&source_name=eq.Character%20inventory&select=title,summary,metadata&order=created_at.asc`, { token: owner.token })
+assert.equal(inventoryMemories.length, 2)
+assert.equal(inventoryMemories[0].title, 'Gained Moonstone Key')
+assert.equal(inventoryMemories[0].metadata.action, 'gained')
+assert.equal(inventoryMemories[1].title, 'Updated Moonstone Key')
+assert.equal(inventoryMemories[1].metadata.action, 'updated')
+
 const { data: forbiddenCampaignUpdate, response: forbiddenCampaignUpdateResponse } =
   await request(`/rest/v1/campaigns?id=eq.${campaignId}`, {
     token: outsider.token,

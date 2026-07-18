@@ -759,6 +759,65 @@ export type Database = {
           },
         ]
       }
+      character_inventory_items: {
+        Row: {
+          category: string
+          character_id: number
+          created_at: string
+          description: string
+          id: number
+          is_attuned: boolean
+          is_equipped: boolean
+          location: string
+          name: string
+          notes: string
+          quantity: number
+          updated_at: string
+          value: string
+          weight: number | null
+        }
+        Insert: {
+          category?: string
+          character_id: number
+          created_at?: string
+          description?: string
+          id?: never
+          is_attuned?: boolean
+          is_equipped?: boolean
+          location?: string
+          name: string
+          notes?: string
+          quantity?: number
+          updated_at?: string
+          value?: string
+          weight?: number | null
+        }
+        Update: {
+          category?: string
+          character_id?: number
+          created_at?: string
+          description?: string
+          id?: never
+          is_attuned?: boolean
+          is_equipped?: boolean
+          location?: string
+          name?: string
+          notes?: string
+          quantity?: number
+          updated_at?: string
+          value?: string
+          weight?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'character_inventory_items_character_id_fkey'
+            columns: ['character_id']
+            isOneToOne: false
+            referencedRelation: 'characters'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       character_memories: {
         Row: {
           campaign_id: number | null

@@ -148,9 +148,9 @@ This roadmap translates the play-screen sketch and the proven V5 foundations int
 - [ ] Carry, push, drag, and lift descriptions derive from Strength, size, configured rules/version, optional encumbrance, and character traits; class must not be treated as a carrying-capacity input.
 - [ ] Abilities & Spells adapts to each character and groups ancestry/species, background, class/subclass, feat, passive, and limited-use features without showing empty spell UI to non-spellcasters. *(Features and the manual spellbook/slot foundation are complete; advanced spell metadata editing and rules automation remain.)*
 - [ ] Spellcasters receive ability, attack bonus, save DC, cantrips, spells by level, known/prepared state, slots, pact slots, concentration, ritual, component, range, duration, favorite, and frequent-action views.
-- [ ] Memory combines private notes, current inventory, equipment history, NPCs, locations, objectives, discoveries, and character-specific session history. *(Manual structured memories and notes complete; automatic inventory/session ingestion pending.)*
+- [ ] Memory combines private notes, current inventory, equipment history, NPCs, locations, objectives, discoveries, and character-specific session history. *(Manual structured memories plus automatic character-inventory history are complete; session ingestion pending.)*
 - [x] Memory supports search, filters, tags, pins, annotations, and provenance linking campaign, session, real time, in-world time, location, entities, and original log event.
-- [ ] Structured events capture item gain/transfer/use/loss, meetings, travel, discoveries, damage, healing, rests, conditions, rolls, and major actions; readable memories are generated from those events rather than inferred from unstructured prose.
+- [ ] Structured events capture item gain/transfer/use/loss, meetings, travel, discoveries, damage, healing, rests, conditions, rolls, and major actions; readable memories are generated from those events rather than inferred from unstructured prose. *(Inventory gain/change/loss events complete.)*
 
 ### Character data
 

@@ -7,6 +7,7 @@ import {
   listCharacterMemories,
   updateCharacterMemory,
 } from './memories'
+import { CharacterInventoryPanel } from './CharacterInventoryPanel'
 
 const kinds = [
   'note',
@@ -104,6 +105,7 @@ export function CharacterMemoryPanel({
 
   return (
     <section className="structured-memory-panel">
+      <CharacterInventoryPanel canEdit={canEdit} characterId={characterId} />
       <div className="memory-toolbar">
         <input
           aria-label="Search memories"
