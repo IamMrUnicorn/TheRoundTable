@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   ArrowLeft,
   CalendarDays,
+  Clock3,
   Copy,
   Dices,
   Shield,
@@ -27,6 +28,7 @@ import {
   createCampaignInvitation,
   listCampaignInvitations,
 } from '../features/invitations/invitations'
+import { getNextCampaignSession } from '../features/scheduling/scheduling'
 
 export function CampaignPage() {
   const { campaignId: campaignIdParam } = useParams()
@@ -66,6 +68,11 @@ export function CampaignPage() {
   const invitations = useQuery({
     queryKey: ['campaign-invitations', campaignId],
     queryFn: () => listCampaignInvitations(campaignId),
+    enabled: campaignId > 0,
+  })
+  const nextSession = useQuery({
+    queryKey: ['next-campaign-session', campaignId],
+    queryFn: () => getNextCampaignSession(campaignId),
     enabled: campaignId > 0,
   })
   useEffect(() => {
@@ -483,20 +490,90 @@ export function CampaignPage() {
                     </div>
                   </section>
 
-                  <section className="workspace-panel placeholder-panel">
-                    <CalendarDays aria-hidden="true" />
-                    <p className="eyebrow">Next foundation</p>
-                    <h2>Session planning</h2>
-                    <p>
-                      This campaign now has a secure home. Sessions, characters,
-                      notes, and the live tabletop can build on this membership
-                      model.
-                    </p>
+                  <section className="workspace-panel next-session-panel">
+                    <div className="section-heading">
+                      <div>
+                        <p className="eyebrow">Party calendar</p>
+                        <h2>Next session</h2>
+                      </div>
+                      <CalendarDays aria-hidden="true" />
+                    </div>
+                    {nextSession.isLoading && (
+                      <p className="muted-copy">Checking the calendar…</p>
+                    )}
+                    {nextSession.data
+                      ? (() => {
+                          const counts = {
+                            attending: 0,
+                            tentative: 0,
+                            absent: 0,
+                            unanswered: Math.max(
+                              0,
+                              campaign.data.campaign_members.length -
+                                nextSession.data.attendance.length,
+                            ),
+                          }
+                          for (const response of nextSession.data.attendance) {
+                            if (response.response in counts)
+                              counts[
+                                response.response as keyof typeof counts
+                              ] += 1
+                          }
+                          const myResponse =
+                            nextSession.data.attendance.find(
+                              (response) => response.user_id === identity?.id,
+                            )?.response ?? 'unanswered'
+                          return (
+                            <>
+                              <div className="next-session-details">
+                                <span>{nextSession.data.status}</span>
+                                <h3>{nextSession.data.title}</h3>
+                                <p>
+                                  <Clock3 aria-hidden="true" size={16} />
+                                  {new Date(
+                                    nextSession.data.starts_at,
+                                  ).toLocaleString(undefined, {
+                                    dateStyle: 'full',
+                                    timeStyle: 'short',
+                                  })}
+                                </p>
+                                {nextSession.data.agenda && (
+                                  <p>{nextSession.data.agenda}</p>
+                                )}
+                              </div>
+                              <div className="attendance-summary">
+                                {Object.entries(counts).map(
+                                  ([label, count]) => (
+                                    <div key={label}>
+                                      <strong>{count}</strong>
+                                      <span>{label}</span>
+                                    </div>
+                                  ),
+                                )}
+                              </div>
+                              <p className="member-response">
+                                Your response: <strong>{myResponse}</strong>
+                              </p>
+                            </>
+                          )
+                        })()
+                      : !nextSession.isLoading && (
+                          <div className="compact-session-empty">
+                            <h3>No session proposed yet.</h3>
+                            <p>
+                              Compare availability and choose the party's next
+                              gathering.
+                            </p>
+                          </div>
+                        )}
                     <Link
                       className="card-link"
                       to={`/campaigns/${campaignId}/schedule`}
                     >
-                      Open scheduling <CalendarDays size={17} />
+                      {nextSession.data
+                        ? 'View session and respond'
+                        : 'Open scheduling'}{' '}
+                      <CalendarDays size={17} />
                     </Link>
                   </section>
 

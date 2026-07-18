@@ -70,7 +70,7 @@ This is the source-of-truth checklist for the entire application. Completed work
 ## 5. Campaign home and shared information
 
 - [x] Party roster and assigned characters.
-- [ ] Next session, attendance, and availability summary.
+- [ ] Next session, attendance, and availability summary. *(Next session and attendance summary complete; campaign-level availability summary pending.)*
 - [ ] Announcements and pinned resources. *(Manager announcements and pinning complete; general resources pending.)*
 - [ ] Shared handouts and campaign notes.
 - [ ] Private Game Master notes.

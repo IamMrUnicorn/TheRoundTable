@@ -1034,6 +1034,81 @@ button:disabled {
   background: linear-gradient(145deg, #17211f, #111817);
 }
 
+.next-session-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.next-session-details {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.next-session-details > span {
+  width: fit-content;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.3rem 0.55rem;
+  color: var(--gold);
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: capitalize;
+}
+
+.next-session-details h3,
+.next-session-details p,
+.compact-session-empty h3,
+.compact-session-empty p {
+  margin: 0;
+}
+
+.next-session-details p {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--muted);
+}
+
+.attendance-summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.4rem;
+  margin: 1rem 0;
+}
+
+.attendance-summary > div {
+  display: grid;
+  gap: 0.15rem;
+  border: 1px solid var(--line);
+  border-radius: 0.55rem;
+  padding: 0.55rem 0.35rem;
+  text-align: center;
+}
+
+.attendance-summary strong {
+  color: var(--gold);
+  font-size: 1.15rem;
+}
+
+.attendance-summary span {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 0.62rem;
+  text-overflow: ellipsis;
+  text-transform: capitalize;
+}
+
+.member-response {
+  margin: 0 0 1rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+  text-transform: capitalize;
+}
+
+.compact-session-empty {
+  margin-bottom: 1rem;
+}
+
 .member-list {
   display: grid;
   gap: 0.7rem;

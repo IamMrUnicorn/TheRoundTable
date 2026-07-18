@@ -31,6 +31,29 @@ export async function listUpcomingSessions(userId: string) {
   }))
 }
 
+export async function getNextCampaignSession(campaignId: number) {
+  const { data: session, error: sessionError } = await supabase
+    .from('sessions')
+    .select('*')
+    .eq('campaign_id', campaignId)
+    .in('status', ['proposed', 'scheduled', 'active'])
+    .gte('ends_at', new Date().toISOString())
+    .order('starts_at')
+    .limit(1)
+    .maybeSingle()
+
+  if (sessionError) throw sessionError
+  if (!session) return null
+
+  const { data: attendance, error: attendanceError } = await supabase
+    .from('session_attendance')
+    .select('response, user_id')
+    .eq('session_id', session.id)
+
+  if (attendanceError) throw attendanceError
+  return { ...session, attendance: attendance ?? [] }
+}
+
 export async function getSchedule(campaignId: number) {
   const [rules, exceptions, sessions, attendance] = await Promise.all([
     supabase
