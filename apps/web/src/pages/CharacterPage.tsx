@@ -40,6 +40,23 @@ const skills = [
   ['survival', 'wisdom'],
 ] as const
 
+const conditions = [
+  'blinded',
+  'charmed',
+  'deafened',
+  'frightened',
+  'grappled',
+  'incapacitated',
+  'invisible',
+  'paralyzed',
+  'petrified',
+  'poisoned',
+  'prone',
+  'restrained',
+  'stunned',
+  'unconscious',
+] as const
+
 type CharacterDraft = Pick<
   Character,
   | 'ancestry'
@@ -48,8 +65,16 @@ type CharacterDraft = Pick<
   | 'charisma'
   | 'class_name'
   | 'constitution'
+  | 'conditions'
   | 'current_hp'
+  | 'death_save_failures'
+  | 'death_save_successes'
   | 'dexterity'
+  | 'exhaustion'
+  | 'hit_dice_remaining'
+  | 'hit_dice_total'
+  | 'hit_die_size'
+  | 'inspiration'
   | 'intelligence'
   | 'level'
   | 'max_hp'
@@ -62,6 +87,7 @@ type CharacterDraft = Pick<
   | 'saving_throw_proficiencies'
   | 'skill_proficiencies'
   | 'skill_expertise'
+  | 'temporary_hp'
 >
 
 function editableFields(character: Character): CharacterDraft {
@@ -72,8 +98,16 @@ function editableFields(character: Character): CharacterDraft {
     charisma,
     class_name,
     constitution,
+    conditions,
     current_hp,
+    death_save_failures,
+    death_save_successes,
     dexterity,
+    exhaustion,
+    hit_dice_remaining,
+    hit_dice_total,
+    hit_die_size,
+    inspiration,
     intelligence,
     level,
     max_hp,
@@ -86,6 +120,7 @@ function editableFields(character: Character): CharacterDraft {
     saving_throw_proficiencies,
     skill_proficiencies,
     skill_expertise,
+    temporary_hp,
   } = character
   return {
     ancestry,
@@ -94,8 +129,16 @@ function editableFields(character: Character): CharacterDraft {
     charisma,
     class_name,
     constitution,
+    conditions,
     current_hp,
+    death_save_failures,
+    death_save_successes,
     dexterity,
+    exhaustion,
+    hit_dice_remaining,
+    hit_dice_total,
+    hit_die_size,
+    inspiration,
     intelligence,
     level,
     max_hp,
@@ -108,6 +151,7 @@ function editableFields(character: Character): CharacterDraft {
     saving_throw_proficiencies,
     skill_proficiencies,
     skill_expertise,
+    temporary_hp,
   }
 }
 
@@ -139,7 +183,7 @@ export function CharacterPage() {
     return <Navigate to="/" replace />
   if (character.isError) return <Navigate to="/" replace />
 
-  function field(name: keyof CharacterDraft, value: string | number) {
+  function field(name: keyof CharacterDraft, value: string | number | boolean) {
     setDraft((current) => ({ ...current, [name]: value }))
   }
 
@@ -149,7 +193,10 @@ export function CharacterPage() {
   const signed = (value: number) => `${value >= 0 ? '+' : ''}${value}`
   function toggleList(
     fieldName:
-      'saving_throw_proficiencies' | 'skill_proficiencies' | 'skill_expertise',
+      | 'saving_throw_proficiencies'
+      | 'skill_proficiencies'
+      | 'skill_expertise'
+      | 'conditions',
     value: string,
   ) {
     const values = [...(draft[fieldName] ?? [])]
@@ -257,6 +304,19 @@ export function CharacterPage() {
                   max="20"
                   value={Number(draft.level ?? 1)}
                   onChange={(e) => field('level', Number(e.target.value))}
+                />
+              </label>
+              <label>
+                Temporary HP
+                <input
+                  disabled={!canEdit}
+                  type="number"
+                  min="0"
+                  max="9999"
+                  value={Number(draft.temporary_hp ?? 0)}
+                  onChange={(event) =>
+                    field('temporary_hp', Number(event.target.value))
+                  }
                 />
               </label>
             </div>
@@ -415,6 +475,147 @@ export function CharacterPage() {
                 })}
               </div>
             </section>
+            <section className="survival-section">
+              <div className="survival-heading">
+                <div>
+                  <p className="eyebrow">Rest and recovery</p>
+                  <h2>Survivability</h2>
+                </div>
+                <label className="inspiration-toggle">
+                  <input
+                    disabled={!canEdit}
+                    type="checkbox"
+                    checked={Boolean(draft.inspiration)}
+                    onChange={(event) =>
+                      field('inspiration', event.target.checked)
+                    }
+                  />
+                  Inspiration
+                </label>
+              </div>
+              <div className="survival-grid">
+                <fieldset>
+                  <legend>Hit dice</legend>
+                  <label>
+                    Remaining
+                    <input
+                      disabled={!canEdit}
+                      type="number"
+                      min="0"
+                      max={Number(draft.hit_dice_total ?? 1)}
+                      value={Number(draft.hit_dice_remaining ?? 1)}
+                      onChange={(event) =>
+                        field('hit_dice_remaining', Number(event.target.value))
+                      }
+                    />
+                  </label>
+                  <span>/</span>
+                  <label>
+                    Total
+                    <input
+                      disabled={!canEdit}
+                      type="number"
+                      min="1"
+                      max="20"
+                      value={Number(draft.hit_dice_total ?? 1)}
+                      onChange={(event) =>
+                        field('hit_dice_total', Number(event.target.value))
+                      }
+                    />
+                  </label>
+                  <label>
+                    Die
+                    <select
+                      disabled={!canEdit}
+                      value={Number(draft.hit_die_size ?? 8)}
+                      onChange={(event) =>
+                        field('hit_die_size', Number(event.target.value))
+                      }
+                    >
+                      {[4, 6, 8, 10, 12].map((size) => (
+                        <option key={size} value={size}>
+                          d{size}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </fieldset>
+                <fieldset>
+                  <legend>Death saves</legend>
+                  <label>
+                    Successes
+                    <input
+                      disabled={!canEdit}
+                      type="number"
+                      min="0"
+                      max="3"
+                      value={Number(draft.death_save_successes ?? 0)}
+                      onChange={(event) =>
+                        field(
+                          'death_save_successes',
+                          Number(event.target.value),
+                        )
+                      }
+                    />
+                  </label>
+                  <label>
+                    Failures
+                    <input
+                      disabled={!canEdit}
+                      type="number"
+                      min="0"
+                      max="3"
+                      value={Number(draft.death_save_failures ?? 0)}
+                      onChange={(event) =>
+                        field('death_save_failures', Number(event.target.value))
+                      }
+                    />
+                  </label>
+                </fieldset>
+                <label className="exhaustion-control">
+                  Exhaustion level
+                  <input
+                    disabled={!canEdit}
+                    type="range"
+                    min="0"
+                    max="6"
+                    value={Number(draft.exhaustion ?? 0)}
+                    onChange={(event) =>
+                      field('exhaustion', Number(event.target.value))
+                    }
+                  />
+                  <strong>{Number(draft.exhaustion ?? 0)} / 6</strong>
+                </label>
+              </div>
+              <fieldset className="condition-picker">
+                <legend>Conditions</legend>
+                {conditions.map((condition) => (
+                  <label key={condition}>
+                    <input
+                      disabled={!canEdit}
+                      type="checkbox"
+                      checked={(draft.conditions ?? []).includes(condition)}
+                      onChange={() => toggleList('conditions', condition)}
+                    />
+                    {condition}
+                  </label>
+                ))}
+                {(draft.conditions ?? []).length === 0 && (
+                  <span className="muted-copy">No active conditions</span>
+                )}
+              </fieldset>
+            </section>
+            {save.isError && (
+              <p className="form-error" role="alert">
+                The sheet could not be saved. Check that remaining hit dice do
+                not exceed the total and try again.
+              </p>
+            )}
+            {save.isSuccess && (
+              <p className="success-copy" role="status">
+                Character sheet saved.
+              </p>
+            )}
             <div className="sheet-details">
               {(
                 ['ancestry', 'class_name', 'subclass', 'background'] as const

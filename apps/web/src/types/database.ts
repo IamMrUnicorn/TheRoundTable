@@ -709,11 +709,19 @@ export type Database = {
           campaign_id: number | null
           charisma: number
           class_name: string
+          conditions: string[]
           constitution: number
           created_at: string
           current_hp: number
+          death_save_failures: number
+          death_save_successes: number
           dexterity: number
+          exhaustion: number
+          hit_dice_remaining: number
+          hit_dice_total: number
+          hit_die_size: number
           id: number
+          inspiration: boolean
           intelligence: number
           level: number
           max_hp: number
@@ -726,6 +734,7 @@ export type Database = {
           speed: number
           strength: number
           subclass: string
+          temporary_hp: number
           updated_at: string
           wisdom: number
         }
@@ -736,11 +745,19 @@ export type Database = {
           campaign_id?: number | null
           charisma?: number
           class_name?: string
+          conditions?: string[]
           constitution?: number
           created_at?: string
           current_hp?: number
+          death_save_failures?: number
+          death_save_successes?: number
           dexterity?: number
+          exhaustion?: number
+          hit_dice_remaining?: number
+          hit_dice_total?: number
+          hit_die_size?: number
           id?: never
+          inspiration?: boolean
           intelligence?: number
           level?: number
           max_hp?: number
@@ -753,6 +770,7 @@ export type Database = {
           speed?: number
           strength?: number
           subclass?: string
+          temporary_hp?: number
           updated_at?: string
           wisdom?: number
         }
@@ -763,11 +781,19 @@ export type Database = {
           campaign_id?: number | null
           charisma?: number
           class_name?: string
+          conditions?: string[]
           constitution?: number
           created_at?: string
           current_hp?: number
+          death_save_failures?: number
+          death_save_successes?: number
           dexterity?: number
+          exhaustion?: number
+          hit_dice_remaining?: number
+          hit_dice_total?: number
+          hit_die_size?: number
           id?: never
+          inspiration?: boolean
           intelligence?: number
           level?: number
           max_hp?: number
@@ -780,6 +806,7 @@ export type Database = {
           speed?: number
           strength?: number
           subclass?: string
+          temporary_hp?: number
           updated_at?: string
           wisdom?: number
         }

@@ -140,9 +140,9 @@ This roadmap translates the play-screen sketch and the proven V5 foundations int
 
 ### Character data
 
-- [ ] Skills and saving-throw proficiencies.
-- [ ] Proficiency bonus, initiative, passive senses, and derived modifiers.
-- [ ] Hit dice, death saves, exhaustion, inspiration, and conditions.
+- [x] Skills and saving-throw proficiencies.
+- [x] Proficiency bonus, initiative, passive senses, and derived modifiers.
+- [x] Hit dice, death saves, exhaustion, inspiration, and conditions.
 - [ ] Species/ancestry, class, subclass, background, feats, and feature descriptions.
 - [ ] Multiclass support.
 - [ ] Languages, senses, movement modes, size, alignment, and appearance.

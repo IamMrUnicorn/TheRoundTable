@@ -150,6 +150,15 @@ const { data: updatedCharacter, response: updatedCharacterResponse } =
       skill_proficiencies: ['athletics', 'perception'],
       skill_expertise: ['perception'],
       speed: 35,
+      temporary_hp: 7,
+      hit_die_size: 10,
+      hit_dice_total: 5,
+      hit_dice_remaining: 3,
+      death_save_successes: 2,
+      death_save_failures: 1,
+      exhaustion: 1,
+      inspiration: true,
+      conditions: ['poisoned', 'prone'],
     },
   })
 assert.equal(updatedCharacterResponse.status, 200)
@@ -163,6 +172,15 @@ assert.deepEqual(updatedCharacter[0].skill_proficiencies, [
 ])
 assert.deepEqual(updatedCharacter[0].skill_expertise, ['perception'])
 assert.equal(updatedCharacter[0].speed, 35)
+assert.equal(updatedCharacter[0].temporary_hp, 7)
+assert.equal(updatedCharacter[0].hit_die_size, 10)
+assert.equal(updatedCharacter[0].hit_dice_total, 5)
+assert.equal(updatedCharacter[0].hit_dice_remaining, 3)
+assert.equal(updatedCharacter[0].death_save_successes, 2)
+assert.equal(updatedCharacter[0].death_save_failures, 1)
+assert.equal(updatedCharacter[0].exhaustion, 1)
+assert.equal(updatedCharacter[0].inspiration, true)
+assert.deepEqual(updatedCharacter[0].conditions, ['poisoned', 'prone'])
 
 const { response: invalidExpertiseResponse } = await request(
   `/rest/v1/characters?id=eq.${characterId}`,
@@ -174,9 +192,29 @@ const { response: invalidExpertiseResponse } = await request(
 )
 assert.equal(invalidExpertiseResponse.status, 400)
 
+const { response: invalidHitDiceResponse } = await request(
+  `/rest/v1/characters?id=eq.${characterId}`,
+  {
+    token: owner.token,
+    method: 'PATCH',
+    body: { hit_dice_remaining: 6 },
+  },
+)
+assert.equal(invalidHitDiceResponse.status, 400)
+
+const { response: invalidConditionResponse } = await request(
+  `/rest/v1/characters?id=eq.${characterId}`,
+  {
+    token: owner.token,
+    method: 'PATCH',
+    body: { conditions: ['invincible'] },
+  },
+)
+assert.equal(invalidConditionResponse.status, 400)
+
 const { data: partyCharacters, response: partyCharactersResponse } =
   await request(
-    `/rest/v1/characters?campaign_id=eq.${campaignId}&select=id,name,saving_throw_proficiencies,skill_proficiencies,skill_expertise,speed`,
+    `/rest/v1/characters?campaign_id=eq.${campaignId}&select=id,name,saving_throw_proficiencies,skill_proficiencies,skill_expertise,speed,temporary_hp,hit_die_size,hit_dice_total,hit_dice_remaining,death_save_successes,death_save_failures,exhaustion,inspiration,conditions`,
     { token: outsider.token },
   )
 assert.equal(partyCharactersResponse.status, 200)
@@ -188,6 +226,15 @@ assert.deepEqual(partyCharacters, [
     skill_proficiencies: ['athletics', 'perception'],
     skill_expertise: ['perception'],
     speed: 35,
+    temporary_hp: 7,
+    hit_die_size: 10,
+    hit_dice_total: 5,
+    hit_dice_remaining: 3,
+    death_save_successes: 2,
+    death_save_failures: 1,
+    exhaustion: 1,
+    inspiration: true,
+    conditions: ['poisoned', 'prone'],
   },
 ])
 

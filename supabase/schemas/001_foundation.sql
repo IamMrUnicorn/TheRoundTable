@@ -68,9 +68,20 @@ create table public.characters (
   saving_throw_proficiencies text[] not null default '{}',
   skill_proficiencies text[] not null default '{}',
   skill_expertise text[] not null default '{}',
+  temporary_hp integer not null default 0 check (temporary_hp between 0 and 9999),
+  hit_die_size smallint not null default 8 check (hit_die_size in (4, 6, 8, 10, 12)),
+  hit_dice_total smallint not null default 1 check (hit_dice_total between 1 and 20),
+  hit_dice_remaining smallint not null default 1 check (hit_dice_remaining between 0 and 20),
+  death_save_successes smallint not null default 0 check (death_save_successes between 0 and 3),
+  death_save_failures smallint not null default 0 check (death_save_failures between 0 and 3),
+  exhaustion smallint not null default 0 check (exhaustion between 0 and 6),
+  inspiration boolean not null default false,
+  conditions text[] not null default '{}',
   constraint characters_saving_throw_proficiencies_check check (saving_throw_proficiencies <@ array['strength', 'dexterity', 'constitution', 'intelligence', 'wisdom', 'charisma']),
   constraint characters_skill_proficiencies_check check (skill_proficiencies <@ array['acrobatics', 'animal_handling', 'arcana', 'athletics', 'deception', 'history', 'insight', 'intimidation', 'investigation', 'medicine', 'nature', 'perception', 'performance', 'persuasion', 'religion', 'sleight_of_hand', 'stealth', 'survival']),
   constraint characters_skill_expertise_check check (skill_expertise <@ skill_proficiencies),
+  constraint characters_hit_dice_check check (hit_dice_remaining <= hit_dice_total),
+  constraint characters_conditions_check check (conditions <@ array['blinded', 'charmed', 'deafened', 'frightened', 'grappled', 'incapacitated', 'invisible', 'paralyzed', 'petrified', 'poisoned', 'prone', 'restrained', 'stunned', 'unconscious']),
   constraint characters_check check (current_hp <= max_hp)
 );
 

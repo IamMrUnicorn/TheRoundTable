@@ -1,0 +1,18 @@
+ALTER TABLE public.characters ADD COLUMN temporary_hp integer DEFAULT 0 NOT NULL;
+ALTER TABLE public.characters ADD CONSTRAINT characters_temporary_hp_check CHECK (temporary_hp >= 0 AND temporary_hp <= 9999);
+ALTER TABLE public.characters ADD COLUMN hit_die_size smallint DEFAULT 8 NOT NULL;
+ALTER TABLE public.characters ADD CONSTRAINT characters_hit_die_size_check CHECK (hit_die_size = ANY (ARRAY[4, 6, 8, 10, 12]));
+ALTER TABLE public.characters ADD COLUMN hit_dice_total smallint DEFAULT 1 NOT NULL;
+ALTER TABLE public.characters ADD CONSTRAINT characters_hit_dice_total_check CHECK (hit_dice_total >= 1 AND hit_dice_total <= 20);
+ALTER TABLE public.characters ADD COLUMN hit_dice_remaining smallint DEFAULT 1 NOT NULL;
+ALTER TABLE public.characters ADD CONSTRAINT characters_hit_dice_check CHECK (hit_dice_remaining <= hit_dice_total);
+ALTER TABLE public.characters ADD CONSTRAINT characters_hit_dice_remaining_check CHECK (hit_dice_remaining >= 0 AND hit_dice_remaining <= 20);
+ALTER TABLE public.characters ADD COLUMN death_save_successes smallint DEFAULT 0 NOT NULL;
+ALTER TABLE public.characters ADD CONSTRAINT characters_death_save_successes_check CHECK (death_save_successes >= 0 AND death_save_successes <= 3);
+ALTER TABLE public.characters ADD COLUMN death_save_failures smallint DEFAULT 0 NOT NULL;
+ALTER TABLE public.characters ADD CONSTRAINT characters_death_save_failures_check CHECK (death_save_failures >= 0 AND death_save_failures <= 3);
+ALTER TABLE public.characters ADD COLUMN exhaustion smallint DEFAULT 0 NOT NULL;
+ALTER TABLE public.characters ADD CONSTRAINT characters_exhaustion_check CHECK (exhaustion >= 0 AND exhaustion <= 6);
+ALTER TABLE public.characters ADD COLUMN inspiration boolean DEFAULT false NOT NULL;
+ALTER TABLE public.characters ADD COLUMN conditions text[] DEFAULT '{}'::text[] NOT NULL;
+ALTER TABLE public.characters ADD CONSTRAINT characters_conditions_check CHECK (conditions <@ ARRAY['blinded'::text, 'charmed'::text, 'deafened'::text, 'frightened'::text, 'grappled'::text, 'incapacitated'::text, 'invisible'::text, 'paralyzed'::text, 'petrified'::text, 'poisoned'::text, 'prone'::text, 'restrained'::text, 'stunned'::text, 'unconscious'::text]);
