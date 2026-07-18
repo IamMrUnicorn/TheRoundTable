@@ -83,12 +83,12 @@ This roadmap translates the play-screen sketch and the proven V5 foundations int
 
 ### Session event log
 
-- [ ] Append-only structured event model.
-- [ ] Human-readable events for joins, rolls, speech, attacks, spells, damage, healing, conditions, and turn changes.
+- [x] Append-only structured event model.
+- [ ] Human-readable events for joins, rolls, speech, attacks, spells, damage, healing, conditions, and turn changes. *(Manual structured capture and character-memory projection are complete; automatic subsystem events remain.)*
 - [ ] Filter by event type or participant.
 - [ ] Mentions for characters, creatures, and the party.
 - [ ] Expand the log into the central stage.
-- [ ] Game Master corrections represented as new audit events rather than destructive history edits.
+- [x] Game Master corrections represented as new audit events rather than destructive history edits.
 
 **Phase 2 exit:** multiple users can enter a resilient live session, see presence, use the modular screen, and share a persistent event stream.
 

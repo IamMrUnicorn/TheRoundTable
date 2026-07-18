@@ -1370,6 +1370,92 @@ export type Database = {
           },
         ]
       }
+      session_events: {
+        Row: {
+          actor_id: string
+          body: string
+          campaign_id: number
+          character_id: number | null
+          created_at: string
+          id: number
+          in_world_time: string
+          kind: string
+          location: string
+          metadata: Json
+          occurred_at: string
+          round_number: number | null
+          sequence_number: number
+          session_id: number
+          title: string
+          visibility: string
+        }
+        Insert: {
+          actor_id: string
+          body?: string
+          campaign_id: number
+          character_id?: number | null
+          created_at?: string
+          id?: never
+          in_world_time?: string
+          kind?: string
+          location?: string
+          metadata?: Json
+          occurred_at?: string
+          round_number?: number | null
+          sequence_number?: number
+          session_id: number
+          title: string
+          visibility?: string
+        }
+        Update: {
+          actor_id?: string
+          body?: string
+          campaign_id?: number
+          character_id?: number | null
+          created_at?: string
+          id?: never
+          in_world_time?: string
+          kind?: string
+          location?: string
+          metadata?: Json
+          occurred_at?: string
+          round_number?: number | null
+          sequence_number?: number
+          session_id?: number
+          title?: string
+          visibility?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'session_events_actor_id_fkey'
+            columns: ['actor_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'session_events_campaign_id_fkey'
+            columns: ['campaign_id']
+            isOneToOne: false
+            referencedRelation: 'campaigns'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'session_events_character_id_fkey'
+            columns: ['character_id']
+            isOneToOne: false
+            referencedRelation: 'characters'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'session_events_session_id_fkey'
+            columns: ['session_id']
+            isOneToOne: false
+            referencedRelation: 'sessions'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       sessions: {
         Row: {
           agenda: string

@@ -267,6 +267,25 @@ create table public.session_attendance (
   primary key (session_id, user_id)
 );
 
+create table public.session_events (
+  id bigint generated always as identity primary key,
+  session_id bigint not null references public.sessions (id) on delete cascade,
+  campaign_id bigint not null references public.campaigns (id) on delete cascade,
+  actor_id uuid not null references public.profiles (id) on delete restrict,
+  character_id bigint references public.characters (id) on delete set null,
+  kind text not null default 'note' check (kind in ('narration', 'dialogue', 'action', 'roll', 'damage', 'healing', 'condition', 'item', 'discovery', 'location', 'objective', 'rest', 'system', 'note')),
+  visibility text not null default 'party' check (visibility in ('party', 'gm_only')),
+  title text not null check (char_length(title) between 1 and 160),
+  body text not null default '' check (char_length(body) <= 10000),
+  in_world_time text not null default '' check (char_length(in_world_time) <= 160),
+  location text not null default '' check (char_length(location) <= 160),
+  round_number integer check (round_number is null or round_number between 1 and 999999),
+  sequence_number integer not null default 0 check (sequence_number between 0 and 999999999),
+  metadata jsonb not null default '{}'::jsonb check (jsonb_typeof(metadata) = 'object'),
+  occurred_at timestamptz not null default now(),
+  created_at timestamptz not null default now()
+);
+
 alter table public.character_memories
   add constraint character_memories_session_id_fkey
   foreign key (session_id) references public.sessions (id) on delete set null;
@@ -423,6 +442,9 @@ create index availability_exceptions_user_id_idx on public.availability_exceptio
 create index sessions_campaign_starts_at_idx on public.sessions (campaign_id, starts_at);
 create index sessions_created_by_idx on public.sessions (created_by);
 create index session_attendance_user_id_idx on public.session_attendance (user_id);
+create index session_events_session_timeline_idx on public.session_events (session_id, occurred_at desc, sequence_number desc);
+create index session_events_character_idx on public.session_events (character_id, occurred_at desc) where character_id is not null;
+create index session_events_actor_idx on public.session_events (actor_id);
 create index campaign_announcements_campaign_pinned_idx on public.campaign_announcements (campaign_id, is_pinned desc, created_at desc);
 create index campaign_announcements_author_id_idx on public.campaign_announcements (author_id);
 create index notifications_recipient_unread_idx on public.notifications (recipient_id, created_at desc) where read_at is null;
@@ -540,6 +562,37 @@ $$;
 create trigger character_inventory_items_record_memory
 after insert or update or delete on public.character_inventory_items
 for each row execute function private.record_character_inventory_memory();
+
+create function private.record_session_event_memory()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  if new.character_id is null or new.visibility <> 'party' then
+    return new;
+  end if;
+
+  insert into public.character_memories (
+    character_id, created_by, campaign_id, session_id, kind, visibility,
+    title, summary, occurred_at, in_world_time, location, source_name,
+    source_reference, tags, metadata
+  ) values (
+    new.character_id, new.actor_id, new.campaign_id, new.session_id,
+    case when new.kind in ('damage', 'healing', 'condition', 'item', 'discovery', 'location', 'objective', 'rest', 'roll', 'action') then new.kind else 'other' end,
+    'shared', new.title, new.body, new.occurred_at, new.in_world_time,
+    new.location, 'Session event', 'session_events:' || new.id,
+    array['session', new.kind],
+    new.metadata || jsonb_build_object('session_event_id', new.id, 'event_kind', new.kind)
+  );
+  return new;
+end;
+$$;
+
+create trigger session_events_record_memory
+after insert on public.session_events
+for each row execute function private.record_session_event_memory();
 
 create trigger availability_rules_set_updated_at before update on public.availability_rules for each row execute function private.set_updated_at();
 create trigger availability_exceptions_set_updated_at before update on public.availability_exceptions for each row execute function private.set_updated_at();
@@ -821,6 +874,7 @@ $$;
 
 revoke execute on function private.set_updated_at() from public, anon, authenticated;
 revoke execute on function private.record_character_inventory_memory() from public, anon, authenticated;
+revoke execute on function private.record_session_event_memory() from public, anon, authenticated;
 revoke execute on function private.create_profile_for_new_user() from public, anon, authenticated;
 revoke execute on function private.add_campaign_owner_as_member() from public, anon, authenticated;
 revoke execute on function private.is_campaign_member(bigint) from public, anon;
@@ -855,6 +909,7 @@ alter table public.availability_rules enable row level security;
 alter table public.availability_exceptions enable row level security;
 alter table public.sessions enable row level security;
 alter table public.session_attendance enable row level security;
+alter table public.session_events enable row level security;
 alter table public.campaign_announcements enable row level security;
 alter table public.notifications enable row level security;
 alter table public.campaign_invitations enable row level security;
@@ -1098,6 +1153,25 @@ create policy attendance_insert_own on public.session_attendance for insert to a
 create policy attendance_update_own on public.session_attendance for update to authenticated using (user_id = (select auth.uid())) with check (user_id = (select auth.uid()));
 create policy attendance_delete_own_or_manager on public.session_attendance for delete to authenticated using (user_id = (select auth.uid()) or exists (select 1 from public.sessions where id = session_id and (select private.is_campaign_manager(campaign_id))));
 
+create policy session_events_select_allowed on public.session_events for select to authenticated
+using ((select private.is_campaign_member(campaign_id)) and (visibility = 'party' or (select private.is_campaign_manager(campaign_id))));
+create policy session_events_insert_allowed on public.session_events for insert to authenticated
+with check (
+  actor_id = (select auth.uid())
+  and exists (select 1 from public.sessions where sessions.id = session_events.session_id and sessions.campaign_id = session_events.campaign_id)
+  and (select private.is_campaign_member(campaign_id))
+  and (visibility = 'party' or (select private.is_campaign_manager(campaign_id)))
+  and (
+    character_id is null
+    or exists (
+      select 1 from public.characters
+      where characters.id = session_events.character_id
+        and characters.campaign_id = session_events.campaign_id
+        and (characters.owner_id = (select auth.uid()) or (select private.is_campaign_manager(session_events.campaign_id)))
+    )
+  )
+);
+
 create policy announcements_select_members on public.campaign_announcements for select to authenticated using ((select private.is_campaign_member(campaign_id)));
 create policy announcements_insert_managers on public.campaign_announcements for insert to authenticated with check (author_id = (select auth.uid()) and (select private.is_campaign_manager(campaign_id)));
 create policy announcements_update_managers on public.campaign_announcements for update to authenticated using ((select private.is_campaign_manager(campaign_id))) with check ((select private.is_campaign_manager(campaign_id)));
@@ -1187,6 +1261,7 @@ revoke all on table public.campaigns from anon, authenticated;
 revoke all on table public.campaign_members from anon, authenticated;
 revoke all on table public.characters from anon, authenticated;
 revoke all on table public.availability_rules, public.availability_exceptions, public.sessions, public.session_attendance from anon, authenticated;
+revoke all on table public.session_events from anon, authenticated;
 revoke all on table public.campaign_announcements from anon, authenticated;
 revoke all on table public.notifications from anon, authenticated;
 revoke all on table public.campaign_invitations from anon, authenticated;
@@ -1204,6 +1279,7 @@ revoke all on sequence public.character_spellcasting_profiles_id_seq, public.cha
 revoke all on sequence public.character_memories_id_seq from anon, authenticated;
 revoke all on sequence public.character_inventory_items_id_seq from anon, authenticated;
 revoke all on sequence public.availability_rules_id_seq, public.availability_exceptions_id_seq, public.sessions_id_seq from anon, authenticated;
+revoke all on sequence public.session_events_id_seq from anon, authenticated;
 revoke all on sequence public.campaign_announcements_id_seq from anon, authenticated;
 revoke all on sequence public.notifications_id_seq from anon, authenticated;
 revoke all on sequence public.campaign_invitations_id_seq from anon, authenticated;
@@ -1220,6 +1296,7 @@ grant select, insert, update, delete on table public.character_spellcasting_prof
 grant select, insert, update, delete on table public.character_memories to authenticated;
 grant select, insert, update, delete on table public.character_inventory_items to authenticated;
 grant select, insert, update, delete on table public.availability_rules, public.availability_exceptions, public.sessions, public.session_attendance to authenticated;
+grant select, insert on table public.session_events to authenticated;
 grant select, insert, update, delete on table public.campaign_announcements to authenticated;
 grant select, update, delete on table public.notifications to authenticated;
 grant select, insert, update, delete on table public.campaign_invitations to authenticated;
@@ -1239,4 +1316,5 @@ grant usage, select on sequence public.character_spellcasting_profiles_id_seq, p
 grant usage, select on sequence public.character_memories_id_seq to authenticated;
 grant usage, select on sequence public.character_inventory_items_id_seq to authenticated;
 grant usage, select on sequence public.availability_rules_id_seq, public.availability_exceptions_id_seq, public.sessions_id_seq to authenticated;
+grant usage, select on sequence public.session_events_id_seq to authenticated;
 grant usage, select on sequence public.campaign_announcements_id_seq to authenticated;

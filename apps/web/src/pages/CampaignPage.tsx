@@ -31,6 +31,7 @@ import { CampaignKnowledgePanel } from '../features/knowledge/CampaignKnowledgeP
 import { CampaignLogisticsPanel } from '../features/logistics/CampaignLogisticsPanel'
 import { CampaignReferencesPanel } from '../features/references/CampaignReferencesPanel'
 import { CampaignStoryPanel } from '../features/story/CampaignStoryPanel'
+import { SessionEventPanel } from '../features/sessions/SessionEventPanel'
 import {
   cancelCampaignInvitation,
   createCampaignInvitation,
@@ -676,6 +677,16 @@ export function CampaignPage() {
                       <CalendarDays size={17} />
                     </Link>
                   </section>
+
+                  {nextSession.data && identity && (
+                    <SessionEventPanel
+                      actorId={identity.id}
+                      campaignId={campaignId}
+                      characters={characters.data ?? []}
+                      isManager={isManager}
+                      sessionId={nextSession.data.id}
+                    />
+                  )}
 
                   {isOwner ? (
                     <section className="workspace-panel campaign-settings">

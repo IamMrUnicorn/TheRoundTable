@@ -145,7 +145,7 @@ This is the source-of-truth checklist for the entire application. Completed work
 - [ ] Waiting room, start/pause/resume/end lifecycle, and one active session per campaign.
 - [ ] Realtime presence, connection state, refresh recovery, and session timer.
 - [ ] Modular/resizable notebook, central stage, party rail, action bar, drawers, and overlays.
-- [ ] Persistent structured event log, chat, speech, mentions, and filters.
+- [ ] Persistent structured event log, chat, speech, mentions, and filters. *(Append-only structured capture, GM-only visibility, and character-memory projection complete; realtime, chat, mentions, and filters remain.)*
 - [ ] Dice formulas, private rolls, checks, saves, attacks, damage, and initiative.
 - [ ] Encounters, initiative ordering, rounds, turns, and active-turn controls.
 - [ ] Action, bonus action, movement, object interaction, and reaction tracking.

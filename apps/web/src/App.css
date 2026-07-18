@@ -1299,6 +1299,59 @@ button:disabled {
   min-height: 2rem;
   padding: 0.3rem 0.55rem;
 }
+.session-event-panel {
+  grid-column: 1 / -1;
+}
+.session-event-form {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.6rem;
+}
+.session-event-form input,
+.session-event-form select,
+.session-event-form textarea {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 0.55rem;
+  padding: 0.7rem;
+  background: #151f1d;
+  color: var(--ink);
+}
+.session-event-form textarea,
+.session-event-form button {
+  grid-column: 1 / -1;
+}
+.session-event-list {
+  display: grid;
+  gap: 0.65rem;
+  max-height: 34rem;
+  overflow: auto;
+}
+.session-event-list article {
+  display: grid;
+  gap: 0.55rem;
+  border-left: 3px solid var(--gold);
+  border-radius: 0.55rem;
+  padding: 0.8rem 1rem;
+  background: #151f1d;
+}
+.session-event-list h3,
+.session-event-list p {
+  margin: 0.2rem 0;
+}
+.session-event-list article > div > span {
+  color: var(--gold);
+  font-size: 0.7rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+.session-event-list footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
 .notes-field {
   grid-column: 1 / -1;
 }
@@ -2705,13 +2758,18 @@ button:disabled {
   }
   .memory-toolbar,
   .memory-create-form,
-  .character-inventory-form {
+  .character-inventory-form,
+  .session-event-form {
     grid-template-columns: 1fr;
   }
   .memory-summary-field,
   .memory-create-form button,
   .character-inventory-form textarea,
   .character-inventory-form button {
+    grid-column: auto;
+  }
+  .session-event-form textarea,
+  .session-event-form button {
     grid-column: auto;
   }
   .notes-field {

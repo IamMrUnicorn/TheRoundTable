@@ -459,11 +459,44 @@ const { data: sessionRows, response: sessionResponse } = await request('/rest/v1
 })
 assert.equal(sessionResponse.status, 201)
 assert.equal(sessionRows[0].title, 'The next chapter')
+const sessionId = sessionRows[0].id
+
+const { data: sessionEventRows, response: sessionEventResponse } = await request('/rest/v1/session_events', {
+  token: owner.token,
+  method: 'POST',
+  body: { session_id: sessionId, campaign_id: campaignId, actor_id: owner.id, character_id: characterId, kind: 'discovery', visibility: 'party', title: 'Found the hidden observatory', body: 'Ember opened the Moonstone Door.', in_world_time: '14 Emberfall, dawn', location: 'Sunken Library' },
+})
+assert.equal(sessionEventResponse.status, 201)
+const sessionEventId = sessionEventRows[0].id
+const { data: memberSessionEvents, response: memberSessionEventsResponse } = await request(`/rest/v1/session_events?session_id=eq.${sessionId}&select=id,title,visibility`, { token: invitee.token })
+assert.equal(memberSessionEventsResponse.status, 200)
+assert.deepEqual(memberSessionEvents, [{ id: sessionEventId, title: 'Found the hidden observatory', visibility: 'party' }])
+const { response: forbiddenCharacterEventResponse } = await request('/rest/v1/session_events', {
+  token: invitee.token,
+  method: 'POST',
+  body: { session_id: sessionId, campaign_id: campaignId, actor_id: invitee.id, character_id: characterId, kind: 'action', visibility: 'party', title: 'Controlled someone else' },
+})
+assert.equal(forbiddenCharacterEventResponse.status, 403)
+const { response: gmEventResponse } = await request('/rest/v1/session_events', {
+  token: outsider.token,
+  method: 'POST',
+  body: { session_id: sessionId, campaign_id: campaignId, actor_id: outsider.id, kind: 'note', visibility: 'gm_only', title: 'The steward watches from afar' },
+})
+assert.equal(gmEventResponse.status, 201)
+const { data: memberEventsAfterSecret } = await request(`/rest/v1/session_events?session_id=eq.${sessionId}&select=title`, { token: invitee.token })
+assert.deepEqual(memberEventsAfterSecret, [{ title: 'Found the hidden observatory' }])
+const { data: managersSessionEvents } = await request(`/rest/v1/session_events?session_id=eq.${sessionId}&select=title&order=title.asc`, { token: owner.token })
+assert.deepEqual(managersSessionEvents, [{ title: 'Found the hidden observatory' }, { title: 'The steward watches from afar' }])
+const { data: sessionMemoryRows } = await request(`/rest/v1/character_memories?session_id=eq.${sessionId}&source_name=eq.Session%20event&select=title,kind,metadata`, { token: owner.token })
+assert.equal(sessionMemoryRows.length, 1)
+assert.equal(sessionMemoryRows[0].title, 'Found the hidden observatory')
+assert.equal(sessionMemoryRows[0].kind, 'discovery')
+assert.equal(sessionMemoryRows[0].metadata.session_event_id, sessionEventId)
 
 const { response: attendanceResponse } = await request('/rest/v1/session_attendance', {
   token: owner.token,
   method: 'POST',
-  body: { session_id: sessionRows[0].id, user_id: owner.id, response: 'attending', responded_at: new Date().toISOString() },
+  body: { session_id: sessionId, user_id: owner.id, response: 'attending', responded_at: new Date().toISOString() },
 })
 assert.equal(attendanceResponse.status, 201)
 
