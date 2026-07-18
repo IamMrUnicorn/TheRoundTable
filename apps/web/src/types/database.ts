@@ -703,9 +703,15 @@ export type Database = {
       }
       characters: {
         Row: {
+          age: string
+          alignment: string
+          allies_organizations: string
           ancestry: string
+          appearance: string
           armor_class: number
           background: string
+          biography: string
+          bonds: string
           campaign_id: number | null
           charisma: number
           class_name: string
@@ -717,31 +723,49 @@ export type Database = {
           death_save_successes: number
           dexterity: number
           exhaustion: number
+          eyes: string
+          flaws: string
+          hair: string
+          height: string
           hit_dice_remaining: number
           hit_dice_total: number
           hit_die_size: number
           id: number
+          ideals: string
           inspiration: boolean
           intelligence: number
+          languages: string[]
           level: number
           max_hp: number
           name: string
           notes: string
           owner_id: string
+          personality_traits: string
+          pronouns: string
           saving_throw_proficiencies: string[]
+          senses: string[]
+          size: string
           skill_expertise: string[]
           skill_proficiencies: string[]
+          skin: string
           speed: number
           strength: number
           subclass: string
           temporary_hp: number
           updated_at: string
+          weight_lbs: number | null
           wisdom: number
         }
         Insert: {
+          age?: string
+          alignment?: string
+          allies_organizations?: string
           ancestry?: string
+          appearance?: string
           armor_class?: number
           background?: string
+          biography?: string
+          bonds?: string
           campaign_id?: number | null
           charisma?: number
           class_name?: string
@@ -753,31 +777,49 @@ export type Database = {
           death_save_successes?: number
           dexterity?: number
           exhaustion?: number
+          eyes?: string
+          flaws?: string
+          hair?: string
+          height?: string
           hit_dice_remaining?: number
           hit_dice_total?: number
           hit_die_size?: number
           id?: never
+          ideals?: string
           inspiration?: boolean
           intelligence?: number
+          languages?: string[]
           level?: number
           max_hp?: number
           name: string
           notes?: string
           owner_id: string
+          personality_traits?: string
+          pronouns?: string
           saving_throw_proficiencies?: string[]
+          senses?: string[]
+          size?: string
           skill_expertise?: string[]
           skill_proficiencies?: string[]
+          skin?: string
           speed?: number
           strength?: number
           subclass?: string
           temporary_hp?: number
           updated_at?: string
+          weight_lbs?: number | null
           wisdom?: number
         }
         Update: {
+          age?: string
+          alignment?: string
+          allies_organizations?: string
           ancestry?: string
+          appearance?: string
           armor_class?: number
           background?: string
+          biography?: string
+          bonds?: string
           campaign_id?: number | null
           charisma?: number
           class_name?: string
@@ -789,25 +831,37 @@ export type Database = {
           death_save_successes?: number
           dexterity?: number
           exhaustion?: number
+          eyes?: string
+          flaws?: string
+          hair?: string
+          height?: string
           hit_dice_remaining?: number
           hit_dice_total?: number
           hit_die_size?: number
           id?: never
+          ideals?: string
           inspiration?: boolean
           intelligence?: number
+          languages?: string[]
           level?: number
           max_hp?: number
           name?: string
           notes?: string
           owner_id?: string
+          personality_traits?: string
+          pronouns?: string
           saving_throw_proficiencies?: string[]
+          senses?: string[]
+          size?: string
           skill_expertise?: string[]
           skill_proficiencies?: string[]
+          skin?: string
           speed?: number
           strength?: number
           subclass?: string
           temporary_hp?: number
           updated_at?: string
+          weight_lbs?: number | null
           wisdom?: number
         }
         Relationships: [

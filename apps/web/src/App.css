@@ -584,6 +584,34 @@ button:disabled {
   display: grid;
   gap: 2rem;
 }
+.character-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.4rem;
+  position: sticky;
+  top: 0.5rem;
+  z-index: 5;
+  border: 1px solid var(--line);
+  border-radius: 0.9rem;
+  padding: 0.4rem;
+  background: rgb(16 24 23 / 94%);
+  backdrop-filter: blur(12px);
+}
+.character-tabs button {
+  min-height: 2.7rem;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+}
+.character-tabs button.active {
+  background: var(--gold);
+  color: #101817;
+}
+.character-tab-panel,
+.quick-view-panel {
+  display: grid;
+  gap: 2rem;
+}
 .sheet-heading {
   display: flex;
   align-items: end;
@@ -855,12 +883,74 @@ button:disabled {
   text-transform: capitalize;
 }
 .sheet-details input,
-.sheet-details textarea {
+.sheet-details textarea,
+.sheet-details select {
   border: 1px solid var(--line);
   border-radius: 0.7rem;
   padding: 0.8rem;
   background: #101817;
   color: var(--ink);
+}
+.details-panel > section {
+  display: grid;
+  gap: 1rem;
+}
+.detail-fields {
+  grid-template-columns: repeat(3, 1fr);
+}
+.detail-fields select {
+  text-transform: capitalize;
+}
+.capacity-summary {
+  border: 1px solid var(--gold);
+  border-radius: 0.8rem;
+  padding: 1rem;
+  background: rgb(212 164 92 / 8%);
+}
+.capacity-summary strong {
+  color: var(--gold);
+}
+.capacity-summary p {
+  margin: 0.45rem 0;
+}
+.capacity-summary small {
+  color: var(--muted);
+}
+.narrative-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+.narrative-grid label,
+.memory-panel label {
+  display: grid;
+  gap: 0.45rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+.narrative-grid textarea,
+.memory-panel textarea {
+  resize: vertical;
+  border: 1px solid var(--line);
+  border-radius: 0.7rem;
+  padding: 0.8rem;
+  background: #101817;
+  color: var(--ink);
+}
+.upcoming-tab,
+.memory-panel {
+  min-height: 22rem;
+  align-content: start;
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  padding: 1.25rem;
+  background: #101817;
+}
+.upcoming-tab h2,
+.memory-panel h2 {
+  margin: 0;
+  font-family: var(--font-display);
 }
 .notes-field {
   grid-column: 1 / -1;
@@ -2229,6 +2319,10 @@ button:disabled {
     align-items: stretch;
     flex-direction: column;
   }
+  .character-tabs {
+    grid-template-columns: repeat(2, 1fr);
+    position: static;
+  }
   .vitals-grid,
   .ability-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -2244,6 +2338,9 @@ button:disabled {
     flex-direction: column;
   }
   .sheet-details {
+    grid-template-columns: 1fr;
+  }
+  .narrative-grid {
     grid-template-columns: 1fr;
   }
   .notes-field {

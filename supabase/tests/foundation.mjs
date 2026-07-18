@@ -159,6 +159,24 @@ const { data: updatedCharacter, response: updatedCharacterResponse } =
       exhaustion: 1,
       inspiration: true,
       conditions: ['poisoned', 'prone'],
+      pronouns: 'she/her',
+      alignment: 'Neutral Good',
+      size: 'medium',
+      age: '29',
+      height: `5' 9\"`,
+      weight_lbs: 145.5,
+      eyes: 'gold',
+      hair: 'black',
+      skin: 'bronze',
+      appearance: 'A weathered traveler in a green cloak.',
+      biography: 'Ember left home to find the vanished royal cartographer.',
+      personality_traits: 'Curious and patient.',
+      ideals: 'Knowledge should be shared.',
+      bonds: 'Protects the old observatory.',
+      flaws: 'Cannot resist an unsolved map.',
+      allies_organizations: 'The Lantern Archive',
+      languages: ['Common', 'Elvish'],
+      senses: ['darkvision 60 ft.'],
     },
   })
 assert.equal(updatedCharacterResponse.status, 200)
@@ -181,6 +199,11 @@ assert.equal(updatedCharacter[0].death_save_failures, 1)
 assert.equal(updatedCharacter[0].exhaustion, 1)
 assert.equal(updatedCharacter[0].inspiration, true)
 assert.deepEqual(updatedCharacter[0].conditions, ['poisoned', 'prone'])
+assert.equal(updatedCharacter[0].pronouns, 'she/her')
+assert.equal(updatedCharacter[0].size, 'medium')
+assert.equal(updatedCharacter[0].biography, 'Ember left home to find the vanished royal cartographer.')
+assert.deepEqual(updatedCharacter[0].languages, ['Common', 'Elvish'])
+assert.deepEqual(updatedCharacter[0].senses, ['darkvision 60 ft.'])
 
 const { response: invalidExpertiseResponse } = await request(
   `/rest/v1/characters?id=eq.${characterId}`,
@@ -212,6 +235,16 @@ const { response: invalidConditionResponse } = await request(
 )
 assert.equal(invalidConditionResponse.status, 400)
 
+const { response: invalidSizeResponse } = await request(
+  `/rest/v1/characters?id=eq.${characterId}`,
+  {
+    token: owner.token,
+    method: 'PATCH',
+    body: { size: 'planetary' },
+  },
+)
+assert.equal(invalidSizeResponse.status, 400)
+
 const { data: partyCharacters, response: partyCharactersResponse } =
   await request(
     `/rest/v1/characters?campaign_id=eq.${campaignId}&select=id,name,saving_throw_proficiencies,skill_proficiencies,skill_expertise,speed,temporary_hp,hit_die_size,hit_dice_total,hit_dice_remaining,death_save_successes,death_save_failures,exhaustion,inspiration,conditions`,
@@ -235,6 +268,23 @@ assert.deepEqual(partyCharacters, [
     exhaustion: 1,
     inspiration: true,
     conditions: ['poisoned', 'prone'],
+  },
+])
+
+const { data: partyCharacterDetails, response: partyDetailsResponse } =
+  await request(
+    `/rest/v1/characters?id=eq.${characterId}&select=pronouns,size,appearance,biography,languages,senses`,
+    { token: outsider.token },
+  )
+assert.equal(partyDetailsResponse.status, 200)
+assert.deepEqual(partyCharacterDetails, [
+  {
+    pronouns: 'she/her',
+    size: 'medium',
+    appearance: 'A weathered traveler in a green cloak.',
+    biography: 'Ember left home to find the vanished royal cartographer.',
+    languages: ['Common', 'Elvish'],
+    senses: ['darkvision 60 ft.'],
   },
 ])
 

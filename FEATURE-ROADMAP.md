@@ -94,6 +94,21 @@ This is the source-of-truth checklist for the entire application. Completed work
 
 ## 7. Character system
 
+### Character workspace and responsive sheet
+
+- [ ] Four-tab character workspace: Quick View, Details, Abilities & Spells, and Memory.
+- [ ] Desktop Quick View optimized as a dense one-viewport play dashboard with minimal scrolling.
+- [ ] Responsive Quick View that converts dense desktop regions into readable collapsible cards on smaller screens.
+- [ ] Quick View portrait, identity, class summary, health, defenses, movement, initiative, proficiency, abilities, saves, skills, passive senses, conditions, inspiration, exhaustion, death saves, equipped actions, resources, languages, and proficiencies.
+- [ ] Details tab for age, height, weight, eyes, hair, skin, size, alignment, pronouns, appearance, biography, personality traits, ideals, bonds, flaws, allies, organizations, enemies, relationships, languages, senses, movement modes, and long-form descriptions.
+- [ ] Rules-aware carrying-capacity explanation derived from Strength, size, system/version, optional encumbrance rules, and traits such as Powerful Build—not from class.
+- [ ] Adaptive Abilities & Spells tab covering ancestry/species, background, class and subclass features, feats, passive effects, limited resources, and complete spellcasting; non-spellcasters must not receive an empty spell layout.
+- [ ] Spell presentation grouped by cantrips and spell level with known/prepared state, slots, pact slots, concentration, rituals, components, range, duration, favorites, and frequently used actions.
+- [ ] Memory tab combining player notes, inventory/equipment history, NPCs met, locations visited, discoveries, objectives, and character-specific session history.
+- [ ] Searchable, filterable, tagged, and pinnable memories with source campaign/session, real timestamp, in-world timestamp, location, related entities, log source, and optional player annotation.
+- [ ] Structured character events for item gain/transfer/use/loss, relationships, travel, discoveries, damage, healing, rests, conditions, rolls, and major actions instead of reconstructing history from plain prose.
+- [ ] Human-readable memory summaries generated from structured events while retaining trustworthy provenance.
+
 - [x] Quick manual character creation.
 - [x] Identity, ancestry, class, subclass, background, level, HP, AC, abilities, and notes.
 - [x] Campaign assignment and read-only party visibility.

@@ -138,6 +138,20 @@ This roadmap translates the play-screen sketch and the proven V5 foundations int
 
 ## Phase 4 — Complete character system
 
+### Character workspace and sheet information architecture
+
+- [ ] Four-tab character workspace: Quick View, Details, Abilities & Spells, and Memory.
+- [ ] Desktop Quick View fits the most important play information into one dense, readable viewport with minimal scrolling.
+- [ ] Responsive layouts preserve readability by turning dense regions into collapsible cards rather than shrinking controls.
+- [ ] Quick View includes portrait and identity, class summary, HP/temporary HP, AC, speed, initiative, proficiency, abilities, saves, skills, passive senses, inspiration, exhaustion, death saves, conditions, equipped actions, resources, languages, and proficiencies.
+- [ ] Details includes physical description, age, height, weight, eyes, hair, skin, size, alignment, pronouns, biography, personality traits, ideals, bonds, flaws, allies, organizations, enemies, relationships, senses, movement modes, languages, and long-form descriptions.
+- [ ] Carry, push, drag, and lift descriptions derive from Strength, size, configured rules/version, optional encumbrance, and character traits; class must not be treated as a carrying-capacity input.
+- [ ] Abilities & Spells adapts to each character and groups ancestry/species, background, class/subclass, feat, passive, and limited-use features without showing empty spell UI to non-spellcasters.
+- [ ] Spellcasters receive ability, attack bonus, save DC, cantrips, spells by level, known/prepared state, slots, pact slots, concentration, ritual, component, range, duration, favorite, and frequent-action views.
+- [ ] Memory combines private notes, current inventory, equipment history, NPCs, locations, objectives, discoveries, and character-specific session history.
+- [ ] Memory supports search, filters, tags, pins, annotations, and provenance linking campaign, session, real time, in-world time, location, entities, and original log event.
+- [ ] Structured events capture item gain/transfer/use/loss, meetings, travel, discoveries, damage, healing, rests, conditions, rolls, and major actions; readable memories are generated from those events rather than inferred from unstructured prose.
+
 ### Character data
 
 - [x] Skills and saving-throw proficiencies.
