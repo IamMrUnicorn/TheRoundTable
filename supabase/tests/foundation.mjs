@@ -298,6 +298,47 @@ const { data: forbiddenWorldUpdate, response: forbiddenWorldUpdateResponse } = a
 assert.equal(forbiddenWorldUpdateResponse.status, 200)
 assert.deepEqual(forbiddenWorldUpdate, [])
 
+const { data: inventoryRows, response: inventoryResponse } = await request('/rest/v1/campaign_inventory_items', {
+  token: invitee.token,
+  method: 'POST',
+  body: { campaign_id: campaignId, created_by: invitee.id, name: 'Greater healing potion', quantity: 2, category: 'consumable', holder: 'Party bag' },
+})
+assert.equal(inventoryResponse.status, 201)
+
+const { data: updatedInventory, response: updatedInventoryResponse } = await request(`/rest/v1/campaign_inventory_items?id=eq.${inventoryRows[0].id}`, {
+  token: owner.token,
+  method: 'PATCH',
+  body: { quantity: 1 },
+})
+assert.equal(updatedInventoryResponse.status, 200)
+assert.equal(updatedInventory[0].quantity, 1)
+
+const { data: publicTaskRows, response: publicTaskResponse } = await request('/rest/v1/campaign_tasks', {
+  token: invitee.token,
+  method: 'POST',
+  body: { campaign_id: campaignId, created_by: invitee.id, assigned_to: invitee.id, title: 'Buy climbing supplies', category: 'preparation' },
+})
+assert.equal(publicTaskResponse.status, 201)
+
+const { response: secretTaskResponse } = await request('/rest/v1/campaign_tasks', {
+  token: outsider.token,
+  method: 'POST',
+  body: { campaign_id: campaignId, created_by: outsider.id, title: 'Prepare the ambush', category: 'preparation', is_gm_only: true },
+})
+assert.equal(secretTaskResponse.status, 201)
+
+const { data: memberTasks, response: memberTasksResponse } = await request(`/rest/v1/campaign_tasks?campaign_id=eq.${campaignId}&select=title,is_gm_only`, { token: invitee.token })
+assert.equal(memberTasksResponse.status, 200)
+assert.deepEqual(memberTasks, [{ title: 'Buy climbing supplies', is_gm_only: false }])
+
+const { data: completedTask, response: completedTaskResponse } = await request(`/rest/v1/campaign_tasks?id=eq.${publicTaskRows[0].id}`, {
+  token: invitee.token,
+  method: 'PATCH',
+  body: { status: 'done' },
+})
+assert.equal(completedTaskResponse.status, 200)
+assert.equal(completedTask[0].status, 'done')
+
 const { data: ownerNotifications, response: ownerNotificationsResponse } = await request('/rest/v1/notifications?select=kind,title&order=created_at.asc', { token: owner.token })
 assert.equal(ownerNotificationsResponse.status, 200)
 assert.ok(ownerNotifications.some((item) => item.kind === 'session_proposed'))

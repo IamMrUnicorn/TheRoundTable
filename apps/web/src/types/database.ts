@@ -260,6 +260,63 @@ export type Database = {
           },
         ]
       }
+      campaign_inventory_items: {
+        Row: {
+          campaign_id: number
+          category: string
+          created_at: string
+          created_by: string
+          description: string
+          holder: string
+          id: number
+          name: string
+          quantity: number
+          unit: string
+          updated_at: string
+        }
+        Insert: {
+          campaign_id: number
+          category?: string
+          created_at?: string
+          created_by: string
+          description?: string
+          holder?: string
+          id?: never
+          name: string
+          quantity?: number
+          unit?: string
+          updated_at?: string
+        }
+        Update: {
+          campaign_id?: number
+          category?: string
+          created_at?: string
+          created_by?: string
+          description?: string
+          holder?: string
+          id?: never
+          name?: string
+          quantity?: number
+          unit?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'campaign_inventory_items_campaign_id_fkey'
+            columns: ['campaign_id']
+            isOneToOne: false
+            referencedRelation: 'campaigns'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'campaign_inventory_items_created_by_fkey'
+            columns: ['created_by']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       campaign_invitations: {
         Row: {
           campaign_id: number
@@ -406,6 +463,73 @@ export type Database = {
           },
           {
             foreignKeyName: 'campaign_objectives_created_by_fkey'
+            columns: ['created_by']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      campaign_tasks: {
+        Row: {
+          assigned_to: string | null
+          campaign_id: number
+          category: string
+          created_at: string
+          created_by: string
+          description: string
+          due_at: string | null
+          id: number
+          is_gm_only: boolean
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          campaign_id: number
+          category?: string
+          created_at?: string
+          created_by: string
+          description?: string
+          due_at?: string | null
+          id?: never
+          is_gm_only?: boolean
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          campaign_id?: number
+          category?: string
+          created_at?: string
+          created_by?: string
+          description?: string
+          due_at?: string | null
+          id?: never
+          is_gm_only?: boolean
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'campaign_tasks_assigned_to_fkey'
+            columns: ['assigned_to']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'campaign_tasks_campaign_id_fkey'
+            columns: ['campaign_id']
+            isOneToOne: false
+            referencedRelation: 'campaigns'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'campaign_tasks_created_by_fkey'
             columns: ['created_by']
             isOneToOne: false
             referencedRelation: 'profiles'

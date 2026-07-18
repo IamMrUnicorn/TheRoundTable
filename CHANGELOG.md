@@ -31,6 +31,9 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 - Added persistent campaign world state covering current location, in-world date/time, weather, public story context, and a physically separate Game Master secret state.
 - Added a quest and objective board with priorities, active/completed/failed/abandoned lifecycles, public and GM-only objectives, and manager controls.
 - Added responsive world/objective interfaces plus multi-user RLS coverage proving members can read public story state but cannot mutate it or retrieve Game Master secrets.
+- Added collaborative party inventory with categories, quantities, units, holders, descriptions, and quick increment/decrement controls.
+- Added preparation and downtime task tracking with member assignment, optional deadlines, to-do/in-progress/done states, and Game Master-only tasks.
+- Added responsive logistics interfaces and multi-user authorization tests covering shared inventory changes, hidden tasks, assignment, and task completion.
 - Added an atomic invitation-response database workflow that validates the authenticated email, prevents expired or reused invitations, and creates campaign membership on acceptance.
 - Added least-privilege grants, Row Level Security, supporting indexes, and three-user integration coverage for the complete invitation lifecycle.
 - Added player-owned characters with optional campaign assignment.

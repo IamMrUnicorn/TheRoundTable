@@ -25,6 +25,7 @@ import {
 } from '../features/campaigns/campaigns'
 import { listCampaignCharacters } from '../features/characters/characters'
 import { CampaignKnowledgePanel } from '../features/knowledge/CampaignKnowledgePanel'
+import { CampaignLogisticsPanel } from '../features/logistics/CampaignLogisticsPanel'
 import { CampaignStoryPanel } from '../features/story/CampaignStoryPanel'
 import {
   cancelCampaignInvitation,
@@ -346,6 +347,13 @@ export function CampaignPage() {
                 <CampaignStoryPanel
                   campaignId={campaignId}
                   isManager={isManager}
+                  userId={identity!.id}
+                />
+
+                <CampaignLogisticsPanel
+                  campaignId={campaignId}
+                  isManager={isManager}
+                  members={campaign.data.campaign_members}
                   userId={identity!.id}
                 />
 

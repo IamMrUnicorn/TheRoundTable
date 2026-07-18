@@ -74,11 +74,11 @@ This is the source-of-truth checklist for the entire application. Completed work
 - [x] Announcements and pinned resources.
 - [x] Shared handouts and campaign notes.
 - [x] Private Game Master notes.
-- [ ] Current quests, objectives, and party inventory. *(Quest and objective tracking complete; party inventory pending.)*
+- [x] Current quests, objectives, and party inventory.
 - [x] Campaign calendar and session history.
 - [x] Current location, in-world date/time, weather, and world state.
 - [ ] NPC, faction, and location references.
-- [ ] Downtime activities and preparation checklist.
+- [x] Downtime activities and preparation checklist.
 - [ ] Campaign activity feed.
 
 ## 6. Invitations and notifications
