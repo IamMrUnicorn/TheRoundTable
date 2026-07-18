@@ -339,6 +339,14 @@ const { data: completedTask, response: completedTaskResponse } = await request(`
 assert.equal(completedTaskResponse.status, 200)
 assert.equal(completedTask[0].status, 'done')
 
+const { response: publicReferenceResponse } = await request('/rest/v1/campaign_references', { token: outsider.token, method: 'POST', body: { campaign_id: campaignId, created_by: outsider.id, kind: 'npc', name: 'Archivist Nera', summary: 'Keeper of the tide charts', tags: ['ally', 'scholar'] } })
+assert.equal(publicReferenceResponse.status, 201)
+const { response: secretReferenceResponse } = await request('/rest/v1/campaign_references', { token: outsider.token, method: 'POST', body: { campaign_id: campaignId, created_by: outsider.id, kind: 'location', name: 'Leviathan Vault', is_secret: true } })
+assert.equal(secretReferenceResponse.status, 201)
+const { data: memberReferences, response: memberReferencesResponse } = await request(`/rest/v1/campaign_references?campaign_id=eq.${campaignId}&select=name,is_secret`, { token: invitee.token })
+assert.equal(memberReferencesResponse.status, 200)
+assert.deepEqual(memberReferences, [{ name: 'Archivist Nera', is_secret: false }])
+
 const { data: ownerNotifications, response: ownerNotificationsResponse } = await request('/rest/v1/notifications?select=kind,title&order=created_at.asc', { token: owner.token })
 assert.equal(ownerNotificationsResponse.status, 200)
 assert.ok(ownerNotifications.some((item) => item.kind === 'session_proposed'))

@@ -77,7 +77,7 @@ This is the source-of-truth checklist for the entire application. Completed work
 - [x] Current quests, objectives, and party inventory.
 - [x] Campaign calendar and session history.
 - [x] Current location, in-world date/time, weather, and world state.
-- [ ] NPC, faction, and location references.
+- [x] NPC, faction, and location references.
 - [x] Downtime activities and preparation checklist.
 - [ ] Campaign activity feed.
 

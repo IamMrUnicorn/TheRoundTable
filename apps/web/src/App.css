@@ -1379,6 +1379,112 @@ button:disabled {
   font-size: 0.62rem;
   text-transform: capitalize;
 }
+.references-section {
+  margin-top: 3rem;
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  background: linear-gradient(145deg, #17211f, #111817);
+}
+.references-section > .section-heading svg {
+  color: var(--gold);
+}
+.reference-form {
+  display: grid;
+  grid-template-columns: 10rem 1fr 12rem;
+  gap: 0.6rem;
+}
+.reference-form input,
+.reference-form select,
+.reference-form textarea,
+.reference-tools input,
+.reference-tools select,
+.reference-actions input {
+  border: 1px solid var(--line);
+  border-radius: 0.6rem;
+  padding: 0.7rem;
+  background: #101817;
+  color: var(--ink);
+}
+.reference-form textarea {
+  grid-column: 1 / -1;
+  resize: vertical;
+}
+.reference-form label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+.reference-form button {
+  grid-column: 3;
+}
+.reference-tools {
+  display: flex;
+  gap: 0.6rem;
+  margin: 1.5rem 0 1rem;
+}
+.reference-tools label {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 0.4rem;
+  border: 1px solid var(--line);
+  border-radius: 0.6rem;
+  padding-left: 0.7rem;
+  color: var(--muted);
+  background: #101817;
+}
+.reference-tools label input {
+  width: 100%;
+  border: 0;
+}
+.reference-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.7rem;
+}
+.reference-list article {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+  padding: 0.9rem;
+  background: #101817;
+}
+.reference-list h3,
+.reference-list p {
+  margin: 0;
+}
+.reference-list p {
+  color: var(--muted);
+  white-space: pre-wrap;
+}
+.reference-meta,
+.reference-tags,
+.reference-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+.reference-meta span,
+.reference-tags span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.23rem 0.42rem;
+  color: var(--muted);
+  font-size: 0.62rem;
+  text-transform: capitalize;
+}
+.reference-actions {
+  margin-top: auto;
+}
 .task-actions {
   margin-top: auto;
 }
@@ -1776,6 +1882,17 @@ button:disabled {
   .task-form,
   .task-list {
     grid-template-columns: 1fr;
+  }
+  .reference-form,
+  .reference-list {
+    grid-template-columns: 1fr;
+  }
+  .reference-form textarea,
+  .reference-form button {
+    grid-column: auto;
+  }
+  .reference-tools {
+    flex-direction: column;
   }
   .inventory-form > input:nth-of-type(5),
   .inventory-form > button,

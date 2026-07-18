@@ -34,6 +34,8 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 - Added collaborative party inventory with categories, quantities, units, holders, descriptions, and quick increment/decrement controls.
 - Added preparation and downtime task tracking with member assignment, optional deadlines, to-do/in-progress/done states, and Game Master-only tasks.
 - Added responsive logistics interfaces and multi-user authorization tests covering shared inventory changes, hidden tasks, assignment, and task completion.
+- Added a searchable campaign encyclopedia for NPCs, factions, and locations with summaries, detailed notes, statuses, tags, type filters, and GM-only secret entries.
+- Added manager creation, status editing, deletion controls, responsive reference cards, indexed queries, explicit grants, and RLS tests proving secret references remain hidden from party members.
 - Added an atomic invitation-response database workflow that validates the authenticated email, prevents expired or reused invitations, and creates campaign membership on acceptance.
 - Added least-privilege grants, Row Level Security, supporting indexes, and three-user integration coverage for the complete invitation lifecycle.
 - Added player-owned characters with optional campaign assignment.

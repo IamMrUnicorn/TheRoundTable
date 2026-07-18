@@ -233,6 +233,22 @@ create table public.campaign_tasks (
   updated_at timestamptz not null default now()
 );
 
+create table public.campaign_references (
+  id bigint generated always as identity primary key,
+  campaign_id bigint not null references public.campaigns (id) on delete cascade,
+  created_by uuid not null references public.profiles (id) on delete restrict,
+  kind text not null check (kind in ('npc', 'faction', 'location')),
+  name text not null check (char_length(name) between 1 and 160),
+  summary text not null default '' check (char_length(summary) <= 1000),
+  details text not null default '' check (char_length(details) <= 10000),
+  status text not null default 'active' check (char_length(status) between 1 and 80),
+  tags text[] not null default '{}',
+  is_secret boolean not null default false,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  check (cardinality(tags) <= 20)
+);
+
 create index campaigns_owner_id_idx on public.campaigns (owner_id);
 create index campaign_members_user_id_status_idx
   on public.campaign_members (user_id, status);
@@ -265,6 +281,8 @@ create index campaign_inventory_items_created_by_idx on public.campaign_inventor
 create index campaign_tasks_campaign_status_idx on public.campaign_tasks (campaign_id, status, category, due_at);
 create index campaign_tasks_created_by_idx on public.campaign_tasks (created_by);
 create index campaign_tasks_assigned_to_idx on public.campaign_tasks (assigned_to) where assigned_to is not null;
+create index campaign_references_campaign_kind_idx on public.campaign_references (campaign_id, kind, name);
+create index campaign_references_created_by_idx on public.campaign_references (created_by);
 
 create function private.set_updated_at()
 returns trigger
@@ -304,6 +322,7 @@ create trigger campaign_gm_states_set_updated_at before update on public.campaig
 create trigger campaign_objectives_set_updated_at before update on public.campaign_objectives for each row execute function private.set_updated_at();
 create trigger campaign_inventory_items_set_updated_at before update on public.campaign_inventory_items for each row execute function private.set_updated_at();
 create trigger campaign_tasks_set_updated_at before update on public.campaign_tasks for each row execute function private.set_updated_at();
+create trigger campaign_references_set_updated_at before update on public.campaign_references for each row execute function private.set_updated_at();
 
 create function private.notify_campaign_announcement()
 returns trigger language plpgsql security definer set search_path = '' as $$
@@ -560,6 +579,7 @@ alter table public.campaign_gm_states enable row level security;
 alter table public.campaign_objectives enable row level security;
 alter table public.campaign_inventory_items enable row level security;
 alter table public.campaign_tasks enable row level security;
+alter table public.campaign_references enable row level security;
 
 create policy profiles_select_own
 on public.profiles for select
@@ -760,6 +780,15 @@ with check ((select private.is_campaign_member(campaign_id)) and (not is_gm_only
 create policy campaign_tasks_delete_author_or_manager on public.campaign_tasks for delete to authenticated
 using (created_by = (select auth.uid()) or (select private.is_campaign_manager(campaign_id)));
 
+create policy campaign_references_select_allowed on public.campaign_references for select to authenticated
+using ((select private.is_campaign_member(campaign_id)) and (not is_secret or (select private.is_campaign_manager(campaign_id))));
+create policy campaign_references_insert_managers on public.campaign_references for insert to authenticated
+with check (created_by = (select auth.uid()) and (select private.is_campaign_manager(campaign_id)));
+create policy campaign_references_update_managers on public.campaign_references for update to authenticated
+using ((select private.is_campaign_manager(campaign_id))) with check ((select private.is_campaign_manager(campaign_id)));
+create policy campaign_references_delete_managers on public.campaign_references for delete to authenticated
+using ((select private.is_campaign_manager(campaign_id)));
+
 grant usage on schema public to authenticated;
 revoke all on table public.profiles from anon, authenticated;
 revoke all on table public.campaigns from anon, authenticated;
@@ -772,6 +801,7 @@ revoke all on table public.campaign_invitations from anon, authenticated;
 revoke all on table public.campaign_documents from anon, authenticated;
 revoke all on table public.campaign_world_states, public.campaign_gm_states, public.campaign_objectives from anon, authenticated;
 revoke all on table public.campaign_inventory_items, public.campaign_tasks from anon, authenticated;
+revoke all on table public.campaign_references from anon, authenticated;
 revoke all on sequence public.campaigns_id_seq from anon, authenticated;
 revoke all on sequence public.characters_id_seq from anon, authenticated;
 revoke all on sequence public.availability_rules_id_seq, public.availability_exceptions_id_seq, public.sessions_id_seq from anon, authenticated;
@@ -781,6 +811,7 @@ revoke all on sequence public.campaign_invitations_id_seq from anon, authenticat
 revoke all on sequence public.campaign_documents_id_seq from anon, authenticated;
 revoke all on sequence public.campaign_objectives_id_seq from anon, authenticated;
 revoke all on sequence public.campaign_inventory_items_id_seq, public.campaign_tasks_id_seq from anon, authenticated;
+revoke all on sequence public.campaign_references_id_seq from anon, authenticated;
 grant select, update on table public.profiles to authenticated;
 grant select, insert, update, delete on table public.campaigns to authenticated;
 grant select, insert, update, delete on table public.campaign_members to authenticated;
@@ -792,10 +823,12 @@ grant select, insert, update, delete on table public.campaign_invitations to aut
 grant select, insert, update, delete on table public.campaign_documents to authenticated;
 grant select, insert, update, delete on table public.campaign_world_states, public.campaign_gm_states, public.campaign_objectives to authenticated;
 grant select, insert, update, delete on table public.campaign_inventory_items, public.campaign_tasks to authenticated;
+grant select, insert, update, delete on table public.campaign_references to authenticated;
 grant usage, select on sequence public.campaign_invitations_id_seq to authenticated;
 grant usage, select on sequence public.campaign_documents_id_seq to authenticated;
 grant usage, select on sequence public.campaign_objectives_id_seq to authenticated;
 grant usage, select on sequence public.campaign_inventory_items_id_seq, public.campaign_tasks_id_seq to authenticated;
+grant usage, select on sequence public.campaign_references_id_seq to authenticated;
 grant usage, select on sequence public.campaigns_id_seq to authenticated;
 grant usage, select on sequence public.characters_id_seq to authenticated;
 grant usage, select on sequence public.availability_rules_id_seq, public.availability_exceptions_id_seq, public.sessions_id_seq to authenticated;
