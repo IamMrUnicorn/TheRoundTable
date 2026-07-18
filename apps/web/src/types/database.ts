@@ -116,6 +116,54 @@ export type Database = {
           },
         ]
       }
+      campaign_announcements: {
+        Row: {
+          author_id: string
+          body: string
+          campaign_id: number
+          created_at: string
+          id: number
+          is_pinned: boolean
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author_id: string
+          body: string
+          campaign_id: number
+          created_at?: string
+          id?: never
+          is_pinned?: boolean
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string
+          body?: string
+          campaign_id?: number
+          created_at?: string
+          id?: never
+          is_pinned?: boolean
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'campaign_announcements_author_id_fkey'
+            columns: ['author_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'campaign_announcements_campaign_id_fkey'
+            columns: ['campaign_id']
+            isOneToOne: false
+            referencedRelation: 'campaigns'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       campaign_members: {
         Row: {
           campaign_id: number

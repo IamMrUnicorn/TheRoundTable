@@ -162,3 +162,39 @@ export async function removeCampaignMember(campaignId: number, userId: string) {
     .eq('user_id', userId)
   if (error) throw error
 }
+
+export async function listAnnouncements(campaignId: number) {
+  const { data, error } = await supabase
+    .from('campaign_announcements')
+    .select('*, profiles(display_name)')
+    .eq('campaign_id', campaignId)
+    .order('is_pinned', { ascending: false })
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return data
+}
+
+export async function createAnnouncement(input: {
+  authorId: string
+  body: string
+  campaignId: number
+  isPinned: boolean
+  title: string
+}) {
+  const { error } = await supabase.from('campaign_announcements').insert({
+    author_id: input.authorId,
+    body: input.body.trim(),
+    campaign_id: input.campaignId,
+    is_pinned: input.isPinned,
+    title: input.title.trim(),
+  })
+  if (error) throw error
+}
+
+export async function deleteAnnouncement(id: number) {
+  const { error } = await supabase
+    .from('campaign_announcements')
+    .delete()
+    .eq('id', id)
+  if (error) throw error
+}

@@ -180,6 +180,18 @@ const { response: attendanceResponse } = await request('/rest/v1/session_attenda
 })
 assert.equal(attendanceResponse.status, 201)
 
+const { data: announcementRows, response: announcementResponse } = await request('/rest/v1/campaign_announcements', {
+  token: outsider.token,
+  method: 'POST',
+  body: { campaign_id: campaignId, author_id: outsider.id, title: 'Session update', body: 'Bring your characters.', is_pinned: true },
+})
+assert.equal(announcementResponse.status, 201)
+assert.equal(announcementRows[0].is_pinned, true)
+
+const { data: visibleAnnouncements, response: visibleAnnouncementsResponse } = await request(`/rest/v1/campaign_announcements?campaign_id=eq.${campaignId}&select=title`, { token: owner.token })
+assert.equal(visibleAnnouncementsResponse.status, 200)
+assert.deepEqual(visibleAnnouncements, [{ title: 'Session update' }])
+
 const { data: forbiddenUpdate, response: forbiddenUpdateResponse } =
   await request(`/rest/v1/characters?id=eq.${characterId}`, {
     token: outsider.token,

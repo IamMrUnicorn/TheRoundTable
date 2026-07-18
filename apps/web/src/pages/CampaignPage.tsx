@@ -13,6 +13,9 @@ import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '../features/auth/auth-context'
 import {
   getCampaign,
+  createAnnouncement,
+  deleteAnnouncement,
+  listAnnouncements,
   removeCampaignMember,
   rotateInviteCode,
   updateCampaignSettings,
@@ -34,6 +37,11 @@ export function CampaignPage() {
     preferredSessionMinutes: 180,
     status: 'forming',
   })
+  const [announcement, setAnnouncement] = useState({
+    title: '',
+    body: '',
+    isPinned: false,
+  })
   const campaign = useQuery({
     queryKey: ['campaign', campaignId],
     queryFn: () => getCampaign(campaignId),
@@ -43,6 +51,11 @@ export function CampaignPage() {
     queryKey: ['campaign-characters', campaignId],
     queryFn: () => listCampaignCharacters(campaignId),
     enabled: Number.isSafeInteger(campaignId) && campaignId > 0,
+  })
+  const announcements = useQuery({
+    queryKey: ['announcements', campaignId],
+    queryFn: () => listAnnouncements(campaignId),
+    enabled: campaignId > 0,
   })
   useEffect(() => {
     if (campaign.data)
@@ -81,6 +94,29 @@ export function CampaignPage() {
       navigate('/')
     },
   })
+  const publishAnnouncement = useMutation({
+    mutationFn: () =>
+      createAnnouncement({
+        authorId: identity!.id,
+        body: announcement.body,
+        campaignId,
+        isPinned: announcement.isPinned,
+        title: announcement.title,
+      }),
+    onSuccess: async () => {
+      setAnnouncement({ title: '', body: '', isPinned: false })
+      await queryClient.invalidateQueries({
+        queryKey: ['announcements', campaignId],
+      })
+    },
+  })
+  const removeAnnouncement = useMutation({
+    mutationFn: deleteAnnouncement,
+    onSuccess: () =>
+      queryClient.invalidateQueries({
+        queryKey: ['announcements', campaignId],
+      }),
+  })
 
   if (!Number.isSafeInteger(campaignId) || campaignId < 1) {
     return <Navigate to="/" replace />
@@ -115,6 +151,11 @@ export function CampaignPage() {
         {campaign.data &&
           (() => {
             const isOwner = campaign.data.owner_id === identity?.id
+            const currentMembership = campaign.data.campaign_members.find(
+              (member) => member.user_id === identity?.id,
+            )
+            const isManager =
+              isOwner || currentMembership?.role === 'game_master'
             return (
               <>
                 <section className="campaign-hero">
@@ -148,6 +189,94 @@ export function CampaignPage() {
                         Rotate code
                       </button>
                     )}
+                  </div>
+                </section>
+
+                <section className="announcements-section">
+                  <div className="section-heading">
+                    <div>
+                      <p className="eyebrow">Campaign news</p>
+                      <h2>Announcements</h2>
+                    </div>
+                  </div>
+                  {isManager && (
+                    <form
+                      className="announcement-form"
+                      onSubmit={(event: FormEvent) => {
+                        event.preventDefault()
+                        publishAnnouncement.mutate()
+                      }}
+                    >
+                      <input
+                        required
+                        maxLength={160}
+                        placeholder="Announcement title"
+                        value={announcement.title}
+                        onChange={(event) =>
+                          setAnnouncement({
+                            ...announcement,
+                            title: event.target.value,
+                          })
+                        }
+                      />
+                      <textarea
+                        required
+                        maxLength={5000}
+                        rows={3}
+                        placeholder="What should the party know?"
+                        value={announcement.body}
+                        onChange={(event) =>
+                          setAnnouncement({
+                            ...announcement,
+                            body: event.target.value,
+                          })
+                        }
+                      />
+                      <label>
+                        <input
+                          type="checkbox"
+                          checked={announcement.isPinned}
+                          onChange={(event) =>
+                            setAnnouncement({
+                              ...announcement,
+                              isPinned: event.target.checked,
+                            })
+                          }
+                        />{' '}
+                        Pin this announcement
+                      </label>
+                      <button disabled={publishAnnouncement.isPending}>
+                        Publish
+                      </button>
+                    </form>
+                  )}
+                  <div className="announcement-list">
+                    {announcements.data?.map((item) => (
+                      <article key={item.id}>
+                        <div className="campaign-card-meta">
+                          <span>
+                            {item.is_pinned ? 'Pinned' : 'Announcement'}
+                          </span>
+                          <span>
+                            {new Date(item.created_at).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <h3>{item.title}</h3>
+                        <p>{item.body}</p>
+                        <small>
+                          Posted by{' '}
+                          {item.profiles?.display_name ?? 'Game Master'}
+                        </small>
+                        {isManager && (
+                          <button
+                            className="danger-button"
+                            onClick={() => removeAnnouncement.mutate(item.id)}
+                          >
+                            Delete
+                          </button>
+                        )}
+                      </article>
+                    ))}
                   </div>
                 </section>
 

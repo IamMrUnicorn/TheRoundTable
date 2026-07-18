@@ -121,6 +121,17 @@ create table public.session_attendance (
   primary key (session_id, user_id)
 );
 
+create table public.campaign_announcements (
+  id bigint generated always as identity primary key,
+  campaign_id bigint not null references public.campaigns (id) on delete cascade,
+  author_id uuid not null references public.profiles (id) on delete restrict,
+  title text not null check (char_length(title) between 1 and 160),
+  body text not null check (char_length(body) between 1 and 5000),
+  is_pinned boolean not null default false,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
 create index campaigns_owner_id_idx on public.campaigns (owner_id);
 create index campaign_members_user_id_status_idx
   on public.campaign_members (user_id, status);
@@ -133,6 +144,8 @@ create index availability_exceptions_user_id_idx on public.availability_exceptio
 create index sessions_campaign_starts_at_idx on public.sessions (campaign_id, starts_at);
 create index sessions_created_by_idx on public.sessions (created_by);
 create index session_attendance_user_id_idx on public.session_attendance (user_id);
+create index campaign_announcements_campaign_pinned_idx on public.campaign_announcements (campaign_id, is_pinned desc, created_at desc);
+create index campaign_announcements_author_id_idx on public.campaign_announcements (author_id);
 
 create function private.set_updated_at()
 returns trigger
@@ -165,6 +178,7 @@ create trigger availability_rules_set_updated_at before update on public.availab
 create trigger availability_exceptions_set_updated_at before update on public.availability_exceptions for each row execute function private.set_updated_at();
 create trigger sessions_set_updated_at before update on public.sessions for each row execute function private.set_updated_at();
 create trigger session_attendance_set_updated_at before update on public.session_attendance for each row execute function private.set_updated_at();
+create trigger campaign_announcements_set_updated_at before update on public.campaign_announcements for each row execute function private.set_updated_at();
 
 create function private.add_campaign_owner_as_member()
 returns trigger
@@ -348,6 +362,7 @@ alter table public.availability_rules enable row level security;
 alter table public.availability_exceptions enable row level security;
 alter table public.sessions enable row level security;
 alter table public.session_attendance enable row level security;
+alter table public.campaign_announcements enable row level security;
 
 create policy profiles_select_own
 on public.profiles for select
@@ -474,20 +489,29 @@ create policy attendance_insert_own on public.session_attendance for insert to a
 create policy attendance_update_own on public.session_attendance for update to authenticated using (user_id = (select auth.uid())) with check (user_id = (select auth.uid()));
 create policy attendance_delete_own_or_manager on public.session_attendance for delete to authenticated using (user_id = (select auth.uid()) or exists (select 1 from public.sessions where id = session_id and (select private.is_campaign_manager(campaign_id))));
 
+create policy announcements_select_members on public.campaign_announcements for select to authenticated using ((select private.is_campaign_member(campaign_id)));
+create policy announcements_insert_managers on public.campaign_announcements for insert to authenticated with check (author_id = (select auth.uid()) and (select private.is_campaign_manager(campaign_id)));
+create policy announcements_update_managers on public.campaign_announcements for update to authenticated using ((select private.is_campaign_manager(campaign_id))) with check ((select private.is_campaign_manager(campaign_id)));
+create policy announcements_delete_managers on public.campaign_announcements for delete to authenticated using ((select private.is_campaign_manager(campaign_id)));
+
 grant usage on schema public to authenticated;
 revoke all on table public.profiles from anon, authenticated;
 revoke all on table public.campaigns from anon, authenticated;
 revoke all on table public.campaign_members from anon, authenticated;
 revoke all on table public.characters from anon, authenticated;
 revoke all on table public.availability_rules, public.availability_exceptions, public.sessions, public.session_attendance from anon, authenticated;
+revoke all on table public.campaign_announcements from anon, authenticated;
 revoke all on sequence public.campaigns_id_seq from anon, authenticated;
 revoke all on sequence public.characters_id_seq from anon, authenticated;
 revoke all on sequence public.availability_rules_id_seq, public.availability_exceptions_id_seq, public.sessions_id_seq from anon, authenticated;
+revoke all on sequence public.campaign_announcements_id_seq from anon, authenticated;
 grant select, update on table public.profiles to authenticated;
 grant select, insert, update, delete on table public.campaigns to authenticated;
 grant select, insert, update, delete on table public.campaign_members to authenticated;
 grant select, insert, update, delete on table public.characters to authenticated;
 grant select, insert, update, delete on table public.availability_rules, public.availability_exceptions, public.sessions, public.session_attendance to authenticated;
+grant select, insert, update, delete on table public.campaign_announcements to authenticated;
 grant usage, select on sequence public.campaigns_id_seq to authenticated;
 grant usage, select on sequence public.characters_id_seq to authenticated;
 grant usage, select on sequence public.availability_rules_id_seq, public.availability_exceptions_id_seq, public.sessions_id_seq to authenticated;
+grant usage, select on sequence public.campaign_announcements_id_seq to authenticated;

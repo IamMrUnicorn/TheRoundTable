@@ -758,6 +758,62 @@ button:disabled {
   margin: 0 auto;
   padding: clamp(3rem, 7vw, 6rem) 0;
 }
+.announcements-section {
+  margin-top: 3rem;
+}
+.announcement-form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  padding: 1rem;
+  background: #151f1d;
+}
+.announcement-form input:not([type='checkbox']),
+.announcement-form textarea {
+  border: 1px solid var(--line);
+  border-radius: 0.6rem;
+  padding: 0.75rem;
+  background: #101817;
+  color: var(--ink);
+}
+.announcement-form textarea {
+  grid-column: 1 / -1;
+}
+.announcement-form label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+.announcement-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.8rem;
+  margin-top: 0.8rem;
+}
+.announcement-list article {
+  display: grid;
+  gap: 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: 0.8rem;
+  padding: 1rem;
+  background: #111817;
+}
+.announcement-list h3,
+.announcement-list p {
+  margin: 0;
+}
+.announcement-list p,
+.announcement-list small {
+  color: var(--muted);
+  line-height: 1.5;
+}
+.announcement-list button {
+  justify-self: start;
+}
 
 .campaign-hero {
   display: flex;
@@ -923,6 +979,13 @@ button:disabled {
 }
 
 @media (max-width: 800px) {
+  .announcement-form,
+  .announcement-list {
+    grid-template-columns: 1fr;
+  }
+  .announcement-form textarea {
+    grid-column: auto;
+  }
   .schedule-grid,
   .schedule-page form {
     grid-template-columns: 1fr;
