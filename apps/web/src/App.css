@@ -1059,6 +1059,101 @@ button:disabled {
   color: var(--muted);
   text-align: center;
 }
+.spellcasting-panel,
+.spell-profile,
+.spell-level-groups {
+  display: grid;
+  gap: 1rem;
+}
+.spellcasting-panel {
+  border-top: 1px solid var(--line);
+  padding-top: 1.5rem;
+}
+.spellcasting-panel h2,
+.spellcasting-panel h3,
+.spellcasting-panel h4 {
+  margin: 0;
+  font-family: var(--font-display);
+}
+.spell-profile-form,
+.spell-create-form {
+  display: grid;
+  grid-template-columns: 2fr 1fr auto;
+  gap: 0.6rem;
+}
+.spell-profile-form input,
+.spell-profile-form select,
+.spell-create-form input,
+.spell-create-form select,
+.spell-slot-grid input {
+  border: 1px solid var(--line);
+  border-radius: 0.55rem;
+  padding: 0.65rem;
+  background: #101817;
+  color: var(--ink);
+}
+.spell-profile {
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  padding: 1rem;
+  background: #151f1d;
+}
+.spell-profile > header,
+.spell-profile > header > div,
+.spell-row,
+.spell-row > div:last-child {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.spell-profile > header {
+  justify-content: space-between;
+}
+.spell-profile > header > div:last-child {
+  color: var(--gold);
+}
+.spell-slot-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+.spell-slot-grid label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+  border: 1px solid var(--line);
+  border-radius: 0.6rem;
+  padding: 0.5rem;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+.spell-slot-grid input {
+  width: 3.2rem;
+  padding: 0.35rem;
+}
+.spell-level-groups > section {
+  display: grid;
+  gap: 0.5rem;
+}
+.spell-row {
+  justify-content: space-between;
+  border: 1px solid var(--line);
+  border-radius: 0.6rem;
+  padding: 0.65rem;
+}
+.spell-row > div:first-child {
+  display: grid;
+}
+.spell-row small,
+.spell-profile header span {
+  color: var(--muted);
+  text-transform: capitalize;
+}
+.spell-row button {
+  min-height: 2rem;
+  padding: 0.3rem 0.55rem;
+}
 .notes-field {
   grid-column: 1 / -1;
 }
@@ -2451,8 +2546,16 @@ button:disabled {
     grid-template-columns: 1fr;
   }
   .feature-create-form,
-  .character-feature-grid {
+  .character-feature-grid,
+  .spell-profile-form,
+  .spell-create-form,
+  .spell-slot-grid {
     grid-template-columns: 1fr;
+  }
+  .spell-profile > header,
+  .spell-row {
+    align-items: stretch;
+    flex-direction: column;
   }
   .notes-field {
     grid-column: auto;

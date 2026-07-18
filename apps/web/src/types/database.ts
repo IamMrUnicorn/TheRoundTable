@@ -760,6 +760,153 @@ export type Database = {
           },
         ]
       }
+      character_spell_slots: {
+        Row: {
+          maximum: number
+          profile_id: number
+          remaining: number
+          spell_level: number
+          updated_at: string
+        }
+        Insert: {
+          maximum: number
+          profile_id: number
+          remaining: number
+          spell_level: number
+          updated_at?: string
+        }
+        Update: {
+          maximum?: number
+          profile_id?: number
+          remaining?: number
+          spell_level?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'character_spell_slots_profile_id_fkey'
+            columns: ['profile_id']
+            isOneToOne: false
+            referencedRelation: 'character_spellcasting_profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      character_spellcasting_profiles: {
+        Row: {
+          character_id: number
+          created_at: string
+          id: number
+          is_pact_magic: boolean
+          max_prepared: number | null
+          name: string
+          preparation_mode: string
+          spell_attack_bonus: number | null
+          spell_save_dc: number | null
+          spellcasting_ability: string
+          updated_at: string
+        }
+        Insert: {
+          character_id: number
+          created_at?: string
+          id?: never
+          is_pact_magic?: boolean
+          max_prepared?: number | null
+          name: string
+          preparation_mode?: string
+          spell_attack_bonus?: number | null
+          spell_save_dc?: number | null
+          spellcasting_ability: string
+          updated_at?: string
+        }
+        Update: {
+          character_id?: number
+          created_at?: string
+          id?: never
+          is_pact_magic?: boolean
+          max_prepared?: number | null
+          name?: string
+          preparation_mode?: string
+          spell_attack_bonus?: number | null
+          spell_save_dc?: number | null
+          spellcasting_ability?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'character_spellcasting_profiles_character_id_fkey'
+            columns: ['character_id']
+            isOneToOne: false
+            referencedRelation: 'characters'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      character_spells: {
+        Row: {
+          casting_time: string
+          components: string
+          created_at: string
+          description: string
+          duration: string
+          id: number
+          is_favorite: boolean
+          is_prepared: boolean
+          is_ritual: boolean
+          name: string
+          profile_id: number
+          range: string
+          requires_concentration: boolean
+          school: string
+          spell_level: number
+          updated_at: string
+        }
+        Insert: {
+          casting_time?: string
+          components?: string
+          created_at?: string
+          description?: string
+          duration?: string
+          id?: never
+          is_favorite?: boolean
+          is_prepared?: boolean
+          is_ritual?: boolean
+          name: string
+          profile_id: number
+          range?: string
+          requires_concentration?: boolean
+          school?: string
+          spell_level: number
+          updated_at?: string
+        }
+        Update: {
+          casting_time?: string
+          components?: string
+          created_at?: string
+          description?: string
+          duration?: string
+          id?: never
+          is_favorite?: boolean
+          is_prepared?: boolean
+          is_ritual?: boolean
+          name?: string
+          profile_id?: number
+          range?: string
+          requires_concentration?: boolean
+          school?: string
+          spell_level?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'character_spells_profile_id_fkey'
+            columns: ['profile_id']
+            isOneToOne: false
+            referencedRelation: 'character_spellcasting_profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       characters: {
         Row: {
           age: string

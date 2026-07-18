@@ -355,6 +355,35 @@ const { data: spentFeature, response: spentFeatureResponse } = await request(
 assert.equal(spentFeatureResponse.status, 200)
 assert.equal(spentFeature[0].uses_remaining, 0)
 
+const { data: spellProfileRows, response: spellProfileResponse } = await request('/rest/v1/character_spellcasting_profiles', {
+  token: owner.token,
+  method: 'POST',
+  body: { character_id: characterId, name: 'Wizard', spellcasting_ability: 'intelligence', preparation_mode: 'spellbook', spell_save_dc: 15, spell_attack_bonus: 7, max_prepared: 8 },
+})
+assert.equal(spellProfileResponse.status, 201)
+const spellProfileId = spellProfileRows[0].id
+const { data: spellRows, response: spellResponse } = await request('/rest/v1/character_spells', {
+  token: owner.token,
+  method: 'POST',
+  body: { profile_id: spellProfileId, name: 'Guiding Bolt', spell_level: 1, school: 'evocation', is_prepared: true, requires_concentration: false, casting_time: '1 action', range: '120 feet' },
+})
+assert.equal(spellResponse.status, 201)
+const spellId = spellRows[0].id
+const { response: slotResponse } = await request('/rest/v1/character_spell_slots', {
+  token: owner.token,
+  method: 'POST',
+  body: { profile_id: spellProfileId, spell_level: 1, maximum: 4, remaining: 3 },
+})
+assert.equal(slotResponse.status, 201)
+const { data: visibleSpells, response: visibleSpellsResponse } = await request(`/rest/v1/character_spells?profile_id=eq.${spellProfileId}&select=name,spell_level,is_prepared`, { token: outsider.token })
+assert.equal(visibleSpellsResponse.status, 200)
+assert.deepEqual(visibleSpells, [{ name: 'Guiding Bolt', spell_level: 1, is_prepared: true }])
+const { data: forbiddenSpellUpdate, response: forbiddenSpellUpdateResponse } = await request(`/rest/v1/character_spells?id=eq.${spellId}`, { token: outsider.token, method: 'PATCH', body: { is_prepared: false } })
+assert.equal(forbiddenSpellUpdateResponse.status, 200)
+assert.deepEqual(forbiddenSpellUpdate, [])
+const { response: invalidSlotResponse } = await request(`/rest/v1/character_spell_slots?profile_id=eq.${spellProfileId}&spell_level=eq.1`, { token: owner.token, method: 'PATCH', body: { remaining: 5 } })
+assert.equal(invalidSlotResponse.status, 400)
+
 const { data: forbiddenCampaignUpdate, response: forbiddenCampaignUpdateResponse } =
   await request(`/rest/v1/campaigns?id=eq.${campaignId}`, {
     token: outsider.token,

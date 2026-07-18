@@ -5,6 +5,7 @@ import { Link, Navigate, useParams } from 'react-router-dom'
 
 import { useAuth } from '../features/auth/auth-context'
 import { CharacterFeaturesPanel } from '../features/characters/CharacterFeaturesPanel'
+import { CharacterSpellcastingPanel } from '../features/characters/CharacterSpellcastingPanel'
 import {
   type Character,
   getCharacter,
@@ -884,6 +885,10 @@ export function CharacterPage() {
             {activeTab === 'abilities' && (
               <div className="character-tab-panel">
                 <CharacterFeaturesPanel
+                  canEdit={Boolean(canEdit)}
+                  characterId={characterId}
+                />
+                <CharacterSpellcastingPanel
                   canEdit={Boolean(canEdit)}
                   characterId={characterId}
                 />

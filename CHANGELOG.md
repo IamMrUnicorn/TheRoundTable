@@ -48,6 +48,9 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 - Added character class, subclass, ancestry, background, feat, passive, resource, and custom-feature records with sources, descriptions, acquisition levels, ordering, active state, optional use counters, and recovery rules.
 - Replaced the Abilities & Spells placeholder with an adaptive feature library where owners can add and remove abilities and spend or restore limited resources while party members receive read-only visibility.
 - Added parent-character-aware RLS, explicit Data API grants, supporting indexes, timestamps, relational cleanup, and multi-user tests for feature visibility, owner-only mutation, and impossible resource-count rejection.
+- Added optional multi-source spellcasting profiles with casting ability, preparation mode, save DC, attack bonus, prepared limits, and pact-magic identification.
+- Added cantrips and leveled spells with prepared and favorite state plus ritual, concentration, school, casting-time, range, duration, component, and description metadata.
+- Added level-based spell-slot pools with spendable remaining counts, responsive spell grouping, non-spellcaster empty states, owner-only changes, party visibility, and database enforcement preventing overfilled slots.
 - Added an atomic invitation-response database workflow that validates the authenticated email, prevents expired or reused invitations, and creates campaign membership on acceptance.
 - Added least-privilege grants, Row Level Security, supporting indexes, and three-user integration coverage for the complete invitation lifecycle.
 - Added player-owned characters with optional campaign assignment.
