@@ -13,6 +13,7 @@ import { type FormEvent, useEffect, useState } from 'react'
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
 
 import { useAuth } from '../features/auth/auth-context'
+import { CampaignActivityPanel } from '../features/activity/CampaignActivityPanel'
 import {
   getCampaign,
   createAnnouncement,
@@ -363,6 +364,8 @@ export function CampaignPage() {
                   isManager={isManager}
                   userId={identity!.id}
                 />
+
+                <CampaignActivityPanel campaignId={campaignId} />
 
                 {isManager && (
                   <section className="workspace-panel invitation-admin">

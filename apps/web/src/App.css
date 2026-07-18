@@ -1485,6 +1485,41 @@ button:disabled {
 .reference-actions {
   margin-top: auto;
 }
+.activity-section {
+  margin-top: 3rem;
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  background: linear-gradient(145deg, #17211f, #111817);
+}
+.activity-section > .section-heading svg {
+  color: var(--gold);
+}
+.activity-list {
+  display: grid;
+  gap: 0.45rem;
+}
+.activity-list article {
+  display: grid;
+  grid-template-columns: 7rem 1fr;
+  gap: 0.7rem;
+  border-top: 1px solid var(--line);
+  padding-top: 0.65rem;
+}
+.activity-list article > span {
+  color: var(--gold);
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: capitalize;
+}
+.activity-list article > div {
+  display: grid;
+  gap: 0.15rem;
+}
+.activity-list small {
+  color: var(--muted);
+  text-transform: capitalize;
+}
 .task-actions {
   margin-top: auto;
 }

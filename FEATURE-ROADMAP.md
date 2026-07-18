@@ -79,7 +79,7 @@ This is the source-of-truth checklist for the entire application. Completed work
 - [x] Current location, in-world date/time, weather, and world state.
 - [x] NPC, faction, and location references.
 - [x] Downtime activities and preparation checklist.
-- [ ] Campaign activity feed.
+- [x] Campaign activity feed.
 
 ## 6. Invitations and notifications
 
