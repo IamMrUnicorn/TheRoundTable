@@ -21,6 +21,7 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 - Added private in-app notifications for new announcements and session changes, including unread state, individual/all read controls, and a dashboard inbox.
 - Added direct, email-targeted campaign invitations with manager-selected member roles, two-week expiration, and manager cancellation controls.
 - Added a dashboard invitation inbox where recipients can accept or decline invitations addressed to their trusted account email.
+- Added an upcoming-session dashboard that summarizes proposed, scheduled, and active sessions with campaign context, local date/time, lifecycle status, and the signed-in member's attendance response.
 - Added an atomic invitation-response database workflow that validates the authenticated email, prevents expired or reused invitations, and creates campaign membership on acceptance.
 - Added least-privilege grants, Row Level Security, supporting indexes, and three-user integration coverage for the complete invitation lifecycle.
 - Added player-owned characters with optional campaign assignment.

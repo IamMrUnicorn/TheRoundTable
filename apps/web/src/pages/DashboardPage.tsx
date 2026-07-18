@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   ArrowRight,
+  CalendarClock,
   Dices,
   KeyRound,
   Plus,
@@ -31,6 +32,7 @@ import {
   listMyInvitations,
   respondCampaignInvitation,
 } from '../features/invitations/invitations'
+import { listUpcomingSessions } from '../features/scheduling/scheduling'
 
 type Panel = 'character' | 'create' | 'join' | null
 
@@ -69,6 +71,11 @@ export function DashboardPage() {
   const invitations = useQuery({
     queryKey: ['invitations', identity?.id],
     queryFn: listMyInvitations,
+    enabled: Boolean(identity),
+  })
+  const upcomingSessions = useQuery({
+    queryKey: ['upcoming-sessions', identity?.id],
+    queryFn: () => listUpcomingSessions(identity!.id),
     enabled: Boolean(identity),
   })
 
@@ -317,6 +324,71 @@ export function DashboardPage() {
             )}
           </section>
         )}
+
+        <section className="campaign-section upcoming-section">
+          <div className="section-heading">
+            <div>
+              <p className="eyebrow">Around the corner</p>
+              <h2>Upcoming sessions</h2>
+            </div>
+            <span>{upcomingSessions.data?.length ?? 0} on your calendar</span>
+          </div>
+          {upcomingSessions.isLoading && (
+            <p className="muted-copy">Checking the party calendar…</p>
+          )}
+          {upcomingSessions.isError && (
+            <p className="form-message error">
+              {errorMessage(upcomingSessions.error)}
+            </p>
+          )}
+          {upcomingSessions.data?.length === 0 && (
+            <div className="empty-state compact-empty-state">
+              <CalendarClock aria-hidden="true" />
+              <div>
+                <h3>No upcoming sessions yet.</h3>
+                <p>Open a campaign to propose a time with your party.</p>
+              </div>
+            </div>
+          )}
+          <div className="upcoming-session-list">
+            {upcomingSessions.data?.map((session) => (
+              <Link
+                key={session.id}
+                to={`/campaigns/${session.campaign_id}/schedule`}
+              >
+                <div className="session-date" aria-hidden="true">
+                  <strong>
+                    {new Date(session.starts_at).toLocaleDateString(undefined, {
+                      day: 'numeric',
+                    })}
+                  </strong>
+                  <span>
+                    {new Date(session.starts_at).toLocaleDateString(undefined, {
+                      month: 'short',
+                    })}
+                  </span>
+                </div>
+                <div>
+                  <span>{session.campaigns?.name ?? 'Campaign'}</span>
+                  <h3>{session.title}</h3>
+                  <p>
+                    {new Date(session.starts_at).toLocaleString(undefined, {
+                      dateStyle: 'medium',
+                      timeStyle: 'short',
+                    })}{' '}
+                    · {session.status}
+                  </p>
+                </div>
+                <span
+                  className={`attendance-pill ${session.attendanceResponse}`}
+                >
+                  {session.attendanceResponse}
+                </span>
+                <ArrowRight aria-hidden="true" size={18} />
+              </Link>
+            ))}
+          </div>
+        </section>
 
         <section className="campaign-section">
           <div className="section-heading">

@@ -29,7 +29,7 @@ This is the source-of-truth checklist for the entire application. Completed work
 
 - [x] Active campaign list.
 - [x] Personal character collection.
-- [ ] Upcoming-session overview.
+- [x] Upcoming-session overview.
 - [ ] Availability requests requiring a response.
 - [x] Pending invitations and unread announcements.
 - [ ] Recent campaign activity.

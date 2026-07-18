@@ -1,5 +1,36 @@
 import { supabase } from '../../lib/supabase'
 
+export async function listUpcomingSessions(userId: string) {
+  const [sessionsResult, attendanceResult] = await Promise.all([
+    supabase
+      .from('sessions')
+      .select('*, campaigns(name, timezone)')
+      .in('status', ['proposed', 'scheduled', 'active'])
+      .gte('ends_at', new Date().toISOString())
+      .order('starts_at')
+      .limit(8),
+    supabase
+      .from('session_attendance')
+      .select('session_id, response')
+      .eq('user_id', userId),
+  ])
+
+  if (sessionsResult.error) throw sessionsResult.error
+  if (attendanceResult.error) throw attendanceResult.error
+
+  const responses = new Map(
+    attendanceResult.data.map(({ response, session_id }) => [
+      session_id,
+      response,
+    ]),
+  )
+
+  return sessionsResult.data.map((session) => ({
+    ...session,
+    attendanceResponse: responses.get(session.id) ?? 'unanswered',
+  }))
+}
+
 export async function getSchedule(campaignId: number) {
   const [rules, exceptions, sessions, attendance] = await Promise.all([
     supabase
