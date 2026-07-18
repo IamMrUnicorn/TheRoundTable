@@ -389,6 +389,18 @@ assert.equal(transferredRolesResponse.status, 200)
 assert.ok(transferredRoles.some((member) => member.user_id === outsider.id && member.role === 'owner'))
 assert.ok(transferredRoles.some((member) => member.user_id === owner.id && member.role === 'game_master'))
 
+const { response: requireApprovalResponse } = await request(`/rest/v1/campaigns?id=eq.${campaignId}`, { token: outsider.token, method: 'PATCH', body: { requires_join_approval: true } })
+assert.equal(requireApprovalResponse.status, 200)
+const applicant = await signUp(`applicant-${runId}@example.com`)
+const { response: pendingJoinResponse } = await request('/rest/v1/rpc/join_campaign', { token: applicant.token, method: 'POST', body: { campaign_code: campaignRows[0].invite_code } })
+assert.equal(pendingJoinResponse.status, 200)
+const { data: pendingMembership } = await request(`/rest/v1/campaign_members?campaign_id=eq.${campaignId}&user_id=eq.${applicant.id}&select=status`, { token: applicant.token })
+assert.deepEqual(pendingMembership, [{ status: 'pending' }])
+const { response: banApplicantResponse } = await request(`/rest/v1/campaign_members?campaign_id=eq.${campaignId}&user_id=eq.${applicant.id}`, { token: outsider.token, method: 'PATCH', body: { status: 'banned' } })
+assert.equal(banApplicantResponse.status, 200)
+const { response: bannedRejoinResponse } = await request('/rest/v1/rpc/join_campaign', { token: applicant.token, method: 'POST', body: { campaign_code: campaignRows[0].invite_code } })
+assert.equal(bannedRejoinResponse.status, 403)
+
 const { response: anonymousProfileResponse } = await request(
   '/rest/v1/profiles?select=id',
 )

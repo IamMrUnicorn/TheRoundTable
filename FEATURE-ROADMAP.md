@@ -45,9 +45,9 @@ This is the source-of-truth checklist for the entire application. Completed work
 - [ ] Ruleset/edition, campaign timezone, cadence, and expected duration. *(Scheduling fields stored; settings UI pending.)*
 - [ ] House rules, content warnings, and safety preferences.
 - [ ] Co-GM assignment and granular permissions. *(Game Master role assignment complete.)*
-- [ ] Approve, remove, or ban members; voluntarily leave a campaign. *(Remove and leave complete; approval/ban pending.)*
+- [x] Approve, remove, or ban members; voluntarily leave a campaign.
 - [x] Safe ownership transfer.
-- [ ] Rotate/revoke invite codes and optionally require join approval. *(Rotation complete; approval mode pending.)*
+- [x] Rotate/revoke invite codes and optionally require join approval.
 
 ## 4. Collaborative scheduling and calendar
 

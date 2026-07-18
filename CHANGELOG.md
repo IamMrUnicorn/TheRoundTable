@@ -38,6 +38,7 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 - Added manager creation, status editing, deletion controls, responsive reference cards, indexed queries, explicit grants, and RLS tests proving secret references remain hidden from party members.
 - Added an RLS-aware campaign activity feed combining recent sessions, announcements, knowledge, objectives, inventory, tasks, NPCs, factions, and locations.
 - Added atomic campaign ownership transfer to an active member, with locked validation, synchronized owner membership roles, confirmation UI, and retention of the former owner as a Game Master.
+- Added optional approval-required invite-code joining, owner approval controls, persistent bans that block rejoining, and ban-lifting administration.
 - Added an atomic invitation-response database workflow that validates the authenticated email, prevents expired or reused invitations, and creates campaign membership on acceptance.
 - Added least-privilege grants, Row Level Security, supporting indexes, and three-user integration coverage for the complete invitation lifecycle.
 - Added player-owned characters with optional campaign assignment.

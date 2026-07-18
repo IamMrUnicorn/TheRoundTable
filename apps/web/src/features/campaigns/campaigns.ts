@@ -90,7 +90,6 @@ export async function getCampaign(campaignId: number) {
       '*, campaign_members(user_id, role, status, joined_at, profiles(display_name))',
     )
     .eq('id', campaignId)
-    .eq('campaign_members.status', 'active')
     .single()
 
   if (error) throw error
@@ -104,6 +103,7 @@ export async function updateCampaignSettings(
     description: string
     name: string
     preferredSessionMinutes: number
+    requiresJoinApproval: boolean
     status: string
     timezone: string
   },
@@ -115,6 +115,7 @@ export async function updateCampaignSettings(
       description: input.description.trim(),
       name: input.name.trim(),
       preferred_session_minutes: input.preferredSessionMinutes,
+      requires_join_approval: input.requiresJoinApproval,
       status: input.status,
       timezone: input.timezone.trim(),
     })
@@ -169,6 +170,22 @@ export async function removeCampaignMember(campaignId: number, userId: string) {
   const { error } = await supabase
     .from('campaign_members')
     .delete()
+    .eq('campaign_id', campaignId)
+    .eq('user_id', userId)
+  if (error) throw error
+}
+
+export async function updateMemberStatus(
+  campaignId: number,
+  userId: string,
+  status: string,
+) {
+  const { error } = await supabase
+    .from('campaign_members')
+    .update({
+      status,
+      joined_at: status === 'active' ? new Date().toISOString() : null,
+    })
     .eq('campaign_id', campaignId)
     .eq('user_id', userId)
   if (error) throw error

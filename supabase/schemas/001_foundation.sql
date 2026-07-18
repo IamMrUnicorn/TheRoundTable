@@ -27,14 +27,15 @@ create table public.campaigns (
   status text not null default 'forming'
     check (status in ('forming', 'active', 'paused', 'completed', 'archived')),
   created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
+  updated_at timestamptz not null default now(),
+  requires_join_approval boolean not null default false
 );
 
 create table public.campaign_members (
   campaign_id bigint not null references public.campaigns (id) on delete cascade,
   user_id uuid not null references public.profiles (id) on delete cascade,
   role text not null default 'player' check (role in ('owner', 'game_master', 'player', 'observer')),
-  status text not null default 'active' check (status in ('invited', 'active', 'declined', 'removed')),
+  status text not null default 'active' check (status in ('invited', 'pending', 'active', 'declined', 'removed', 'banned')),
   joined_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
@@ -502,13 +503,14 @@ as $$
 declare
   current_user_id uuid := (select auth.uid());
   requested_campaign_id bigint;
+  approval_required boolean;
 begin
   if current_user_id is null then
     raise exception 'Authentication is required.' using errcode = '42501';
   end if;
 
-  select id
-  into requested_campaign_id
+  select id, requires_join_approval
+  into requested_campaign_id, approval_required
   from public.campaigns
   where invite_code = upper(trim(campaign_code))
     and status in ('forming', 'active', 'paused');
@@ -518,6 +520,10 @@ begin
       using errcode = 'P0001';
   end if;
 
+  if exists (select 1 from public.campaign_members where campaign_id = requested_campaign_id and user_id = current_user_id and status = 'banned') then
+    raise exception 'You have been banned from this campaign.' using errcode = '42501';
+  end if;
+
   insert into public.campaign_members (
     campaign_id,
     user_id,
@@ -525,12 +531,12 @@ begin
     status,
     joined_at
   )
-  values (requested_campaign_id, current_user_id, 'player', 'active', now())
+  values (requested_campaign_id, current_user_id, 'player', case when approval_required then 'pending' else 'active' end, case when approval_required then null else now() end)
   on conflict (campaign_id, user_id) do update
-  set status = 'active',
-      joined_at = coalesce(public.campaign_members.joined_at, excluded.joined_at),
+  set status = excluded.status,
+      joined_at = case when excluded.status = 'active' then coalesce(public.campaign_members.joined_at, excluded.joined_at) else null end,
       updated_at = now()
-  where public.campaign_members.status in ('declined', 'removed');
+  where public.campaign_members.status in ('declined', 'removed', 'pending');
 
   return requested_campaign_id;
 end;
@@ -667,8 +673,8 @@ on public.campaign_members for select
 to authenticated
 using (
   user_id = (select auth.uid())
-  or (select private.is_campaign_member(campaign_id))
-  or (select private.is_campaign_owner(campaign_id))
+  or (status = 'active' and (select private.is_campaign_member(campaign_id)))
+  or (select private.is_campaign_manager(campaign_id))
 );
 
 create policy campaign_members_insert_owner

@@ -23,6 +23,7 @@ import {
   rotateInviteCode,
   updateCampaignSettings,
   updateMemberRole,
+  updateMemberStatus,
   transferCampaignOwnership,
 } from '../features/campaigns/campaigns'
 import { listCampaignCharacters } from '../features/characters/characters'
@@ -53,6 +54,7 @@ export function CampaignPage() {
     timezone: 'UTC',
     cadence: 'weekly',
     preferredSessionMinutes: 180,
+    requiresJoinApproval: false,
     status: 'forming',
   })
   const [announcement, setAnnouncement] = useState({
@@ -105,6 +107,7 @@ export function CampaignPage() {
         timezone: campaign.data.timezone,
         cadence: campaign.data.cadence,
         preferredSessionMinutes: campaign.data.preferred_session_minutes,
+        requiresJoinApproval: campaign.data.requires_join_approval,
         status: campaign.data.status,
       })
   }, [campaign.data])
@@ -125,6 +128,11 @@ export function CampaignPage() {
   })
   const removeMember = useMutation({
     mutationFn: (userId: string) => removeCampaignMember(campaignId, userId),
+    onSuccess: refresh,
+  })
+  const changeMemberStatus = useMutation({
+    mutationFn: ({ userId, status }: { userId: string; status: string }) =>
+      updateMemberStatus(campaignId, userId, status),
     onSuccess: refresh,
   })
   const transferOwnership = useMutation({
@@ -366,7 +374,9 @@ export function CampaignPage() {
                 <CampaignLogisticsPanel
                   campaignId={campaignId}
                   isManager={isManager}
-                  members={campaign.data.campaign_members}
+                  members={campaign.data.campaign_members.filter(
+                    (member) => member.status === 'active',
+                  )}
                   userId={identity!.id}
                 />
 
@@ -466,50 +476,52 @@ export function CampaignPage() {
                       <Users aria-hidden="true" />
                     </div>
                     <div className="member-list">
-                      {campaign.data.campaign_members.map((member) => (
-                        <article key={member.user_id}>
-                          <div className="member-avatar">
-                            {member.profiles?.display_name
-                              .slice(0, 1)
-                              .toUpperCase() ?? '?'}
-                          </div>
-                          <div>
-                            <strong>
-                              {member.profiles?.display_name ?? 'Adventurer'}
-                            </strong>
-                            <span>{member.role.replace('_', ' ')}</span>
-                          </div>
-                          {isOwner &&
-                            member.user_id !== campaign.data.owner_id && (
-                              <div className="member-admin">
-                                <select
-                                  aria-label={`Role for ${member.profiles?.display_name ?? 'member'}`}
-                                  value={member.role}
-                                  onChange={(event) =>
-                                    changeRole.mutate({
-                                      userId: member.user_id,
-                                      role: event.target.value,
-                                    })
-                                  }
-                                >
-                                  <option value="game_master">
-                                    Game Master
-                                  </option>
-                                  <option value="player">Player</option>
-                                  <option value="observer">Observer</option>
-                                </select>
-                                <button
-                                  className="danger-button"
-                                  onClick={() =>
-                                    removeMember.mutate(member.user_id)
-                                  }
-                                >
-                                  Remove
-                                </button>
-                              </div>
-                            )}
-                        </article>
-                      ))}
+                      {campaign.data.campaign_members
+                        .filter((member) => member.status === 'active')
+                        .map((member) => (
+                          <article key={member.user_id}>
+                            <div className="member-avatar">
+                              {member.profiles?.display_name
+                                .slice(0, 1)
+                                .toUpperCase() ?? '?'}
+                            </div>
+                            <div>
+                              <strong>
+                                {member.profiles?.display_name ?? 'Adventurer'}
+                              </strong>
+                              <span>{member.role.replace('_', ' ')}</span>
+                            </div>
+                            {isOwner &&
+                              member.user_id !== campaign.data.owner_id && (
+                                <div className="member-admin">
+                                  <select
+                                    aria-label={`Role for ${member.profiles?.display_name ?? 'member'}`}
+                                    value={member.role}
+                                    onChange={(event) =>
+                                      changeRole.mutate({
+                                        userId: member.user_id,
+                                        role: event.target.value,
+                                      })
+                                    }
+                                  >
+                                    <option value="game_master">
+                                      Game Master
+                                    </option>
+                                    <option value="player">Player</option>
+                                    <option value="observer">Observer</option>
+                                  </select>
+                                  <button
+                                    className="danger-button"
+                                    onClick={() =>
+                                      removeMember.mutate(member.user_id)
+                                    }
+                                  >
+                                    Remove
+                                  </button>
+                                </div>
+                              )}
+                          </article>
+                        ))}
                     </div>
                   </section>
 
@@ -774,6 +786,19 @@ export function CampaignPage() {
                             <option value="archived">Archived</option>
                           </select>
                         </label>
+                        <label>
+                          <input
+                            type="checkbox"
+                            checked={settings.requiresJoinApproval}
+                            onChange={(event) =>
+                              setSettings({
+                                ...settings,
+                                requiresJoinApproval: event.target.checked,
+                              })
+                            }
+                          />{' '}
+                          Require approval for invite-code joins
+                        </label>
                         {saveSettings.isSuccess && (
                           <p className="form-message success">
                             Campaign settings saved.
@@ -783,6 +808,64 @@ export function CampaignPage() {
                           {saveSettings.isPending ? 'Saving…' : 'Save settings'}
                         </button>
                       </form>
+                      {campaign.data.campaign_members.some(
+                        (member) => member.status !== 'active',
+                      ) && (
+                        <div className="membership-requests">
+                          <h3>Membership requests and bans</h3>
+                          {campaign.data.campaign_members
+                            .filter((member) => member.status !== 'active')
+                            .map((member) => (
+                              <article key={member.user_id}>
+                                <div>
+                                  <strong>
+                                    {member.profiles?.display_name ??
+                                      'Adventurer'}
+                                  </strong>
+                                  <span>{member.status}</span>
+                                </div>
+                                <div className="heading-actions">
+                                  {member.status === 'pending' && (
+                                    <button
+                                      onClick={() =>
+                                        changeMemberStatus.mutate({
+                                          userId: member.user_id,
+                                          status: 'active',
+                                        })
+                                      }
+                                    >
+                                      Approve
+                                    </button>
+                                  )}
+                                  <button
+                                    className="danger-button"
+                                    onClick={() =>
+                                      changeMemberStatus.mutate({
+                                        userId: member.user_id,
+                                        status: 'banned',
+                                      })
+                                    }
+                                  >
+                                    Ban
+                                  </button>
+                                  {member.status === 'banned' && (
+                                    <button
+                                      className="secondary-button"
+                                      onClick={() =>
+                                        changeMemberStatus.mutate({
+                                          userId: member.user_id,
+                                          status: 'removed',
+                                        })
+                                      }
+                                    >
+                                      Lift ban
+                                    </button>
+                                  )}
+                                </div>
+                              </article>
+                            ))}
+                        </div>
+                      )}
                       <div className="ownership-transfer">
                         <h3>Transfer ownership</h3>
                         <p className="muted-copy">

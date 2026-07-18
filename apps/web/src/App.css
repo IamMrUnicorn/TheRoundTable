@@ -288,6 +288,27 @@ button:disabled {
   background: #101817;
   color: var(--ink);
 }
+.membership-requests {
+  display: grid;
+  gap: 0.6rem;
+  margin-top: 1.5rem;
+  border-top: 1px solid var(--line);
+  padding-top: 1rem;
+}
+.membership-requests article {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.7rem;
+}
+.membership-requests article > div:first-child {
+  display: grid;
+}
+.membership-requests span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  text-transform: capitalize;
+}
 
 .text-link,
 .card-link {

@@ -655,6 +655,7 @@ export type Database = {
           name: string
           owner_id: string
           preferred_session_minutes: number
+          requires_join_approval: boolean
           slug: string
           status: string
           timezone: string
@@ -669,6 +670,7 @@ export type Database = {
           name: string
           owner_id: string
           preferred_session_minutes?: number
+          requires_join_approval?: boolean
           slug: string
           status?: string
           timezone?: string
@@ -683,6 +685,7 @@ export type Database = {
           name?: string
           owner_id?: string
           preferred_session_minutes?: number
+          requires_join_approval?: boolean
           slug?: string
           status?: string
           timezone?: string
