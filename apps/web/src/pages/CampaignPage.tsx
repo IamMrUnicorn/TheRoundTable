@@ -23,6 +23,7 @@ import {
   rotateInviteCode,
   updateCampaignSettings,
   updateMemberRole,
+  transferCampaignOwnership,
 } from '../features/campaigns/campaigns'
 import { listCampaignCharacters } from '../features/characters/characters'
 import { CampaignKnowledgePanel } from '../features/knowledge/CampaignKnowledgePanel'
@@ -60,6 +61,7 @@ export function CampaignPage() {
     isPinned: false,
   })
   const [invitation, setInvitation] = useState({ email: '', role: 'player' })
+  const [newOwnerId, setNewOwnerId] = useState('')
   const campaign = useQuery({
     queryKey: ['campaign', campaignId],
     queryFn: () => getCampaign(campaignId),
@@ -124,6 +126,15 @@ export function CampaignPage() {
   const removeMember = useMutation({
     mutationFn: (userId: string) => removeCampaignMember(campaignId, userId),
     onSuccess: refresh,
+  })
+  const transferOwnership = useMutation({
+    mutationFn: () => transferCampaignOwnership(campaignId, newOwnerId),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ['campaign', campaignId],
+      })
+      await queryClient.invalidateQueries({ queryKey: ['campaigns'] })
+    },
   })
   const leaveCampaign = useMutation({
     mutationFn: () => removeCampaignMember(campaignId, identity!.id),
@@ -772,6 +783,46 @@ export function CampaignPage() {
                           {saveSettings.isPending ? 'Saving…' : 'Save settings'}
                         </button>
                       </form>
+                      <div className="ownership-transfer">
+                        <h3>Transfer ownership</h3>
+                        <p className="muted-copy">
+                          The new owner receives full control. You remain as a
+                          Game Master.
+                        </p>
+                        <select
+                          value={newOwnerId}
+                          onChange={(event) =>
+                            setNewOwnerId(event.target.value)
+                          }
+                        >
+                          <option value="">Select an active member</option>
+                          {campaign.data.campaign_members
+                            .filter((member) => member.user_id !== identity?.id)
+                            .map((member) => (
+                              <option
+                                key={member.user_id}
+                                value={member.user_id}
+                              >
+                                {member.profiles?.display_name ?? 'Adventurer'}{' '}
+                                · {member.role.replace('_', ' ')}
+                              </option>
+                            ))}
+                        </select>
+                        <button
+                          className="danger-button"
+                          disabled={!newOwnerId || transferOwnership.isPending}
+                          onClick={() => {
+                            if (
+                              window.confirm(
+                                'Transfer campaign ownership? This changes who has final administrative control.',
+                              )
+                            )
+                              transferOwnership.mutate()
+                          }}
+                        >
+                          Transfer campaign
+                        </button>
+                      </div>
                     </section>
                   ) : (
                     <section className="workspace-panel">

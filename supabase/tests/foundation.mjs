@@ -375,6 +375,20 @@ const { response: invalidJoinResponse } = await request(
 )
 assert.equal(invalidJoinResponse.status, 400)
 
+const { response: transferOwnershipResponse } = await request('/rest/v1/rpc/transfer_campaign_ownership', {
+  token: owner.token,
+  method: 'POST',
+  body: { campaign_id: campaignId, new_owner_id: outsider.id },
+})
+assert.equal(transferOwnershipResponse.status, 204)
+const { data: transferredCampaign, response: transferredCampaignResponse } = await request(`/rest/v1/campaigns?id=eq.${campaignId}&select=owner_id`, { token: outsider.token })
+assert.equal(transferredCampaignResponse.status, 200)
+assert.deepEqual(transferredCampaign, [{ owner_id: outsider.id }])
+const { data: transferredRoles, response: transferredRolesResponse } = await request(`/rest/v1/campaign_members?campaign_id=eq.${campaignId}&select=user_id,role&order=role`, { token: outsider.token })
+assert.equal(transferredRolesResponse.status, 200)
+assert.ok(transferredRoles.some((member) => member.user_id === outsider.id && member.role === 'owner'))
+assert.ok(transferredRoles.some((member) => member.user_id === owner.id && member.role === 'game_master'))
+
 const { response: anonymousProfileResponse } = await request(
   '/rest/v1/profiles?select=id',
 )

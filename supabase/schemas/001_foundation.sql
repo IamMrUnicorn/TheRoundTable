@@ -545,6 +545,45 @@ as $$
   select private.join_campaign_by_code(campaign_code);
 $$;
 
+create function private.transfer_campaign_ownership(requested_campaign_id bigint, new_owner_id uuid)
+returns void language plpgsql security definer set search_path = '' as $$
+declare
+  current_user_id uuid := (select auth.uid());
+begin
+  if current_user_id is null then
+    raise exception 'Authentication is required.' using errcode = '42501';
+  end if;
+
+  perform 1 from public.campaigns
+  where id = requested_campaign_id and owner_id = current_user_id
+  for update;
+  if not found then
+    raise exception 'Only the campaign owner can transfer ownership.' using errcode = '42501';
+  end if;
+  if new_owner_id = current_user_id then
+    raise exception 'The selected member already owns this campaign.' using errcode = 'P0001';
+  end if;
+  perform 1 from public.campaign_members
+  where campaign_id = requested_campaign_id and user_id = new_owner_id and status = 'active'
+  for update;
+  if not found then
+    raise exception 'Ownership can only be transferred to an active member.' using errcode = 'P0001';
+  end if;
+
+  update public.campaign_members set role = 'game_master'
+  where campaign_id = requested_campaign_id and user_id = current_user_id;
+  update public.campaign_members set role = 'owner'
+  where campaign_id = requested_campaign_id and user_id = new_owner_id;
+  update public.campaigns set owner_id = new_owner_id
+  where id = requested_campaign_id;
+end;
+$$;
+
+create function public.transfer_campaign_ownership(campaign_id bigint, new_owner_id uuid)
+returns void language sql security invoker set search_path = '' as $$
+  select private.transfer_campaign_ownership(campaign_id, new_owner_id);
+$$;
+
 revoke execute on function private.set_updated_at() from public, anon, authenticated;
 revoke execute on function private.create_profile_for_new_user() from public, anon, authenticated;
 revoke execute on function private.add_campaign_owner_as_member() from public, anon, authenticated;
@@ -554,6 +593,8 @@ revoke execute on function private.is_campaign_manager(bigint) from public, anon
 revoke execute on function private.shares_active_campaign(uuid) from public, anon;
 revoke execute on function private.join_campaign_by_code(text) from public, anon;
 revoke execute on function public.join_campaign(text) from public, anon;
+revoke execute on function private.transfer_campaign_ownership(bigint, uuid) from public, anon;
+revoke execute on function public.transfer_campaign_ownership(bigint, uuid) from public, anon;
 grant usage on schema private to authenticated;
 grant execute on function private.is_campaign_member(bigint) to authenticated;
 grant execute on function private.is_campaign_owner(bigint) to authenticated;
@@ -561,6 +602,8 @@ grant execute on function private.is_campaign_manager(bigint) to authenticated;
 grant execute on function private.shares_active_campaign(uuid) to authenticated;
 grant execute on function private.join_campaign_by_code(text) to authenticated;
 grant execute on function public.join_campaign(text) to authenticated;
+grant execute on function private.transfer_campaign_ownership(bigint, uuid) to authenticated;
+grant execute on function public.transfer_campaign_ownership(bigint, uuid) to authenticated;
 
 alter table public.profiles enable row level security;
 alter table public.campaigns enable row level security;

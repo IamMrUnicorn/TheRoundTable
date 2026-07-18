@@ -141,6 +141,17 @@ export async function rotateInviteCode(campaignId: number) {
   return data.invite_code
 }
 
+export async function transferCampaignOwnership(
+  campaignId: number,
+  newOwnerId: string,
+) {
+  const { error } = await supabase.rpc('transfer_campaign_ownership', {
+    campaign_id: campaignId,
+    new_owner_id: newOwnerId,
+  })
+  if (error) throw error
+}
+
 export async function updateMemberRole(
   campaignId: number,
   userId: string,

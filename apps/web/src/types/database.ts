@@ -979,6 +979,10 @@ export type Database = {
         Args: { invitation_token: string; should_accept: boolean }
         Returns: number
       }
+      transfer_campaign_ownership: {
+        Args: { campaign_id: number; new_owner_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

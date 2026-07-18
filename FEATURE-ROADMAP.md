@@ -46,7 +46,7 @@ This is the source-of-truth checklist for the entire application. Completed work
 - [ ] House rules, content warnings, and safety preferences.
 - [ ] Co-GM assignment and granular permissions. *(Game Master role assignment complete.)*
 - [ ] Approve, remove, or ban members; voluntarily leave a campaign. *(Remove and leave complete; approval/ban pending.)*
-- [ ] Safe ownership transfer.
+- [x] Safe ownership transfer.
 - [ ] Rotate/revoke invite codes and optionally require join approval. *(Rotation complete; approval mode pending.)*
 
 ## 4. Collaborative scheduling and calendar
