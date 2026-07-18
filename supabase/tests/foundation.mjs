@@ -192,6 +192,15 @@ const { data: visibleAnnouncements, response: visibleAnnouncementsResponse } = a
 assert.equal(visibleAnnouncementsResponse.status, 200)
 assert.deepEqual(visibleAnnouncements, [{ title: 'Session update' }])
 
+const { data: ownerNotifications, response: ownerNotificationsResponse } = await request('/rest/v1/notifications?select=kind,title&order=created_at.asc', { token: owner.token })
+assert.equal(ownerNotificationsResponse.status, 200)
+assert.ok(ownerNotifications.some((item) => item.kind === 'session_proposed'))
+assert.ok(ownerNotifications.some((item) => item.kind === 'announcement' && item.title === 'Session update'))
+
+const { data: leakedNotifications, response: leakedNotificationsResponse } = await request(`/rest/v1/notifications?recipient_id=eq.${owner.id}&select=id`, { token: outsider.token })
+assert.equal(leakedNotificationsResponse.status, 200)
+assert.deepEqual(leakedNotifications, [])
+
 const { data: forbiddenUpdate, response: forbiddenUpdateResponse } =
   await request(`/rest/v1/characters?id=eq.${characterId}`, {
     token: outsider.token,

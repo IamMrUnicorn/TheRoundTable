@@ -22,6 +22,11 @@ import {
   createCharacter,
   listOwnedCharacters,
 } from '../features/characters/characters'
+import {
+  listNotifications,
+  markAllNotificationsRead,
+  markNotificationRead,
+} from '../features/notifications/notifications'
 
 type Panel = 'character' | 'create' | 'join' | null
 
@@ -50,6 +55,11 @@ export function DashboardPage() {
   const characters = useQuery({
     queryKey: ['characters', identity?.id],
     queryFn: () => listOwnedCharacters(identity!.id),
+    enabled: Boolean(identity),
+  })
+  const notifications = useQuery({
+    queryKey: ['notifications', identity?.id],
+    queryFn: () => listNotifications(identity!.id),
     enabled: Boolean(identity),
   })
 
@@ -86,6 +96,16 @@ export function DashboardPage() {
       await queryClient.invalidateQueries({ queryKey: ['characters'] })
       navigate(`/characters/${character.id}`)
     },
+  })
+  const readNotification = useMutation({
+    mutationFn: markNotificationRead,
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ['notifications'] }),
+  })
+  const readAllNotifications = useMutation({
+    mutationFn: () => markAllNotificationsRead(identity!.id),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ['notifications'] }),
   })
 
   function submitCreate(event: FormEvent) {
@@ -374,6 +394,46 @@ export function DashboardPage() {
                   Open character sheet <ArrowRight size={17} />
                 </span>
               </Link>
+            ))}
+          </div>
+        </section>
+
+        <section className="campaign-section notification-section">
+          <div className="section-heading">
+            <div>
+              <p className="eyebrow">What changed</p>
+              <h2>Notifications</h2>
+            </div>
+            {notifications.data?.some((item) => !item.read_at) && (
+              <button
+                className="secondary-button"
+                onClick={() => readAllNotifications.mutate()}
+              >
+                Mark all read
+              </button>
+            )}
+          </div>
+          {notifications.data?.length === 0 && (
+            <p className="muted-copy">You are all caught up.</p>
+          )}
+          <div className="notification-list">
+            {notifications.data?.map((item) => (
+              <article className={item.read_at ? 'is-read' : ''} key={item.id}>
+                <div>
+                  <span>{item.kind.replace('_', ' ')}</span>
+                  <strong>{item.title}</strong>
+                  <p>{item.body}</p>
+                  <small>{new Date(item.created_at).toLocaleString()}</small>
+                </div>
+                {!item.read_at && (
+                  <button
+                    className="secondary-button"
+                    onClick={() => readNotification.mutate(item.id)}
+                  >
+                    Mark read
+                  </button>
+                )}
+              </article>
             ))}
           </div>
         </section>

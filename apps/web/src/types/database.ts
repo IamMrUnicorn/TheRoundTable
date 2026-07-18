@@ -352,6 +352,64 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          body: string
+          campaign_id: number | null
+          created_at: string
+          id: number
+          kind: string
+          read_at: string | null
+          recipient_id: string
+          session_id: number | null
+          title: string
+        }
+        Insert: {
+          body?: string
+          campaign_id?: number | null
+          created_at?: string
+          id?: never
+          kind: string
+          read_at?: string | null
+          recipient_id: string
+          session_id?: number | null
+          title: string
+        }
+        Update: {
+          body?: string
+          campaign_id?: number | null
+          created_at?: string
+          id?: never
+          kind?: string
+          read_at?: string | null
+          recipient_id?: string
+          session_id?: number | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'notifications_campaign_id_fkey'
+            columns: ['campaign_id']
+            isOneToOne: false
+            referencedRelation: 'campaigns'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'notifications_recipient_id_fkey'
+            columns: ['recipient_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'notifications_session_id_fkey'
+            columns: ['session_id']
+            isOneToOne: false
+            referencedRelation: 'sessions'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_path: string | null

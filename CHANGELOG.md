@@ -18,6 +18,7 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 - Added automatic recurring-overlap recommendations ranked by preferred votes, with one-click proposal prefilling for campaign managers.
 - Added session confirmation, rescheduling, completion, cancellation, party response totals, and self-service exception deletion.
 - Added manager-authored campaign announcements with pinned priority, author attribution, member visibility, and manager-only deletion.
+- Added private in-app notifications for new announcements and session changes, including unread state, individual/all read controls, and a dashboard inbox.
 - Added player-owned characters with optional campaign assignment.
 - Added a character collection to the main dashboard and a streamlined character creation flow.
 - Added editable character sheets covering identity, ancestry, class, subclass, background, level, hit points, armor class, six core abilities, and notes.

@@ -35,7 +35,7 @@ This is the source-of-truth checklist for the entire application. Completed work
 - [ ] Recent campaign activity.
 - [ ] Character updates requiring attention.
 - [ ] Recently opened notes/sheets and preparation shortcuts.
-- [ ] In-app notification center.
+- [x] In-app notification center.
 
 ## 3. Campaign administration
 
@@ -87,7 +87,7 @@ This is the source-of-truth checklist for the entire application. Completed work
 - [ ] Direct email invitations and invitation links.
 - [ ] Pending invitation screen with accept/decline.
 - [ ] Optional member-approval workflow.
-- [ ] Session, scheduling, announcement, and character notifications.
+- [ ] Session, scheduling, announcement, and character notifications. *(Session and announcement notifications complete.)*
 - [ ] Email, browser, and in-app delivery preferences.
 - [ ] Custom SMTP for production email.
 - [ ] Later: Discord notifications.

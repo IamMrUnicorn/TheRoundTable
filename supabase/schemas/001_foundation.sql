@@ -132,6 +132,18 @@ create table public.campaign_announcements (
   updated_at timestamptz not null default now()
 );
 
+create table public.notifications (
+  id bigint generated always as identity primary key,
+  recipient_id uuid not null references public.profiles (id) on delete cascade,
+  campaign_id bigint references public.campaigns (id) on delete cascade,
+  session_id bigint references public.sessions (id) on delete cascade,
+  kind text not null check (kind in ('announcement', 'session_proposed', 'session_updated', 'invitation', 'system')),
+  title text not null check (char_length(title) between 1 and 200),
+  body text not null default '' check (char_length(body) <= 1000),
+  read_at timestamptz,
+  created_at timestamptz not null default now()
+);
+
 create index campaigns_owner_id_idx on public.campaigns (owner_id);
 create index campaign_members_user_id_status_idx
   on public.campaign_members (user_id, status);
@@ -146,6 +158,9 @@ create index sessions_created_by_idx on public.sessions (created_by);
 create index session_attendance_user_id_idx on public.session_attendance (user_id);
 create index campaign_announcements_campaign_pinned_idx on public.campaign_announcements (campaign_id, is_pinned desc, created_at desc);
 create index campaign_announcements_author_id_idx on public.campaign_announcements (author_id);
+create index notifications_recipient_unread_idx on public.notifications (recipient_id, created_at desc) where read_at is null;
+create index notifications_campaign_id_idx on public.notifications (campaign_id) where campaign_id is not null;
+create index notifications_session_id_idx on public.notifications (session_id) where session_id is not null;
 
 create function private.set_updated_at()
 returns trigger
@@ -179,6 +194,38 @@ create trigger availability_exceptions_set_updated_at before update on public.av
 create trigger sessions_set_updated_at before update on public.sessions for each row execute function private.set_updated_at();
 create trigger session_attendance_set_updated_at before update on public.session_attendance for each row execute function private.set_updated_at();
 create trigger campaign_announcements_set_updated_at before update on public.campaign_announcements for each row execute function private.set_updated_at();
+
+create function private.notify_campaign_announcement()
+returns trigger language plpgsql security definer set search_path = '' as $$
+begin
+  insert into public.notifications (recipient_id, campaign_id, kind, title, body)
+  select user_id, new.campaign_id, 'announcement', new.title, left(new.body, 1000)
+  from public.campaign_members
+  where campaign_id = new.campaign_id and status = 'active' and user_id <> new.author_id;
+  return new;
+end;
+$$;
+
+create function private.notify_session_change()
+returns trigger language plpgsql security definer set search_path = '' as $$
+begin
+  insert into public.notifications (recipient_id, campaign_id, session_id, kind, title, body)
+  select user_id, new.campaign_id, new.id,
+    case when tg_op = 'INSERT' then 'session_proposed' else 'session_updated' end,
+    case when tg_op = 'INSERT' then 'New session proposed' else 'Session updated' end,
+    new.title
+  from public.campaign_members
+  where campaign_id = new.campaign_id and status = 'active' and user_id <> (select auth.uid());
+  return new;
+end;
+$$;
+
+revoke execute on function private.notify_campaign_announcement() from public, anon, authenticated;
+revoke execute on function private.notify_session_change() from public, anon, authenticated;
+
+create trigger notify_after_campaign_announcement after insert on public.campaign_announcements for each row execute function private.notify_campaign_announcement();
+create trigger notify_after_session_insert after insert on public.sessions for each row execute function private.notify_session_change();
+create trigger notify_after_session_schedule_change after update of starts_at, ends_at, status on public.sessions for each row when (old.* is distinct from new.*) execute function private.notify_session_change();
 
 create function private.add_campaign_owner_as_member()
 returns trigger
@@ -363,6 +410,7 @@ alter table public.availability_exceptions enable row level security;
 alter table public.sessions enable row level security;
 alter table public.session_attendance enable row level security;
 alter table public.campaign_announcements enable row level security;
+alter table public.notifications enable row level security;
 
 create policy profiles_select_own
 on public.profiles for select
@@ -494,6 +542,10 @@ create policy announcements_insert_managers on public.campaign_announcements for
 create policy announcements_update_managers on public.campaign_announcements for update to authenticated using ((select private.is_campaign_manager(campaign_id))) with check ((select private.is_campaign_manager(campaign_id)));
 create policy announcements_delete_managers on public.campaign_announcements for delete to authenticated using ((select private.is_campaign_manager(campaign_id)));
 
+create policy notifications_select_own on public.notifications for select to authenticated using (recipient_id = (select auth.uid()));
+create policy notifications_update_own on public.notifications for update to authenticated using (recipient_id = (select auth.uid())) with check (recipient_id = (select auth.uid()));
+create policy notifications_delete_own on public.notifications for delete to authenticated using (recipient_id = (select auth.uid()));
+
 grant usage on schema public to authenticated;
 revoke all on table public.profiles from anon, authenticated;
 revoke all on table public.campaigns from anon, authenticated;
@@ -501,16 +553,19 @@ revoke all on table public.campaign_members from anon, authenticated;
 revoke all on table public.characters from anon, authenticated;
 revoke all on table public.availability_rules, public.availability_exceptions, public.sessions, public.session_attendance from anon, authenticated;
 revoke all on table public.campaign_announcements from anon, authenticated;
+revoke all on table public.notifications from anon, authenticated;
 revoke all on sequence public.campaigns_id_seq from anon, authenticated;
 revoke all on sequence public.characters_id_seq from anon, authenticated;
 revoke all on sequence public.availability_rules_id_seq, public.availability_exceptions_id_seq, public.sessions_id_seq from anon, authenticated;
 revoke all on sequence public.campaign_announcements_id_seq from anon, authenticated;
+revoke all on sequence public.notifications_id_seq from anon, authenticated;
 grant select, update on table public.profiles to authenticated;
 grant select, insert, update, delete on table public.campaigns to authenticated;
 grant select, insert, update, delete on table public.campaign_members to authenticated;
 grant select, insert, update, delete on table public.characters to authenticated;
 grant select, insert, update, delete on table public.availability_rules, public.availability_exceptions, public.sessions, public.session_attendance to authenticated;
 grant select, insert, update, delete on table public.campaign_announcements to authenticated;
+grant select, update, delete on table public.notifications to authenticated;
 grant usage, select on sequence public.campaigns_id_seq to authenticated;
 grant usage, select on sequence public.characters_id_seq to authenticated;
 grant usage, select on sequence public.availability_rules_id_seq, public.availability_exceptions_id_seq, public.sessions_id_seq to authenticated;

@@ -657,6 +657,41 @@ button:disabled {
 .campaign-section {
   margin-top: 4.5rem;
 }
+.notification-list {
+  display: grid;
+  gap: 0.6rem;
+}
+.notification-list article {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--gold);
+  border-radius: 0.7rem;
+  padding: 0.9rem 1rem;
+  background: #151f1d;
+}
+.notification-list article.is-read {
+  border-left-color: var(--line);
+  opacity: 0.72;
+}
+.notification-list article > div {
+  display: grid;
+  gap: 0.2rem;
+}
+.notification-list span {
+  color: var(--gold);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.notification-list p,
+.notification-list small {
+  margin: 0;
+  color: var(--muted);
+}
 
 .section-heading {
   display: flex;
