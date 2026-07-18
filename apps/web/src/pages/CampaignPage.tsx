@@ -252,6 +252,12 @@ export function CampaignPage() {
                       notes, and the live tabletop can build on this membership
                       model.
                     </p>
+                    <Link
+                      className="card-link"
+                      to={`/campaigns/${campaignId}/schedule`}
+                    >
+                      Open scheduling <CalendarDays size={17} />
+                    </Link>
                   </section>
 
                   {isOwner ? (

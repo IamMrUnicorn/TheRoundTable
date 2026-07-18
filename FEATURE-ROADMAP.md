@@ -51,18 +51,18 @@ This is the source-of-truth checklist for the entire application. Completed work
 
 ## 4. Collaborative scheduling and calendar
 
-- [ ] Personal availability calendar.
-- [ ] Available, unavailable, and preferred time ranges.
-- [ ] Recurring weekly availability plus date-specific exceptions.
+- [ ] Personal availability calendar. *(Functional scheduling page and list UI complete; visual calendar grid pending.)*
+- [x] Available, unavailable, and preferred time ranges.
+- [x] Recurring weekly availability plus date-specific exceptions.
 - [ ] Timezone-aware storage, display, and daylight-saving handling.
 - [ ] Weekly, biweekly, and monthly campaign cadence.
 - [ ] Minimum/preferred session duration and earliest/latest times.
 - [ ] Required versus optional attendees.
-- [ ] Automatic overlap calculation across campaign members.
-- [ ] Ranked recommendations: everyone available, most available, most preferred, and cadence fit.
+- [x] Automatic overlap calculation across campaign members.
+- [ ] Ranked recommendations: everyone available, most available, most preferred, and cadence fit. *(Everyone-available and preferred-vote ranking complete; partial-attendance/cadence ranking pending.)*
 - [ ] Explain why each time was recommended.
 - [ ] Member voting between suggested times.
-- [ ] DM confirmation, rescheduling, cancellation, and attendance responses.
+- [x] DM confirmation, rescheduling, cancellation, and attendance responses.
 - [ ] Scheduling deadline and response reminders.
 - [ ] `.ics` calendar export.
 - [ ] Later: Google Calendar, Outlook, and Discord integration.

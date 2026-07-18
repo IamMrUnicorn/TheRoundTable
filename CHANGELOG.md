@@ -12,6 +12,11 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 - Added timezone, cadence, and preferred session-duration fields to campaigns as prerequisites for collaborative scheduling.
 - Added owner-only campaign settings, invite-code rotation, member role management, and member removal controls.
 - Added self-service campaign leaving for non-owner members.
+- Added the hosted scheduling foundation for recurring availability, date-specific exceptions, proposed/scheduled sessions, and attendance responses.
+- Added manager-aware scheduling permissions so campaign owners and Game Masters can manage sessions while members control only their own availability and attendance.
+- Added a visible campaign scheduling page for weekly availability, preferred windows, date-specific exceptions, session proposals, agendas, and attendance responses.
+- Added automatic recurring-overlap recommendations ranked by preferred votes, with one-click proposal prefilling for campaign managers.
+- Added session confirmation, rescheduling, completion, cancellation, party response totals, and self-service exception deletion.
 - Added player-owned characters with optional campaign assignment.
 - Added a character collection to the main dashboard and a streamlined character creation flow.
 - Added editable character sheets covering identity, ancestry, class, subclass, background, level, hit points, armor class, six core abilities, and notes.

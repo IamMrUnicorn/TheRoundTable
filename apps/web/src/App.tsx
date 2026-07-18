@@ -7,6 +7,7 @@ import { DashboardPage } from './pages/DashboardPage'
 import { CampaignPage } from './pages/CampaignPage'
 import { CharacterPage } from './pages/CharacterPage'
 import { ProfilePage } from './pages/ProfilePage'
+import { SchedulePage } from './pages/SchedulePage'
 import { SignInPage } from './pages/SignInPage'
 import './App.css'
 
@@ -74,6 +75,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <ProfilePage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/campaigns/:campaignId/schedule"
+        element={
+          <ProtectedRoute>
+            <SchedulePage />
           </ProtectedRoute>
         }
       />

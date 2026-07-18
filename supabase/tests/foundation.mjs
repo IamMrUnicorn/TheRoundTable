@@ -152,6 +152,34 @@ const { data: roleUpdate, response: roleUpdateResponse } = await request(
 assert.equal(roleUpdateResponse.status, 200)
 assert.equal(roleUpdate[0].role, 'game_master')
 
+const { data: availabilityRows, response: availabilityResponse } = await request(
+  '/rest/v1/availability_rules',
+  {
+    token: outsider.token,
+    method: 'POST',
+    body: { campaign_id: campaignId, user_id: outsider.id, weekday: 6, start_minute: 1080, end_minute: 1320, preference: 'preferred' },
+  },
+)
+assert.equal(availabilityResponse.status, 201)
+assert.equal(availabilityRows[0].weekday, 6)
+
+const start = new Date(Date.now() + 86_400_000)
+const end = new Date(start.getTime() + 3 * 60 * 60 * 1000)
+const { data: sessionRows, response: sessionResponse } = await request('/rest/v1/sessions', {
+  token: outsider.token,
+  method: 'POST',
+  body: { campaign_id: campaignId, created_by: outsider.id, title: 'The next chapter', starts_at: start.toISOString(), ends_at: end.toISOString() },
+})
+assert.equal(sessionResponse.status, 201)
+assert.equal(sessionRows[0].title, 'The next chapter')
+
+const { response: attendanceResponse } = await request('/rest/v1/session_attendance', {
+  token: owner.token,
+  method: 'POST',
+  body: { session_id: sessionRows[0].id, user_id: owner.id, response: 'attending', responded_at: new Date().toISOString() },
+})
+assert.equal(attendanceResponse.status, 201)
+
 const { data: forbiddenUpdate, response: forbiddenUpdateResponse } =
   await request(`/rest/v1/characters?id=eq.${characterId}`, {
     token: outsider.token,

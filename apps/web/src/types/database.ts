@@ -14,6 +14,108 @@ export type Database = {
   }
   public: {
     Tables: {
+      availability_exceptions: {
+        Row: {
+          availability: string
+          campaign_id: number
+          created_at: string
+          ends_at: string
+          id: number
+          note: string
+          starts_at: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          availability: string
+          campaign_id: number
+          created_at?: string
+          ends_at: string
+          id?: never
+          note?: string
+          starts_at: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          availability?: string
+          campaign_id?: number
+          created_at?: string
+          ends_at?: string
+          id?: never
+          note?: string
+          starts_at?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'availability_exceptions_campaign_id_fkey'
+            columns: ['campaign_id']
+            isOneToOne: false
+            referencedRelation: 'campaigns'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'availability_exceptions_user_id_fkey'
+            columns: ['user_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      availability_rules: {
+        Row: {
+          campaign_id: number
+          created_at: string
+          end_minute: number
+          id: number
+          preference: string
+          start_minute: number
+          updated_at: string
+          user_id: string
+          weekday: number
+        }
+        Insert: {
+          campaign_id: number
+          created_at?: string
+          end_minute: number
+          id?: never
+          preference?: string
+          start_minute: number
+          updated_at?: string
+          user_id: string
+          weekday: number
+        }
+        Update: {
+          campaign_id?: number
+          created_at?: string
+          end_minute?: number
+          id?: never
+          preference?: string
+          start_minute?: number
+          updated_at?: string
+          user_id?: string
+          weekday?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'availability_rules_campaign_id_fkey'
+            columns: ['campaign_id']
+            isOneToOne: false
+            referencedRelation: 'campaigns'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'availability_rules_user_id_fkey'
+            columns: ['user_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       campaign_members: {
         Row: {
           campaign_id: number
@@ -228,6 +330,102 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      session_attendance: {
+        Row: {
+          note: string
+          responded_at: string | null
+          response: string
+          session_id: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          note?: string
+          responded_at?: string | null
+          response?: string
+          session_id: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          note?: string
+          responded_at?: string | null
+          response?: string
+          session_id?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'session_attendance_session_id_fkey'
+            columns: ['session_id']
+            isOneToOne: false
+            referencedRelation: 'sessions'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'session_attendance_user_id_fkey'
+            columns: ['user_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      sessions: {
+        Row: {
+          agenda: string
+          campaign_id: number
+          created_at: string
+          created_by: string
+          ends_at: string
+          id: number
+          starts_at: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          agenda?: string
+          campaign_id: number
+          created_at?: string
+          created_by: string
+          ends_at: string
+          id?: never
+          starts_at: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          agenda?: string
+          campaign_id?: number
+          created_at?: string
+          created_by?: string
+          ends_at?: string
+          id?: never
+          starts_at?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'sessions_campaign_id_fkey'
+            columns: ['campaign_id']
+            isOneToOne: false
+            referencedRelation: 'campaigns'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'sessions_created_by_fkey'
+            columns: ['created_by']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
       }
     }
     Views: {

@@ -407,6 +407,140 @@ button:disabled {
   font-weight: 400;
 }
 
+.schedule-page {
+  width: min(90%, 76rem);
+  margin: 0 auto;
+  padding: clamp(3rem, 7vw, 6rem) 0;
+}
+.schedule-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-top: 3rem;
+}
+.schedule-page form {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.8rem;
+  margin-top: 1rem;
+}
+.schedule-page form label {
+  display: grid;
+  gap: 0.35rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+.schedule-page input,
+.schedule-page select,
+.schedule-page textarea {
+  border: 1px solid var(--line);
+  border-radius: 0.6rem;
+  padding: 0.7rem;
+  background: #101817;
+  color: var(--ink);
+}
+.schedule-page form button,
+.schedule-page form label:last-of-type {
+  grid-column: 1 / -1;
+}
+.schedule-list {
+  display: grid;
+  gap: 0.6rem;
+  margin-top: 1.3rem;
+}
+.schedule-list article {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border-top: 1px solid var(--line);
+  padding-top: 0.7rem;
+}
+.schedule-list article > div {
+  display: grid;
+  gap: 0.2rem;
+}
+.schedule-list span {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+.icon-button-static {
+  min-height: 2rem;
+  padding: 0.4rem;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--muted);
+}
+.session-proposal {
+  margin-top: 1rem;
+}
+.recommendations-panel {
+  margin-top: 1rem;
+}
+.recommendation-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.7rem;
+}
+.recommendation-grid article {
+  display: grid;
+  gap: 0.35rem;
+  border: 1px solid var(--line);
+  border-radius: 0.7rem;
+  padding: 0.9rem;
+  background: #101817;
+}
+.recommendation-grid span {
+  color: var(--gold);
+  font-weight: 800;
+}
+.recommendation-grid small {
+  color: var(--muted);
+}
+.response-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: auto;
+  padding-top: 1rem;
+}
+.response-buttons button {
+  min-height: 2.2rem;
+  padding: 0.45rem 0.65rem;
+  text-transform: capitalize;
+}
+.attendance-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+.manager-session-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 0.7rem;
+}
+.manager-session-actions button {
+  min-height: 2.2rem;
+  padding: 0.45rem 0.65rem;
+}
+.reschedule-panel {
+  margin-top: 0.7rem;
+  border-top: 1px solid var(--line);
+  padding-top: 0.7rem;
+}
+.reschedule-panel summary {
+  color: var(--gold);
+  cursor: pointer;
+  font-weight: 800;
+}
+.reschedule-panel form {
+  grid-template-columns: 1fr;
+}
+
 .character-sheet form {
   display: grid;
   gap: 2rem;
@@ -789,6 +923,17 @@ button:disabled {
 }
 
 @media (max-width: 800px) {
+  .schedule-grid,
+  .schedule-page form {
+    grid-template-columns: 1fr;
+  }
+  .recommendation-grid {
+    grid-template-columns: 1fr;
+  }
+  .schedule-page form button,
+  .schedule-page form label:last-of-type {
+    grid-column: auto;
+  }
   .campaign-settings form {
     grid-template-columns: 1fr;
   }
