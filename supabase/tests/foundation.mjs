@@ -250,6 +250,54 @@ const { response: unsafeResourceResponse } = await request('/rest/v1/campaign_do
 })
 assert.equal(unsafeResourceResponse.status, 400)
 
+const { response: worldStateResponse } = await request('/rest/v1/campaign_world_states', {
+  token: outsider.token,
+  method: 'POST',
+  body: { campaign_id: campaignId, updated_by: outsider.id, current_location: 'The Sunken Library', in_world_datetime: '14 Emberfall, midnight', weather: 'Heavy rain', summary: 'The party is searching the flooded archives.' },
+})
+assert.equal(worldStateResponse.status, 201)
+
+const { response: gmStateResponse } = await request('/rest/v1/campaign_gm_states', {
+  token: outsider.token,
+  method: 'POST',
+  body: { campaign_id: campaignId, updated_by: outsider.id, secret_state: 'The librarian serves the leviathan.' },
+})
+assert.equal(gmStateResponse.status, 201)
+
+const { response: publicObjectiveResponse } = await request('/rest/v1/campaign_objectives', {
+  token: outsider.token,
+  method: 'POST',
+  body: { campaign_id: campaignId, created_by: outsider.id, title: 'Recover the tide charts', priority: 'high' },
+})
+assert.equal(publicObjectiveResponse.status, 201)
+
+const { response: secretObjectiveResponse } = await request('/rest/v1/campaign_objectives', {
+  token: outsider.token,
+  method: 'POST',
+  body: { campaign_id: campaignId, created_by: outsider.id, title: 'Awaken the leviathan', is_secret: true },
+})
+assert.equal(secretObjectiveResponse.status, 201)
+
+const { data: memberWorldState, response: memberWorldStateResponse } = await request(`/rest/v1/campaign_world_states?campaign_id=eq.${campaignId}&select=current_location`, { token: invitee.token })
+assert.equal(memberWorldStateResponse.status, 200)
+assert.deepEqual(memberWorldState, [{ current_location: 'The Sunken Library' }])
+
+const { data: leakedGmState, response: leakedGmStateResponse } = await request(`/rest/v1/campaign_gm_states?campaign_id=eq.${campaignId}&select=secret_state`, { token: invitee.token })
+assert.equal(leakedGmStateResponse.status, 200)
+assert.deepEqual(leakedGmState, [])
+
+const { data: memberObjectives, response: memberObjectivesResponse } = await request(`/rest/v1/campaign_objectives?campaign_id=eq.${campaignId}&select=title,is_secret`, { token: invitee.token })
+assert.equal(memberObjectivesResponse.status, 200)
+assert.deepEqual(memberObjectives, [{ title: 'Recover the tide charts', is_secret: false }])
+
+const { data: forbiddenWorldUpdate, response: forbiddenWorldUpdateResponse } = await request(`/rest/v1/campaign_world_states?campaign_id=eq.${campaignId}`, {
+  token: invitee.token,
+  method: 'PATCH',
+  body: { weather: 'Suddenly sunny', updated_by: invitee.id },
+})
+assert.equal(forbiddenWorldUpdateResponse.status, 200)
+assert.deepEqual(forbiddenWorldUpdate, [])
+
 const { data: ownerNotifications, response: ownerNotificationsResponse } = await request('/rest/v1/notifications?select=kind,title&order=created_at.asc', { token: owner.token })
 assert.equal(ownerNotificationsResponse.status, 200)
 assert.ok(ownerNotifications.some((item) => item.kind === 'session_proposed'))

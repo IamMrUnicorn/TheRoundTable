@@ -25,6 +25,7 @@ import {
 } from '../features/campaigns/campaigns'
 import { listCampaignCharacters } from '../features/characters/characters'
 import { CampaignKnowledgePanel } from '../features/knowledge/CampaignKnowledgePanel'
+import { CampaignStoryPanel } from '../features/story/CampaignStoryPanel'
 import {
   cancelCampaignInvitation,
   createCampaignInvitation,
@@ -337,6 +338,12 @@ export function CampaignPage() {
                 </section>
 
                 <CampaignKnowledgePanel
+                  campaignId={campaignId}
+                  isManager={isManager}
+                  userId={identity!.id}
+                />
+
+                <CampaignStoryPanel
                   campaignId={campaignId}
                   isManager={isManager}
                   userId={identity!.id}

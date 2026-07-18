@@ -172,6 +172,38 @@ create table public.campaign_documents (
   check (kind = 'note' or url ~* '^https?://')
 );
 
+create table public.campaign_world_states (
+  campaign_id bigint primary key references public.campaigns (id) on delete cascade,
+  updated_by uuid not null references public.profiles (id) on delete restrict,
+  current_location text not null default '' check (char_length(current_location) <= 200),
+  in_world_datetime text not null default '' check (char_length(in_world_datetime) <= 200),
+  weather text not null default '' check (char_length(weather) <= 500),
+  summary text not null default '' check (char_length(summary) <= 5000),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table public.campaign_gm_states (
+  campaign_id bigint primary key references public.campaigns (id) on delete cascade,
+  updated_by uuid not null references public.profiles (id) on delete restrict,
+  secret_state text not null default '' check (char_length(secret_state) <= 10000),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table public.campaign_objectives (
+  id bigint generated always as identity primary key,
+  campaign_id bigint not null references public.campaigns (id) on delete cascade,
+  created_by uuid not null references public.profiles (id) on delete restrict,
+  title text not null check (char_length(title) between 1 and 160),
+  description text not null default '' check (char_length(description) <= 5000),
+  status text not null default 'active' check (status in ('active', 'completed', 'failed', 'abandoned')),
+  priority text not null default 'normal' check (priority in ('low', 'normal', 'high')),
+  is_secret boolean not null default false,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
 create index campaigns_owner_id_idx on public.campaigns (owner_id);
 create index campaign_members_user_id_status_idx
   on public.campaign_members (user_id, status);
@@ -195,6 +227,10 @@ create index campaign_invitations_invited_by_idx on public.campaign_invitations 
 create index campaign_documents_campaign_visibility_idx
   on public.campaign_documents (campaign_id, visibility, is_pinned desc, updated_at desc);
 create index campaign_documents_author_id_idx on public.campaign_documents (author_id);
+create index campaign_world_states_updated_by_idx on public.campaign_world_states (updated_by);
+create index campaign_gm_states_updated_by_idx on public.campaign_gm_states (updated_by);
+create index campaign_objectives_campaign_status_idx on public.campaign_objectives (campaign_id, status, priority, updated_at desc);
+create index campaign_objectives_created_by_idx on public.campaign_objectives (created_by);
 
 create function private.set_updated_at()
 returns trigger
@@ -229,6 +265,9 @@ create trigger sessions_set_updated_at before update on public.sessions for each
 create trigger session_attendance_set_updated_at before update on public.session_attendance for each row execute function private.set_updated_at();
 create trigger campaign_announcements_set_updated_at before update on public.campaign_announcements for each row execute function private.set_updated_at();
 create trigger campaign_documents_set_updated_at before update on public.campaign_documents for each row execute function private.set_updated_at();
+create trigger campaign_world_states_set_updated_at before update on public.campaign_world_states for each row execute function private.set_updated_at();
+create trigger campaign_gm_states_set_updated_at before update on public.campaign_gm_states for each row execute function private.set_updated_at();
+create trigger campaign_objectives_set_updated_at before update on public.campaign_objectives for each row execute function private.set_updated_at();
 
 create function private.notify_campaign_announcement()
 returns trigger language plpgsql security definer set search_path = '' as $$
@@ -480,6 +519,9 @@ alter table public.campaign_announcements enable row level security;
 alter table public.notifications enable row level security;
 alter table public.campaign_invitations enable row level security;
 alter table public.campaign_documents enable row level security;
+alter table public.campaign_world_states enable row level security;
+alter table public.campaign_gm_states enable row level security;
+alter table public.campaign_objectives enable row level security;
 
 create policy profiles_select_own
 on public.profiles for select
@@ -630,6 +672,36 @@ with check ((select private.is_campaign_member(campaign_id)) and (author_id = (s
 create policy campaign_documents_delete_author_or_manager on public.campaign_documents for delete to authenticated
 using (author_id = (select auth.uid()) or (select private.is_campaign_manager(campaign_id)));
 
+create policy campaign_world_states_select_members on public.campaign_world_states for select to authenticated
+using ((select private.is_campaign_member(campaign_id)));
+create policy campaign_world_states_insert_managers on public.campaign_world_states for insert to authenticated
+with check (updated_by = (select auth.uid()) and (select private.is_campaign_manager(campaign_id)));
+create policy campaign_world_states_update_managers on public.campaign_world_states for update to authenticated
+using ((select private.is_campaign_manager(campaign_id)))
+with check (updated_by = (select auth.uid()) and (select private.is_campaign_manager(campaign_id)));
+create policy campaign_world_states_delete_managers on public.campaign_world_states for delete to authenticated
+using ((select private.is_campaign_manager(campaign_id)));
+
+create policy campaign_gm_states_select_managers on public.campaign_gm_states for select to authenticated
+using ((select private.is_campaign_manager(campaign_id)));
+create policy campaign_gm_states_insert_managers on public.campaign_gm_states for insert to authenticated
+with check (updated_by = (select auth.uid()) and (select private.is_campaign_manager(campaign_id)));
+create policy campaign_gm_states_update_managers on public.campaign_gm_states for update to authenticated
+using ((select private.is_campaign_manager(campaign_id)))
+with check (updated_by = (select auth.uid()) and (select private.is_campaign_manager(campaign_id)));
+create policy campaign_gm_states_delete_managers on public.campaign_gm_states for delete to authenticated
+using ((select private.is_campaign_manager(campaign_id)));
+
+create policy campaign_objectives_select_allowed on public.campaign_objectives for select to authenticated
+using ((select private.is_campaign_member(campaign_id)) and (not is_secret or (select private.is_campaign_manager(campaign_id))));
+create policy campaign_objectives_insert_managers on public.campaign_objectives for insert to authenticated
+with check (created_by = (select auth.uid()) and (select private.is_campaign_manager(campaign_id)));
+create policy campaign_objectives_update_managers on public.campaign_objectives for update to authenticated
+using ((select private.is_campaign_manager(campaign_id)))
+with check ((select private.is_campaign_manager(campaign_id)));
+create policy campaign_objectives_delete_managers on public.campaign_objectives for delete to authenticated
+using ((select private.is_campaign_manager(campaign_id)));
+
 grant usage on schema public to authenticated;
 revoke all on table public.profiles from anon, authenticated;
 revoke all on table public.campaigns from anon, authenticated;
@@ -640,6 +712,7 @@ revoke all on table public.campaign_announcements from anon, authenticated;
 revoke all on table public.notifications from anon, authenticated;
 revoke all on table public.campaign_invitations from anon, authenticated;
 revoke all on table public.campaign_documents from anon, authenticated;
+revoke all on table public.campaign_world_states, public.campaign_gm_states, public.campaign_objectives from anon, authenticated;
 revoke all on sequence public.campaigns_id_seq from anon, authenticated;
 revoke all on sequence public.characters_id_seq from anon, authenticated;
 revoke all on sequence public.availability_rules_id_seq, public.availability_exceptions_id_seq, public.sessions_id_seq from anon, authenticated;
@@ -647,6 +720,7 @@ revoke all on sequence public.campaign_announcements_id_seq from anon, authentic
 revoke all on sequence public.notifications_id_seq from anon, authenticated;
 revoke all on sequence public.campaign_invitations_id_seq from anon, authenticated;
 revoke all on sequence public.campaign_documents_id_seq from anon, authenticated;
+revoke all on sequence public.campaign_objectives_id_seq from anon, authenticated;
 grant select, update on table public.profiles to authenticated;
 grant select, insert, update, delete on table public.campaigns to authenticated;
 grant select, insert, update, delete on table public.campaign_members to authenticated;
@@ -656,8 +730,10 @@ grant select, insert, update, delete on table public.campaign_announcements to a
 grant select, update, delete on table public.notifications to authenticated;
 grant select, insert, update, delete on table public.campaign_invitations to authenticated;
 grant select, insert, update, delete on table public.campaign_documents to authenticated;
+grant select, insert, update, delete on table public.campaign_world_states, public.campaign_gm_states, public.campaign_objectives to authenticated;
 grant usage, select on sequence public.campaign_invitations_id_seq to authenticated;
 grant usage, select on sequence public.campaign_documents_id_seq to authenticated;
+grant usage, select on sequence public.campaign_objectives_id_seq to authenticated;
 grant usage, select on sequence public.campaigns_id_seq to authenticated;
 grant usage, select on sequence public.characters_id_seq to authenticated;
 grant usage, select on sequence public.availability_rules_id_seq, public.availability_exceptions_id_seq, public.sessions_id_seq to authenticated;

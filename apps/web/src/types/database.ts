@@ -221,6 +221,45 @@ export type Database = {
           },
         ]
       }
+      campaign_gm_states: {
+        Row: {
+          campaign_id: number
+          created_at: string
+          secret_state: string
+          updated_at: string
+          updated_by: string
+        }
+        Insert: {
+          campaign_id: number
+          created_at?: string
+          secret_state?: string
+          updated_at?: string
+          updated_by: string
+        }
+        Update: {
+          campaign_id?: number
+          created_at?: string
+          secret_state?: string
+          updated_at?: string
+          updated_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'campaign_gm_states_campaign_id_fkey'
+            columns: ['campaign_id']
+            isOneToOne: true
+            referencedRelation: 'campaigns'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'campaign_gm_states_updated_by_fkey'
+            columns: ['updated_by']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       campaign_invitations: {
         Row: {
           campaign_id: number
@@ -314,6 +353,108 @@ export type Database = {
           {
             foreignKeyName: 'campaign_members_user_id_fkey'
             columns: ['user_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      campaign_objectives: {
+        Row: {
+          campaign_id: number
+          created_at: string
+          created_by: string
+          description: string
+          id: number
+          is_secret: boolean
+          priority: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          campaign_id: number
+          created_at?: string
+          created_by: string
+          description?: string
+          id?: never
+          is_secret?: boolean
+          priority?: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          campaign_id?: number
+          created_at?: string
+          created_by?: string
+          description?: string
+          id?: never
+          is_secret?: boolean
+          priority?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'campaign_objectives_campaign_id_fkey'
+            columns: ['campaign_id']
+            isOneToOne: false
+            referencedRelation: 'campaigns'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'campaign_objectives_created_by_fkey'
+            columns: ['created_by']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      campaign_world_states: {
+        Row: {
+          campaign_id: number
+          created_at: string
+          current_location: string
+          in_world_datetime: string
+          summary: string
+          updated_at: string
+          updated_by: string
+          weather: string
+        }
+        Insert: {
+          campaign_id: number
+          created_at?: string
+          current_location?: string
+          in_world_datetime?: string
+          summary?: string
+          updated_at?: string
+          updated_by: string
+          weather?: string
+        }
+        Update: {
+          campaign_id?: number
+          created_at?: string
+          current_location?: string
+          in_world_datetime?: string
+          summary?: string
+          updated_at?: string
+          updated_by?: string
+          weather?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'campaign_world_states_campaign_id_fkey'
+            columns: ['campaign_id']
+            isOneToOne: true
+            referencedRelation: 'campaigns'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'campaign_world_states_updated_by_fkey'
+            columns: ['updated_by']
             isOneToOne: false
             referencedRelation: 'profiles'
             referencedColumns: ['id']
