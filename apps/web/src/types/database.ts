@@ -701,6 +701,65 @@ export type Database = {
           },
         ]
       }
+      character_features: {
+        Row: {
+          character_id: number
+          created_at: string
+          description: string
+          id: number
+          is_active: boolean
+          kind: string
+          level_acquired: number | null
+          max_uses: number | null
+          name: string
+          recovery: string | null
+          sort_order: number
+          source: string
+          updated_at: string
+          uses_remaining: number | null
+        }
+        Insert: {
+          character_id: number
+          created_at?: string
+          description?: string
+          id?: never
+          is_active?: boolean
+          kind?: string
+          level_acquired?: number | null
+          max_uses?: number | null
+          name: string
+          recovery?: string | null
+          sort_order?: number
+          source?: string
+          updated_at?: string
+          uses_remaining?: number | null
+        }
+        Update: {
+          character_id?: number
+          created_at?: string
+          description?: string
+          id?: never
+          is_active?: boolean
+          kind?: string
+          level_acquired?: number | null
+          max_uses?: number | null
+          name?: string
+          recovery?: string | null
+          sort_order?: number
+          source?: string
+          updated_at?: string
+          uses_remaining?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'character_features_character_id_fkey'
+            columns: ['character_id']
+            isOneToOne: false
+            referencedRelation: 'characters'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       characters: {
         Row: {
           age: string

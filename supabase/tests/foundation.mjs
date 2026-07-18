@@ -288,6 +288,73 @@ assert.deepEqual(partyCharacterDetails, [
   },
 ])
 
+const { data: featureRows, response: featureResponse } = await request(
+  '/rest/v1/character_features',
+  {
+    token: owner.token,
+    method: 'POST',
+    body: {
+      character_id: characterId,
+      kind: 'class_feature',
+      name: 'Second Wind',
+      source: 'Fighter 1',
+      description: 'Recover a burst of stamina as a bonus action.',
+      level_acquired: 1,
+      max_uses: 1,
+      uses_remaining: 1,
+      recovery: 'short_rest',
+    },
+  },
+)
+assert.equal(featureResponse.status, 201)
+assert.equal(featureRows[0].name, 'Second Wind')
+const featureId = featureRows[0].id
+
+const { data: partyFeatures, response: partyFeaturesResponse } = await request(
+  `/rest/v1/character_features?character_id=eq.${characterId}&select=id,name,kind,uses_remaining,max_uses`,
+  { token: outsider.token },
+)
+assert.equal(partyFeaturesResponse.status, 200)
+assert.deepEqual(partyFeatures, [
+  {
+    id: featureId,
+    name: 'Second Wind',
+    kind: 'class_feature',
+    uses_remaining: 1,
+    max_uses: 1,
+  },
+])
+
+const { data: forbiddenFeatureUpdate, response: forbiddenFeatureResponse } =
+  await request(`/rest/v1/character_features?id=eq.${featureId}`, {
+    token: outsider.token,
+    method: 'PATCH',
+    body: { uses_remaining: 0 },
+  })
+assert.equal(forbiddenFeatureResponse.status, 200)
+assert.deepEqual(forbiddenFeatureUpdate, [])
+
+const { response: invalidFeatureUsesResponse } = await request(
+  `/rest/v1/character_features?id=eq.${featureId}`,
+  {
+    token: owner.token,
+    method: 'PATCH',
+    body: { uses_remaining: 2 },
+  },
+)
+assert.equal(invalidFeatureUsesResponse.status, 400)
+
+const { data: spentFeature, response: spentFeatureResponse } = await request(
+  `/rest/v1/character_features?id=eq.${featureId}`,
+  {
+    token: owner.token,
+    method: 'PATCH',
+    body: { uses_remaining: 0 },
+  },
+)
+assert.equal(spentFeatureResponse.status, 200)
+assert.equal(spentFeature[0].uses_remaining, 0)
+
 const { data: forbiddenCampaignUpdate, response: forbiddenCampaignUpdateResponse } =
   await request(`/rest/v1/campaigns?id=eq.${campaignId}`, {
     token: outsider.token,

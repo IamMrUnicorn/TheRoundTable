@@ -105,6 +105,28 @@ create table public.characters (
   constraint characters_check check (current_hp <= max_hp)
 );
 
+create table public.character_features (
+  id bigint generated always as identity primary key,
+  character_id bigint not null references public.characters (id) on delete cascade,
+  kind text not null default 'class_feature'
+    check (kind in ('class_feature', 'subclass_feature', 'ancestry_feature', 'background_feature', 'feat', 'passive', 'resource', 'other')),
+  name text not null check (char_length(name) between 1 and 120),
+  source text not null default '' check (char_length(source) <= 120),
+  description text not null default '' check (char_length(description) <= 10000),
+  level_acquired smallint check (level_acquired is null or level_acquired between 1 and 20),
+  max_uses smallint check (max_uses is null or max_uses between 1 and 999),
+  uses_remaining smallint check (uses_remaining is null or uses_remaining between 0 and 999),
+  recovery text check (recovery is null or recovery in ('short_rest', 'long_rest', 'dawn', 'other')),
+  is_active boolean not null default true,
+  sort_order smallint not null default 0 check (sort_order between -9999 and 9999),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  constraint character_features_uses_check check (
+    (max_uses is null and uses_remaining is null and recovery is null)
+    or (max_uses is not null and uses_remaining is not null and uses_remaining <= max_uses)
+  )
+);
+
 create table public.availability_rules (
   id bigint generated always as identity primary key,
   campaign_id bigint not null references public.campaigns (id) on delete cascade,
@@ -293,6 +315,8 @@ create index campaign_members_user_id_status_idx
 create index characters_owner_id_idx on public.characters (owner_id);
 create index characters_campaign_id_idx on public.characters (campaign_id)
   where campaign_id is not null;
+create index character_features_character_kind_idx
+  on public.character_features (character_id, kind, sort_order, name);
 create index availability_rules_user_campaign_idx on public.availability_rules (user_id, campaign_id);
 create index availability_exceptions_campaign_time_idx on public.availability_exceptions (campaign_id, starts_at, ends_at);
 create index availability_exceptions_user_id_idx on public.availability_exceptions (user_id);
@@ -347,6 +371,10 @@ for each row execute function private.set_updated_at();
 
 create trigger characters_set_updated_at
 before update on public.characters
+for each row execute function private.set_updated_at();
+
+create trigger character_features_set_updated_at
+before update on public.character_features
 for each row execute function private.set_updated_at();
 
 create trigger availability_rules_set_updated_at before update on public.availability_rules for each row execute function private.set_updated_at();
@@ -652,6 +680,7 @@ alter table public.profiles enable row level security;
 alter table public.campaigns enable row level security;
 alter table public.campaign_members enable row level security;
 alter table public.characters enable row level security;
+alter table public.character_features enable row level security;
 alter table public.availability_rules enable row level security;
 alter table public.availability_exceptions enable row level security;
 alter table public.sessions enable row level security;
@@ -772,6 +801,56 @@ on public.characters for delete
 to authenticated
 using (owner_id = (select auth.uid()));
 
+create policy character_features_select_visible_character
+on public.character_features for select
+to authenticated
+using (
+  exists (
+    select 1 from public.characters
+    where characters.id = character_features.character_id
+  )
+);
+
+create policy character_features_insert_character_owner
+on public.character_features for insert
+to authenticated
+with check (
+  exists (
+    select 1 from public.characters
+    where characters.id = character_features.character_id
+      and characters.owner_id = (select auth.uid())
+  )
+);
+
+create policy character_features_update_character_owner
+on public.character_features for update
+to authenticated
+using (
+  exists (
+    select 1 from public.characters
+    where characters.id = character_features.character_id
+      and characters.owner_id = (select auth.uid())
+  )
+)
+with check (
+  exists (
+    select 1 from public.characters
+    where characters.id = character_features.character_id
+      and characters.owner_id = (select auth.uid())
+  )
+);
+
+create policy character_features_delete_character_owner
+on public.character_features for delete
+to authenticated
+using (
+  exists (
+    select 1 from public.characters
+    where characters.id = character_features.character_id
+      and characters.owner_id = (select auth.uid())
+  )
+);
+
 create policy availability_rules_select_members on public.availability_rules for select to authenticated using ((select private.is_campaign_member(campaign_id)));
 create policy availability_rules_insert_own on public.availability_rules for insert to authenticated with check (user_id = (select auth.uid()) and (select private.is_campaign_member(campaign_id)));
 create policy availability_rules_update_own on public.availability_rules for update to authenticated using (user_id = (select auth.uid())) with check (user_id = (select auth.uid()) and (select private.is_campaign_member(campaign_id)));
@@ -890,6 +969,7 @@ revoke all on table public.campaign_inventory_items, public.campaign_tasks from 
 revoke all on table public.campaign_references from anon, authenticated;
 revoke all on sequence public.campaigns_id_seq from anon, authenticated;
 revoke all on sequence public.characters_id_seq from anon, authenticated;
+revoke all on sequence public.character_features_id_seq from anon, authenticated;
 revoke all on sequence public.availability_rules_id_seq, public.availability_exceptions_id_seq, public.sessions_id_seq from anon, authenticated;
 revoke all on sequence public.campaign_announcements_id_seq from anon, authenticated;
 revoke all on sequence public.notifications_id_seq from anon, authenticated;
@@ -902,6 +982,7 @@ grant select, update on table public.profiles to authenticated;
 grant select, insert, update, delete on table public.campaigns to authenticated;
 grant select, insert, update, delete on table public.campaign_members to authenticated;
 grant select, insert, update, delete on table public.characters to authenticated;
+grant select, insert, update, delete on table public.character_features to authenticated;
 grant select, insert, update, delete on table public.availability_rules, public.availability_exceptions, public.sessions, public.session_attendance to authenticated;
 grant select, insert, update, delete on table public.campaign_announcements to authenticated;
 grant select, update, delete on table public.notifications to authenticated;
@@ -917,5 +998,6 @@ grant usage, select on sequence public.campaign_inventory_items_id_seq, public.c
 grant usage, select on sequence public.campaign_references_id_seq to authenticated;
 grant usage, select on sequence public.campaigns_id_seq to authenticated;
 grant usage, select on sequence public.characters_id_seq to authenticated;
+grant usage, select on sequence public.character_features_id_seq to authenticated;
 grant usage, select on sequence public.availability_rules_id_seq, public.availability_exceptions_id_seq, public.sessions_id_seq to authenticated;
 grant usage, select on sequence public.campaign_announcements_id_seq to authenticated;

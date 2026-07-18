@@ -1,9 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ArrowLeft, Dices, Heart, Shield, Sparkles } from 'lucide-react'
-import { type FormEvent, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, Navigate, useParams } from 'react-router-dom'
 
 import { useAuth } from '../features/auth/auth-context'
+import { CharacterFeaturesPanel } from '../features/characters/CharacterFeaturesPanel'
 import {
   type Character,
   getCharacter,
@@ -312,12 +313,7 @@ export function CharacterPage() {
           <p className="muted-copy">Opening character sheet…</p>
         )}
         {character.data && (
-          <form
-            onSubmit={(event: FormEvent) => {
-              event.preventDefault()
-              save.mutate()
-            }}
-          >
+          <div className="character-sheet-editor">
             <div className="sheet-heading">
               <div>
                 <p className="eyebrow">Level {draft.level} character</p>
@@ -334,7 +330,11 @@ export function CharacterPage() {
                 </p>
               </div>
               {canEdit && (
-                <button disabled={save.isPending}>
+                <button
+                  type="button"
+                  disabled={save.isPending}
+                  onClick={() => save.mutate()}
+                >
                   {save.isPending ? 'Saving…' : 'Save sheet'}
                 </button>
               )}
@@ -882,14 +882,12 @@ export function CharacterPage() {
               </div>
             )}
             {activeTab === 'abilities' && (
-              <section className="character-tab-panel upcoming-tab">
-                <p className="eyebrow">Adaptive character tools</p>
-                <h2>Abilities & spells</h2>
-                <p className="muted-copy">
-                  Class features, feats, passives, resources, and spellcasting
-                  will appear here as those systems are connected.
-                </p>
-              </section>
+              <div className="character-tab-panel">
+                <CharacterFeaturesPanel
+                  canEdit={Boolean(canEdit)}
+                  characterId={characterId}
+                />
+              </div>
             )}
             {activeTab === 'memory' && (
               <section className="character-tab-panel memory-panel">
@@ -911,7 +909,7 @@ export function CharacterPage() {
                 </p>
               </section>
             )}
-          </form>
+          </div>
         )}
       </section>
     </main>
