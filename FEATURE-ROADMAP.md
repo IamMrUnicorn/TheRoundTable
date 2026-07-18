@@ -75,7 +75,7 @@ This is the source-of-truth checklist for the entire application. Completed work
 - [ ] Shared handouts and campaign notes.
 - [ ] Private Game Master notes.
 - [ ] Current quests, objectives, and party inventory.
-- [ ] Campaign calendar and session history.
+- [x] Campaign calendar and session history.
 - [ ] Current location, in-world date/time, weather, and world state.
 - [ ] NPC, faction, and location references.
 - [ ] Downtime activities and preparation checklist.

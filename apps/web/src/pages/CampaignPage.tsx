@@ -5,6 +5,7 @@ import {
   Clock3,
   Copy,
   Dices,
+  History,
   Shield,
   Users,
 } from 'lucide-react'
@@ -31,6 +32,7 @@ import {
 import {
   getCampaignAvailabilitySummary,
   getNextCampaignSession,
+  listCampaignSessionHistory,
 } from '../features/scheduling/scheduling'
 
 export function CampaignPage() {
@@ -81,6 +83,11 @@ export function CampaignPage() {
   const availabilitySummary = useQuery({
     queryKey: ['campaign-availability-summary', campaignId],
     queryFn: () => getCampaignAvailabilitySummary(campaignId),
+    enabled: campaignId > 0,
+  })
+  const sessionHistory = useQuery({
+    queryKey: ['campaign-session-history', campaignId],
+    queryFn: () => listCampaignSessionHistory(campaignId),
     enabled: campaignId > 0,
   })
   useEffect(() => {
@@ -752,6 +759,77 @@ export function CampaignPage() {
                     </section>
                   )}
                 </div>
+
+                <section className="session-history-section">
+                  <div className="section-heading">
+                    <div>
+                      <p className="eyebrow">The story so far</p>
+                      <h2>Session history</h2>
+                    </div>
+                    <History aria-hidden="true" />
+                  </div>
+                  {sessionHistory.isLoading && (
+                    <p className="muted-copy">Opening the campaign log…</p>
+                  )}
+                  {sessionHistory.isError && (
+                    <p className="form-message error">
+                      Session history could not be loaded.
+                    </p>
+                  )}
+                  {sessionHistory.data?.length === 0 && (
+                    <div className="compact-history-empty">
+                      <History aria-hidden="true" />
+                      <div>
+                        <h3>No finished sessions yet.</h3>
+                        <p>
+                          Completed and cancelled sessions will remain here as
+                          the campaign's calendar archive.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                  <div className="session-history-list">
+                    {sessionHistory.data?.map((session) => (
+                      <article key={session.id}>
+                        <div className="history-date">
+                          <strong>
+                            {new Date(session.starts_at).toLocaleDateString(
+                              undefined,
+                              { day: 'numeric' },
+                            )}
+                          </strong>
+                          <span>
+                            {new Date(session.starts_at).toLocaleDateString(
+                              undefined,
+                              { month: 'short', year: 'numeric' },
+                            )}
+                          </span>
+                        </div>
+                        <div>
+                          <span className={`history-status ${session.status}`}>
+                            {session.status}
+                          </span>
+                          <h3>{session.title}</h3>
+                          <p>
+                            {new Date(session.starts_at).toLocaleTimeString(
+                              undefined,
+                              { hour: 'numeric', minute: '2-digit' },
+                            )}{' '}
+                            · {session.attending} attending ·{' '}
+                            {session.responses} responses
+                          </p>
+                          {session.agenda && <p>{session.agenda}</p>}
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                  <Link
+                    className="card-link"
+                    to={`/campaigns/${campaignId}/schedule`}
+                  >
+                    Open full campaign calendar <CalendarDays size={17} />
+                  </Link>
+                </section>
               </>
             )
           })()}

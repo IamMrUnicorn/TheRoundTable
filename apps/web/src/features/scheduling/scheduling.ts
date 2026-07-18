@@ -102,6 +102,40 @@ export async function getCampaignAvailabilitySummary(campaignId: number) {
   }
 }
 
+export async function listCampaignSessionHistory(campaignId: number) {
+  const { data: sessions, error: sessionsError } = await supabase
+    .from('sessions')
+    .select('*')
+    .eq('campaign_id', campaignId)
+    .in('status', ['completed', 'cancelled'])
+    .order('starts_at', { ascending: false })
+    .limit(8)
+
+  if (sessionsError) throw sessionsError
+  if (!sessions.length) return []
+
+  const sessionIds = sessions.map((session) => session.id)
+  const { data: attendance, error: attendanceError } = await supabase
+    .from('session_attendance')
+    .select('response, session_id')
+    .in('session_id', sessionIds)
+
+  if (attendanceError) throw attendanceError
+
+  return sessions.map((session) => {
+    const responses = (attendance ?? []).filter(
+      (response) => response.session_id === session.id,
+    )
+    return {
+      ...session,
+      attending: responses.filter(
+        (response) => response.response === 'attending',
+      ).length,
+      responses: responses.length,
+    }
+  })
+}
+
 export async function getSchedule(campaignId: number) {
   const [rules, exceptions, sessions, attendance] = await Promise.all([
     supabase

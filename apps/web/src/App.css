@@ -1149,6 +1149,92 @@ button:disabled {
   font-size: 0.65rem;
 }
 
+.session-history-section {
+  margin-top: 3rem;
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  background: linear-gradient(145deg, #17211f, #111817);
+}
+
+.session-history-section > .section-heading svg {
+  color: var(--gold);
+}
+
+.session-history-list {
+  display: grid;
+  gap: 0.65rem;
+  margin-bottom: 1rem;
+}
+
+.session-history-list article {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1rem;
+  border-top: 1px solid var(--line);
+  padding-top: 0.8rem;
+}
+
+.session-history-list article > div:last-child {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.session-history-list h3,
+.session-history-list p,
+.compact-history-empty h3,
+.compact-history-empty p {
+  margin: 0;
+}
+
+.session-history-list p,
+.compact-history-empty p {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.history-date {
+  display: grid;
+  width: 4.2rem;
+  align-content: center;
+  color: var(--gold);
+  line-height: 1.1;
+  text-align: center;
+}
+
+.history-date strong {
+  font-size: 1.35rem;
+}
+
+.history-date span,
+.history-status {
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.history-status {
+  width: fit-content;
+  color: #9ed4ba;
+}
+
+.history-status.cancelled {
+  color: #e3a1a1;
+}
+
+.compact-history-empty {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  border-top: 1px solid var(--line);
+  padding-top: 1rem;
+}
+
+.compact-history-empty > svg {
+  color: var(--muted);
+}
+
 .member-list {
   display: grid;
   gap: 0.7rem;
