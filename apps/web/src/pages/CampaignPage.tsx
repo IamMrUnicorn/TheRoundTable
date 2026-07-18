@@ -24,6 +24,7 @@ import {
   updateMemberRole,
 } from '../features/campaigns/campaigns'
 import { listCampaignCharacters } from '../features/characters/characters'
+import { CampaignKnowledgePanel } from '../features/knowledge/CampaignKnowledgePanel'
 import {
   cancelCampaignInvitation,
   createCampaignInvitation,
@@ -334,6 +335,12 @@ export function CampaignPage() {
                     ))}
                   </div>
                 </section>
+
+                <CampaignKnowledgePanel
+                  campaignId={campaignId}
+                  isManager={isManager}
+                  userId={identity!.id}
+                />
 
                 {isManager && (
                   <section className="workspace-panel invitation-admin">

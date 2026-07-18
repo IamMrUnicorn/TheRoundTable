@@ -209,6 +209,47 @@ const { data: visibleAnnouncements, response: visibleAnnouncementsResponse } = a
 assert.equal(visibleAnnouncementsResponse.status, 200)
 assert.deepEqual(visibleAnnouncements, [{ title: 'Session update' }])
 
+const { data: sharedDocumentRows, response: sharedDocumentResponse } = await request('/rest/v1/campaign_documents', {
+  token: invitee.token,
+  method: 'POST',
+  body: { campaign_id: campaignId, author_id: invitee.id, kind: 'note', visibility: 'shared', title: 'Party clues', body: 'The northern gate bears a silver mark.' },
+})
+assert.equal(sharedDocumentResponse.status, 201)
+assert.equal(sharedDocumentRows[0].title, 'Party clues')
+
+const { data: privateDocumentRows, response: privateDocumentResponse } = await request('/rest/v1/campaign_documents', {
+  token: outsider.token,
+  method: 'POST',
+  body: { campaign_id: campaignId, author_id: outsider.id, kind: 'note', visibility: 'game_master', title: 'Hidden antagonist', body: 'The steward is the traitor.', is_pinned: true },
+})
+assert.equal(privateDocumentResponse.status, 201)
+assert.equal(privateDocumentRows[0].visibility, 'game_master')
+
+const { data: memberDocuments, response: memberDocumentsResponse } = await request(`/rest/v1/campaign_documents?campaign_id=eq.${campaignId}&select=title,visibility`, { token: invitee.token })
+assert.equal(memberDocumentsResponse.status, 200)
+assert.deepEqual(memberDocuments, [{ title: 'Party clues', visibility: 'shared' }])
+
+const { data: managerDocuments, response: managerDocumentsResponse } = await request(`/rest/v1/campaign_documents?campaign_id=eq.${campaignId}&select=title,visibility&order=title.asc`, { token: owner.token })
+assert.equal(managerDocumentsResponse.status, 200)
+assert.deepEqual(managerDocuments, [
+  { title: 'Hidden antagonist', visibility: 'game_master' },
+  { title: 'Party clues', visibility: 'shared' },
+])
+
+const { response: forbiddenPinnedDocumentResponse } = await request('/rest/v1/campaign_documents', {
+  token: invitee.token,
+  method: 'POST',
+  body: { campaign_id: campaignId, author_id: invitee.id, kind: 'resource', visibility: 'shared', title: 'Unauthorized pin', url: 'https://example.com', is_pinned: true },
+})
+assert.equal(forbiddenPinnedDocumentResponse.status, 403)
+
+const { response: unsafeResourceResponse } = await request('/rest/v1/campaign_documents', {
+  token: outsider.token,
+  method: 'POST',
+  body: { campaign_id: campaignId, author_id: outsider.id, kind: 'resource', visibility: 'shared', title: 'Unsafe resource', url: 'javascript:alert(1)' },
+})
+assert.equal(unsafeResourceResponse.status, 400)
+
 const { data: ownerNotifications, response: ownerNotificationsResponse } = await request('/rest/v1/notifications?select=kind,title&order=created_at.asc', { token: owner.token })
 assert.equal(ownerNotificationsResponse.status, 200)
 assert.ok(ownerNotifications.some((item) => item.kind === 'session_proposed'))

@@ -977,6 +977,113 @@ button:disabled {
   justify-self: start;
 }
 
+.knowledge-section {
+  margin-top: 3rem;
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  background: linear-gradient(145deg, #17211f, #111817);
+}
+.knowledge-section > .section-heading svg {
+  color: var(--gold);
+}
+.knowledge-form {
+  display: grid;
+  grid-template-columns: 12rem 14rem 1fr;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 1.5rem;
+}
+.knowledge-form label {
+  display: grid;
+  gap: 0.35rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+.knowledge-form input:not([type='checkbox']),
+.knowledge-form select,
+.knowledge-form textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 0.65rem;
+  padding: 0.75rem;
+  background: #101817;
+  color: var(--ink);
+}
+.knowledge-form textarea {
+  resize: vertical;
+}
+.knowledge-wide-field {
+  grid-column: 1 / -1;
+}
+.knowledge-title-field {
+  min-width: 0;
+}
+.knowledge-pin-field {
+  display: flex !important;
+  align-items: center;
+  align-self: center;
+}
+.knowledge-form-actions {
+  grid-column: 2 / -1;
+  justify-content: flex-end;
+}
+.knowledge-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+.knowledge-list article {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.65rem;
+  border: 1px solid var(--line);
+  border-radius: 0.8rem;
+  padding: 1rem;
+  background: #101817;
+}
+.knowledge-list h3,
+.knowledge-list p {
+  margin: 0;
+}
+.knowledge-list p {
+  overflow-wrap: anywhere;
+  color: var(--muted);
+  white-space: pre-wrap;
+}
+.knowledge-list a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--gold);
+  font-weight: 800;
+  text-decoration: none;
+}
+.knowledge-list small {
+  margin-top: auto;
+  color: var(--muted);
+}
+.knowledge-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.knowledge-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.25rem 0.45rem;
+  color: var(--muted);
+  font-size: 0.62rem;
+  font-weight: 800;
+  text-transform: capitalize;
+}
+
 .campaign-hero {
   display: flex;
   align-items: end;
@@ -1350,6 +1457,14 @@ button:disabled {
     grid-template-columns: 1fr;
   }
   .announcement-form textarea {
+    grid-column: auto;
+  }
+  .knowledge-form,
+  .knowledge-list {
+    grid-template-columns: 1fr;
+  }
+  .knowledge-wide-field,
+  .knowledge-form-actions {
     grid-column: auto;
   }
   .schedule-grid,

@@ -157,6 +157,21 @@ create table public.campaign_invitations (
   updated_at timestamptz not null default now()
 );
 
+create table public.campaign_documents (
+  id bigint generated always as identity primary key,
+  campaign_id bigint not null references public.campaigns (id) on delete cascade,
+  author_id uuid not null references public.profiles (id) on delete restrict,
+  kind text not null default 'note' check (kind in ('note', 'resource')),
+  visibility text not null default 'shared' check (visibility in ('shared', 'game_master')),
+  title text not null check (char_length(title) between 1 and 160),
+  body text not null default '' check (char_length(body) <= 10000),
+  url text not null default '' check (char_length(url) <= 2000),
+  is_pinned boolean not null default false,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  check (kind = 'note' or url ~* '^https?://')
+);
+
 create index campaigns_owner_id_idx on public.campaigns (owner_id);
 create index campaign_members_user_id_status_idx
   on public.campaign_members (user_id, status);
@@ -177,6 +192,9 @@ create index notifications_session_id_idx on public.notifications (session_id) w
 create unique index campaign_invitations_pending_email_idx on public.campaign_invitations (campaign_id, invited_email) where status = 'pending';
 create index campaign_invitations_email_status_idx on public.campaign_invitations (invited_email, status, expires_at);
 create index campaign_invitations_invited_by_idx on public.campaign_invitations (invited_by);
+create index campaign_documents_campaign_visibility_idx
+  on public.campaign_documents (campaign_id, visibility, is_pinned desc, updated_at desc);
+create index campaign_documents_author_id_idx on public.campaign_documents (author_id);
 
 create function private.set_updated_at()
 returns trigger
@@ -210,6 +228,7 @@ create trigger availability_exceptions_set_updated_at before update on public.av
 create trigger sessions_set_updated_at before update on public.sessions for each row execute function private.set_updated_at();
 create trigger session_attendance_set_updated_at before update on public.session_attendance for each row execute function private.set_updated_at();
 create trigger campaign_announcements_set_updated_at before update on public.campaign_announcements for each row execute function private.set_updated_at();
+create trigger campaign_documents_set_updated_at before update on public.campaign_documents for each row execute function private.set_updated_at();
 
 create function private.notify_campaign_announcement()
 returns trigger language plpgsql security definer set search_path = '' as $$
@@ -460,6 +479,7 @@ alter table public.session_attendance enable row level security;
 alter table public.campaign_announcements enable row level security;
 alter table public.notifications enable row level security;
 alter table public.campaign_invitations enable row level security;
+alter table public.campaign_documents enable row level security;
 
 create policy profiles_select_own
 on public.profiles for select
@@ -600,6 +620,16 @@ create policy invitations_insert_managers on public.campaign_invitations for ins
 create policy invitations_update_managers on public.campaign_invitations for update to authenticated using ((select private.is_campaign_manager(campaign_id))) with check ((select private.is_campaign_manager(campaign_id)));
 create policy invitations_delete_managers on public.campaign_invitations for delete to authenticated using ((select private.is_campaign_manager(campaign_id)));
 
+create policy campaign_documents_select_allowed on public.campaign_documents for select to authenticated
+using ((select private.is_campaign_member(campaign_id)) and (visibility = 'shared' or (select private.is_campaign_manager(campaign_id))));
+create policy campaign_documents_insert_allowed on public.campaign_documents for insert to authenticated
+with check (author_id = (select auth.uid()) and (select private.is_campaign_member(campaign_id)) and (visibility = 'shared' or (select private.is_campaign_manager(campaign_id))) and (not is_pinned or (select private.is_campaign_manager(campaign_id))));
+create policy campaign_documents_update_author_or_manager on public.campaign_documents for update to authenticated
+using (author_id = (select auth.uid()) or (select private.is_campaign_manager(campaign_id)))
+with check ((select private.is_campaign_member(campaign_id)) and (author_id = (select auth.uid()) or (select private.is_campaign_manager(campaign_id))) and (visibility = 'shared' or (select private.is_campaign_manager(campaign_id))) and (not is_pinned or (select private.is_campaign_manager(campaign_id))));
+create policy campaign_documents_delete_author_or_manager on public.campaign_documents for delete to authenticated
+using (author_id = (select auth.uid()) or (select private.is_campaign_manager(campaign_id)));
+
 grant usage on schema public to authenticated;
 revoke all on table public.profiles from anon, authenticated;
 revoke all on table public.campaigns from anon, authenticated;
@@ -609,12 +639,14 @@ revoke all on table public.availability_rules, public.availability_exceptions, p
 revoke all on table public.campaign_announcements from anon, authenticated;
 revoke all on table public.notifications from anon, authenticated;
 revoke all on table public.campaign_invitations from anon, authenticated;
+revoke all on table public.campaign_documents from anon, authenticated;
 revoke all on sequence public.campaigns_id_seq from anon, authenticated;
 revoke all on sequence public.characters_id_seq from anon, authenticated;
 revoke all on sequence public.availability_rules_id_seq, public.availability_exceptions_id_seq, public.sessions_id_seq from anon, authenticated;
 revoke all on sequence public.campaign_announcements_id_seq from anon, authenticated;
 revoke all on sequence public.notifications_id_seq from anon, authenticated;
 revoke all on sequence public.campaign_invitations_id_seq from anon, authenticated;
+revoke all on sequence public.campaign_documents_id_seq from anon, authenticated;
 grant select, update on table public.profiles to authenticated;
 grant select, insert, update, delete on table public.campaigns to authenticated;
 grant select, insert, update, delete on table public.campaign_members to authenticated;
@@ -623,7 +655,9 @@ grant select, insert, update, delete on table public.availability_rules, public.
 grant select, insert, update, delete on table public.campaign_announcements to authenticated;
 grant select, update, delete on table public.notifications to authenticated;
 grant select, insert, update, delete on table public.campaign_invitations to authenticated;
+grant select, insert, update, delete on table public.campaign_documents to authenticated;
 grant usage, select on sequence public.campaign_invitations_id_seq to authenticated;
+grant usage, select on sequence public.campaign_documents_id_seq to authenticated;
 grant usage, select on sequence public.campaigns_id_seq to authenticated;
 grant usage, select on sequence public.characters_id_seq to authenticated;
 grant usage, select on sequence public.availability_rules_id_seq, public.availability_exceptions_id_seq, public.sessions_id_seq to authenticated;

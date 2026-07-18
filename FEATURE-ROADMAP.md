@@ -71,9 +71,9 @@ This is the source-of-truth checklist for the entire application. Completed work
 
 - [x] Party roster and assigned characters.
 - [x] Next session, attendance, and availability summary.
-- [ ] Announcements and pinned resources. *(Manager announcements and pinning complete; general resources pending.)*
-- [ ] Shared handouts and campaign notes.
-- [ ] Private Game Master notes.
+- [x] Announcements and pinned resources.
+- [x] Shared handouts and campaign notes.
+- [x] Private Game Master notes.
 - [ ] Current quests, objectives, and party inventory.
 - [x] Campaign calendar and session history.
 - [ ] Current location, in-world date/time, weather, and world state.
