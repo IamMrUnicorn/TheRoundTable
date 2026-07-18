@@ -28,7 +28,10 @@ import {
   createCampaignInvitation,
   listCampaignInvitations,
 } from '../features/invitations/invitations'
-import { getNextCampaignSession } from '../features/scheduling/scheduling'
+import {
+  getCampaignAvailabilitySummary,
+  getNextCampaignSession,
+} from '../features/scheduling/scheduling'
 
 export function CampaignPage() {
   const { campaignId: campaignIdParam } = useParams()
@@ -73,6 +76,11 @@ export function CampaignPage() {
   const nextSession = useQuery({
     queryKey: ['next-campaign-session', campaignId],
     queryFn: () => getNextCampaignSession(campaignId),
+    enabled: campaignId > 0,
+  })
+  const availabilitySummary = useQuery({
+    queryKey: ['campaign-availability-summary', campaignId],
+    queryFn: () => getCampaignAvailabilitySummary(campaignId),
     enabled: campaignId > 0,
   })
   useEffect(() => {
@@ -541,7 +549,7 @@ export function CampaignPage() {
                                   <p>{nextSession.data.agenda}</p>
                                 )}
                               </div>
-                              <div className="attendance-summary">
+                              <div className="campaign-attendance-summary">
                                 {Object.entries(counts).map(
                                   ([label, count]) => (
                                     <div key={label}>
@@ -566,6 +574,36 @@ export function CampaignPage() {
                             </p>
                           </div>
                         )}
+                    {availabilitySummary.data && (
+                      <div className="availability-readiness">
+                        <div>
+                          <strong>Availability readiness</strong>
+                          <span>
+                            {availabilitySummary.data.configuredMembers} of{' '}
+                            {campaign.data.campaign_members.length} members have
+                            recurring hours
+                          </span>
+                        </div>
+                        <progress
+                          aria-label="Members with recurring availability"
+                          max={campaign.data.campaign_members.length || 1}
+                          value={availabilitySummary.data.configuredMembers}
+                        />
+                        <div className="availability-facts">
+                          <span>
+                            {availabilitySummary.data.preferredWindows}{' '}
+                            preferred windows
+                          </span>
+                          {Object.entries(
+                            availabilitySummary.data.exceptionCounts,
+                          ).map(([label, count]) => (
+                            <span key={label}>
+                              {count} upcoming {label}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                     <Link
                       className="card-link"
                       to={`/campaigns/${campaignId}/schedule`}

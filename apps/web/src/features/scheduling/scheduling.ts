@@ -54,6 +54,54 @@ export async function getNextCampaignSession(campaignId: number) {
   return { ...session, attendance: attendance ?? [] }
 }
 
+export async function getCampaignAvailabilitySummary(campaignId: number) {
+  const [membersResult, rulesResult, exceptionsResult] = await Promise.all([
+    supabase
+      .from('campaign_members')
+      .select('user_id')
+      .eq('campaign_id', campaignId)
+      .eq('status', 'active'),
+    supabase
+      .from('availability_rules')
+      .select('preference, user_id')
+      .eq('campaign_id', campaignId),
+    supabase
+      .from('availability_exceptions')
+      .select('availability, user_id')
+      .eq('campaign_id', campaignId)
+      .gte('ends_at', new Date().toISOString()),
+  ])
+
+  if (membersResult.error) throw membersResult.error
+  if (rulesResult.error) throw rulesResult.error
+  if (exceptionsResult.error) throw exceptionsResult.error
+
+  const activeMembers = new Set(
+    membersResult.data.map((member) => member.user_id),
+  )
+  const exceptionCounts = { available: 0, preferred: 0, unavailable: 0 }
+  for (const exception of exceptionsResult.data) {
+    if (
+      activeMembers.has(exception.user_id) &&
+      exception.availability in exceptionCounts
+    )
+      exceptionCounts[exception.availability as keyof typeof exceptionCounts] +=
+        1
+  }
+
+  const activeRules = rulesResult.data.filter((rule) =>
+    activeMembers.has(rule.user_id),
+  )
+
+  return {
+    configuredMembers: new Set(activeRules.map((rule) => rule.user_id)).size,
+    preferredWindows: activeRules.filter(
+      (rule) => rule.preference === 'preferred',
+    ).length,
+    exceptionCounts,
+  }
+}
+
 export async function getSchedule(campaignId: number) {
   const [rules, exceptions, sessions, attendance] = await Promise.all([
     supabase

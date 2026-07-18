@@ -23,6 +23,7 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 - Added a dashboard invitation inbox where recipients can accept or decline invitations addressed to their trusted account email.
 - Added an upcoming-session dashboard that summarizes proposed, scheduled, and active sessions with campaign context, local date/time, lifecycle status, and the signed-in member's attendance response.
 - Added a campaign-home next-session panel with agenda, lifecycle state, localized date/time, party attendance totals, the current member's response, and a direct route to session scheduling.
+- Added campaign availability readiness showing how many members supplied recurring hours, the number of preferred windows, and upcoming exception totals by availability type.
 - Added an atomic invitation-response database workflow that validates the authenticated email, prevents expired or reused invitations, and creates campaign membership on acceptance.
 - Added least-privilege grants, Row Level Security, supporting indexes, and three-user integration coverage for the complete invitation lifecycle.
 - Added player-owned characters with optional campaign assignment.
