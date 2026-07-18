@@ -58,6 +58,8 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 - Added database-generated inventory memories so item gains, quantity/equipment changes, and removals retain an automatic, structured provenance trail without relying on client-side duplicate writes.
 - Added an append-only structured session event log for narration, dialogue, actions, rolls, damage, healing, conditions, items, discoveries, locations, objectives, rests, and notes.
 - Added party and GM-only event visibility, actor and optional character attribution, in-world time and location provenance, and automatic projection of party-visible character events into the Character Memory timeline.
+- Added session-scoped realtime event delivery with visible connection status plus client-side search, event-type filters, and participant filters.
+- Added Game Master start/end controls and database enforcement preventing more than one active session per campaign.
 - Added an atomic invitation-response database workflow that validates the authenticated email, prevents expired or reused invitations, and creates campaign membership on acceptance.
 - Added least-privilege grants, Row Level Security, supporting indexes, and three-user integration coverage for the complete invitation lifecycle.
 - Added player-owned characters with optional campaign assignment.

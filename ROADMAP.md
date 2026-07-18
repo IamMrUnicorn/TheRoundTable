@@ -61,7 +61,7 @@ This roadmap translates the play-screen sketch and the proven V5 foundations int
 ### Session lifecycle and presence
 
 - [ ] Live session route and persistent play-screen shell.
-- [ ] Waiting room before the Game Master starts play.
+- [ ] Waiting room before the Game Master starts play. *(Start/end controls and one-active-session enforcement complete; dedicated waiting-room UX remains.)*
 - [ ] Join/leave/reconnect presence indicators.
 - [ ] Game Master pause, resume, and end-session controls.
 - [ ] Session clock, elapsed timer, and optional break timer.
@@ -85,7 +85,7 @@ This roadmap translates the play-screen sketch and the proven V5 foundations int
 
 - [x] Append-only structured event model.
 - [ ] Human-readable events for joins, rolls, speech, attacks, spells, damage, healing, conditions, and turn changes. *(Manual structured capture and character-memory projection are complete; automatic subsystem events remain.)*
-- [ ] Filter by event type or participant.
+- [x] Filter by event type or participant.
 - [ ] Mentions for characters, creatures, and the party.
 - [ ] Expand the log into the central stage.
 - [x] Game Master corrections represented as new audit events rather than destructive history edits.

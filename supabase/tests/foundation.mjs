@@ -492,6 +492,16 @@ assert.equal(sessionMemoryRows.length, 1)
 assert.equal(sessionMemoryRows[0].title, 'Found the hidden observatory')
 assert.equal(sessionMemoryRows[0].kind, 'discovery')
 assert.equal(sessionMemoryRows[0].metadata.session_event_id, sessionEventId)
+const { response: activateSessionResponse } = await request(`/rest/v1/sessions?id=eq.${sessionId}`, { token: outsider.token, method: 'PATCH', body: { status: 'active' } })
+assert.equal(activateSessionResponse.status, 200)
+const secondStart = new Date(start.getTime() + 7 * 86_400_000)
+const secondEnd = new Date(secondStart.getTime() + 3 * 60 * 60 * 1000)
+const { response: duplicateActiveSessionResponse } = await request('/rest/v1/sessions', {
+  token: outsider.token,
+  method: 'POST',
+  body: { campaign_id: campaignId, created_by: outsider.id, title: 'Conflicting active session', starts_at: secondStart.toISOString(), ends_at: secondEnd.toISOString(), status: 'active' },
+})
+assert.equal(duplicateActiveSessionResponse.status, 409)
 
 const { response: attendanceResponse } = await request('/rest/v1/session_attendance', {
   token: owner.token,

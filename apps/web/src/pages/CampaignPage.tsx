@@ -685,6 +685,7 @@ export function CampaignPage() {
                       characters={characters.data ?? []}
                       isManager={isManager}
                       sessionId={nextSession.data.id}
+                      sessionStatus={nextSession.data.status}
                     />
                   )}
 

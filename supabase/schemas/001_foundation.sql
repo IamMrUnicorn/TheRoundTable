@@ -440,6 +440,7 @@ create index availability_rules_user_campaign_idx on public.availability_rules (
 create index availability_exceptions_campaign_time_idx on public.availability_exceptions (campaign_id, starts_at, ends_at);
 create index availability_exceptions_user_id_idx on public.availability_exceptions (user_id);
 create index sessions_campaign_starts_at_idx on public.sessions (campaign_id, starts_at);
+create unique index sessions_one_active_per_campaign_idx on public.sessions (campaign_id) where status = 'active';
 create index sessions_created_by_idx on public.sessions (created_by);
 create index session_attendance_user_id_idx on public.session_attendance (user_id);
 create index session_events_session_timeline_idx on public.session_events (session_id, occurred_at desc, sequence_number desc);
@@ -1318,3 +1319,17 @@ grant usage, select on sequence public.character_inventory_items_id_seq to authe
 grant usage, select on sequence public.availability_rules_id_seq, public.availability_exceptions_id_seq, public.sessions_id_seq to authenticated;
 grant usage, select on sequence public.session_events_id_seq to authenticated;
 grant usage, select on sequence public.campaign_announcements_id_seq to authenticated;
+
+do $$
+begin
+  if exists (select 1 from pg_publication where pubname = 'supabase_realtime')
+    and not exists (
+      select 1 from pg_publication_tables
+      where pubname = 'supabase_realtime'
+        and schemaname = 'public'
+        and tablename = 'session_events'
+    ) then
+    execute 'alter publication supabase_realtime add table public.session_events';
+  end if;
+end;
+$$;

@@ -1321,6 +1321,43 @@ button:disabled {
 .session-event-form button {
   grid-column: 1 / -1;
 }
+.session-log-status,
+.session-event-filters {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+.session-log-status button {
+  min-height: 2rem;
+  padding: 0.35rem 0.65rem;
+}
+.connection-status {
+  border-radius: 999px;
+  padding: 0.25rem 0.55rem;
+  background: rgb(255 255 255 / 8%);
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+.connection-status.live {
+  background: rgb(67 160 71 / 18%);
+  color: #91d995;
+}
+.session-event-filters {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+}
+.session-event-filters input,
+.session-event-filters select {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 0.55rem;
+  padding: 0.65rem;
+  background: #151f1d;
+  color: var(--ink);
+}
 .session-event-list {
   display: grid;
   gap: 0.65rem;
@@ -2759,7 +2796,8 @@ button:disabled {
   .memory-toolbar,
   .memory-create-form,
   .character-inventory-form,
-  .session-event-form {
+  .session-event-form,
+  .session-event-filters {
     grid-template-columns: 1fr;
   }
   .memory-summary-field,

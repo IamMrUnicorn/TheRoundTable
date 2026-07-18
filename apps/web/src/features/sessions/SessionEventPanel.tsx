@@ -1,6 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { type FormEvent, useState } from 'react'
+import { type FormEvent, useEffect, useState } from 'react'
 
+import { supabase } from '../../lib/supabase'
+import { updateSession } from '../scheduling/scheduling'
 import { createSessionEvent, listSessionEvents } from './session-events'
 
 const eventKinds = [
@@ -25,12 +27,14 @@ export function SessionEventPanel({
   characters,
   isManager,
   sessionId,
+  sessionStatus,
 }: {
   actorId: string
   campaignId: number
   characters: { id: number; name: string; owner_id: string }[]
   isManager: boolean
   sessionId: number
+  sessionStatus: string
 }) {
   const client = useQueryClient()
   const queryKey = ['session-events', sessionId]
@@ -45,6 +49,10 @@ export function SessionEventPanel({
   const [visibility, setVisibility] = useState('party')
   const [inWorldTime, setInWorldTime] = useState('')
   const [location, setLocation] = useState('')
+  const [filterKind, setFilterKind] = useState('all')
+  const [filterCharacter, setFilterCharacter] = useState('all')
+  const [search, setSearch] = useState('')
+  const [connection, setConnection] = useState('connecting')
   const availableCharacters = isManager
     ? characters
     : characters.filter((character) => character.owner_id === actorId)
@@ -75,6 +83,51 @@ export function SessionEventPanel({
       ])
     },
   })
+  const lifecycle = useMutation({
+    mutationFn: (status: string) => updateSession(sessionId, { status }),
+    onSuccess: async () => {
+      await Promise.all([
+        client.invalidateQueries({
+          queryKey: ['next-campaign-session', campaignId],
+        }),
+        client.invalidateQueries({
+          queryKey: ['campaign-session-history', campaignId],
+        }),
+      ])
+    },
+  })
+  useEffect(() => {
+    const channel = supabase
+      .channel(`session-events:${sessionId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'session_events',
+          filter: `session_id=eq.${sessionId}`,
+        },
+        () =>
+          void client.invalidateQueries({
+            queryKey: ['session-events', sessionId],
+          }),
+      )
+      .subscribe((status) =>
+        setConnection(status === 'SUBSCRIBED' ? 'live' : status.toLowerCase()),
+      )
+    return () => {
+      void supabase.removeChannel(channel)
+    }
+  }, [client, sessionId])
+  const shownEvents = events.data?.filter(
+    (event) =>
+      (filterKind === 'all' || event.kind === filterKind) &&
+      (filterCharacter === 'all' ||
+        String(event.character_id ?? 'none') === filterCharacter) &&
+      `${event.title} ${event.body} ${event.actor?.display_name ?? ''} ${event.character?.name ?? ''}`
+        .toLowerCase()
+        .includes(search.toLowerCase()),
+  )
 
   return (
     <section className="workspace-panel session-event-panel">
@@ -83,7 +136,32 @@ export function SessionEventPanel({
           <p className="eyebrow">Live record</p>
           <h2>Session event log</h2>
         </div>
-        <span>{events.data?.length ?? 0} events</span>
+        <div className="session-log-status">
+          <span className={`connection-status ${connection}`}>
+            {connection}
+          </span>
+          <span>{events.data?.length ?? 0} events</span>
+          {isManager &&
+            sessionStatus !== 'active' &&
+            sessionStatus !== 'completed' && (
+              <button
+                type="button"
+                disabled={lifecycle.isPending}
+                onClick={() => lifecycle.mutate('active')}
+              >
+                Start session
+              </button>
+            )}
+          {isManager && sessionStatus === 'active' && (
+            <button
+              type="button"
+              disabled={lifecycle.isPending}
+              onClick={() => lifecycle.mutate('completed')}
+            >
+              End session
+            </button>
+          )}
+        </div>
       </div>
       <form
         className="session-event-form"
@@ -157,8 +235,42 @@ export function SessionEventPanel({
       {events.data?.length === 0 && (
         <p className="muted-copy">Nothing has happened yet.</p>
       )}
+      <div className="session-event-filters">
+        <input
+          aria-label="Search session events"
+          placeholder="Search the log…"
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+        />
+        <select
+          aria-label="Filter event type"
+          value={filterKind}
+          onChange={(event) => setFilterKind(event.target.value)}
+        >
+          <option value="all">All event types</option>
+          {eventKinds.map((value) => (
+            <option key={value}>{value}</option>
+          ))}
+        </select>
+        <select
+          aria-label="Filter event character"
+          value={filterCharacter}
+          onChange={(event) => setFilterCharacter(event.target.value)}
+        >
+          <option value="all">All participants</option>
+          <option value="none">No character</option>
+          {characters.map((character) => (
+            <option key={character.id} value={character.id}>
+              {character.name}
+            </option>
+          ))}
+        </select>
+      </div>
       <div className="session-event-list">
-        {events.data?.map((event) => (
+        {shownEvents?.length === 0 && events.data && events.data.length > 0 && (
+          <p className="muted-copy">No events match these filters.</p>
+        )}
+        {shownEvents?.map((event) => (
           <article key={event.id}>
             <div>
               <span>
