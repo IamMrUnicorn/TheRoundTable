@@ -141,13 +141,55 @@ assert.equal(characterResponse.status, 201)
 assert.equal(characterRows[0].name, 'Ember Vale')
 
 const characterId = characterRows[0].id
+const { data: updatedCharacter, response: updatedCharacterResponse } =
+  await request(`/rest/v1/characters?id=eq.${characterId}`, {
+    token: owner.token,
+    method: 'PATCH',
+    body: {
+      saving_throw_proficiencies: ['strength', 'constitution'],
+      skill_proficiencies: ['athletics', 'perception'],
+      skill_expertise: ['perception'],
+      speed: 35,
+    },
+  })
+assert.equal(updatedCharacterResponse.status, 200)
+assert.deepEqual(updatedCharacter[0].saving_throw_proficiencies, [
+  'strength',
+  'constitution',
+])
+assert.deepEqual(updatedCharacter[0].skill_proficiencies, [
+  'athletics',
+  'perception',
+])
+assert.deepEqual(updatedCharacter[0].skill_expertise, ['perception'])
+assert.equal(updatedCharacter[0].speed, 35)
+
+const { response: invalidExpertiseResponse } = await request(
+  `/rest/v1/characters?id=eq.${characterId}`,
+  {
+    token: owner.token,
+    method: 'PATCH',
+    body: { skill_expertise: ['arcana'] },
+  },
+)
+assert.equal(invalidExpertiseResponse.status, 400)
+
 const { data: partyCharacters, response: partyCharactersResponse } =
   await request(
-    `/rest/v1/characters?campaign_id=eq.${campaignId}&select=id,name`,
+    `/rest/v1/characters?campaign_id=eq.${campaignId}&select=id,name,saving_throw_proficiencies,skill_proficiencies,skill_expertise,speed`,
     { token: outsider.token },
   )
 assert.equal(partyCharactersResponse.status, 200)
-assert.deepEqual(partyCharacters, [{ id: characterId, name: 'Ember Vale' }])
+assert.deepEqual(partyCharacters, [
+  {
+    id: characterId,
+    name: 'Ember Vale',
+    saving_throw_proficiencies: ['strength', 'constitution'],
+    skill_proficiencies: ['athletics', 'perception'],
+    skill_expertise: ['perception'],
+    speed: 35,
+  },
+])
 
 const { data: forbiddenCampaignUpdate, response: forbiddenCampaignUpdateResponse } =
   await request(`/rest/v1/campaigns?id=eq.${campaignId}`, {

@@ -97,7 +97,7 @@ This is the source-of-truth checklist for the entire application. Completed work
 - [x] Quick manual character creation.
 - [x] Identity, ancestry, class, subclass, background, level, HP, AC, abilities, and notes.
 - [x] Campaign assignment and read-only party visibility.
-- [ ] Skills, saving throws, proficiency, initiative, passive senses, speed, and derived values.
+- [x] Skills, saving throws, proficiency, initiative, passive senses, speed, and derived values.
 - [ ] Hit dice, death saves, exhaustion, inspiration, and conditions.
 - [ ] Features, feats, languages, senses, movement, appearance, and biography.
 - [ ] Multiclass and level-up workflows with history.

@@ -720,6 +720,9 @@ export type Database = {
           name: string
           notes: string
           owner_id: string
+          saving_throw_proficiencies: string[]
+          skill_expertise: string[]
+          skill_proficiencies: string[]
           speed: number
           strength: number
           subclass: string
@@ -744,6 +747,9 @@ export type Database = {
           name: string
           notes?: string
           owner_id: string
+          saving_throw_proficiencies?: string[]
+          skill_expertise?: string[]
+          skill_proficiencies?: string[]
           speed?: number
           strength?: number
           subclass?: string
@@ -768,6 +774,9 @@ export type Database = {
           name?: string
           notes?: string
           owner_id?: string
+          saving_throw_proficiencies?: string[]
+          skill_expertise?: string[]
+          skill_proficiencies?: string[]
           speed?: number
           strength?: number
           subclass?: string

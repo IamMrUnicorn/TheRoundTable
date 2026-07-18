@@ -65,7 +65,13 @@ create table public.characters (
   notes text not null default '' check (char_length(notes) <= 10000),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  check (current_hp <= max_hp)
+  saving_throw_proficiencies text[] not null default '{}',
+  skill_proficiencies text[] not null default '{}',
+  skill_expertise text[] not null default '{}',
+  constraint characters_saving_throw_proficiencies_check check (saving_throw_proficiencies <@ array['strength', 'dexterity', 'constitution', 'intelligence', 'wisdom', 'charisma']),
+  constraint characters_skill_proficiencies_check check (skill_proficiencies <@ array['acrobatics', 'animal_handling', 'arcana', 'athletics', 'deception', 'history', 'insight', 'intimidation', 'investigation', 'medicine', 'nature', 'perception', 'performance', 'persuasion', 'religion', 'sleight_of_hand', 'stealth', 'survival']),
+  constraint characters_skill_expertise_check check (skill_expertise <@ skill_proficiencies),
+  constraint characters_check check (current_hp <= max_hp)
 );
 
 create table public.availability_rules (

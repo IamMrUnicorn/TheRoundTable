@@ -19,6 +19,27 @@ const abilities = [
   'charisma',
 ] as const
 
+const skills = [
+  ['acrobatics', 'dexterity'],
+  ['animal_handling', 'wisdom'],
+  ['arcana', 'intelligence'],
+  ['athletics', 'strength'],
+  ['deception', 'charisma'],
+  ['history', 'intelligence'],
+  ['insight', 'wisdom'],
+  ['intimidation', 'charisma'],
+  ['investigation', 'intelligence'],
+  ['medicine', 'wisdom'],
+  ['nature', 'intelligence'],
+  ['perception', 'wisdom'],
+  ['performance', 'charisma'],
+  ['persuasion', 'charisma'],
+  ['religion', 'intelligence'],
+  ['sleight_of_hand', 'dexterity'],
+  ['stealth', 'dexterity'],
+  ['survival', 'wisdom'],
+] as const
+
 type CharacterDraft = Pick<
   Character,
   | 'ancestry'
@@ -35,8 +56,12 @@ type CharacterDraft = Pick<
   | 'name'
   | 'notes'
   | 'strength'
+  | 'speed'
   | 'subclass'
   | 'wisdom'
+  | 'saving_throw_proficiencies'
+  | 'skill_proficiencies'
+  | 'skill_expertise'
 >
 
 function editableFields(character: Character): CharacterDraft {
@@ -55,8 +80,12 @@ function editableFields(character: Character): CharacterDraft {
     name,
     notes,
     strength,
+    speed,
     subclass,
     wisdom,
+    saving_throw_proficiencies,
+    skill_proficiencies,
+    skill_expertise,
   } = character
   return {
     ancestry,
@@ -73,8 +102,12 @@ function editableFields(character: Character): CharacterDraft {
     name,
     notes,
     strength,
+    speed,
     subclass,
     wisdom,
+    saving_throw_proficiencies,
+    skill_proficiencies,
+    skill_expertise,
   }
 }
 
@@ -108,6 +141,32 @@ export function CharacterPage() {
 
   function field(name: keyof CharacterDraft, value: string | number) {
     setDraft((current) => ({ ...current, [name]: value }))
+  }
+
+  const modifier = (ability: (typeof abilities)[number]) =>
+    Math.floor((Number(draft[ability] ?? 10) - 10) / 2)
+  const proficiency = 2 + Math.floor((Number(draft.level ?? 1) - 1) / 4)
+  const signed = (value: number) => `${value >= 0 ? '+' : ''}${value}`
+  function toggleList(
+    fieldName:
+      'saving_throw_proficiencies' | 'skill_proficiencies' | 'skill_expertise',
+    value: string,
+  ) {
+    const values = [...(draft[fieldName] ?? [])]
+    const next = values.includes(value)
+      ? values.filter((item) => item !== value)
+      : [...values, value]
+    setDraft((current) => ({
+      ...current,
+      [fieldName]: next,
+      ...(fieldName === 'skill_proficiencies' && !next.includes(value)
+        ? {
+            skill_expertise: (current.skill_expertise ?? []).filter(
+              (item) => item !== value,
+            ),
+          }
+        : {}),
+    }))
   }
 
   return (
@@ -222,6 +281,140 @@ export function CharacterPage() {
                 </label>
               ))}
             </div>
+            <div className="derived-grid">
+              <div>
+                <span>Proficiency</span>
+                <strong>{signed(proficiency)}</strong>
+              </div>
+              <div>
+                <span>Initiative</span>
+                <strong>{signed(modifier('dexterity'))}</strong>
+              </div>
+              <label>
+                <span>Speed</span>
+                <input
+                  disabled={!canEdit}
+                  type="number"
+                  min="0"
+                  max="999"
+                  value={Number(draft.speed ?? 30)}
+                  onChange={(event) =>
+                    field('speed', Number(event.target.value))
+                  }
+                />
+              </label>
+              <div>
+                <span>Passive Perception</span>
+                <strong>
+                  {10 +
+                    modifier('wisdom') +
+                    ((draft.skill_proficiencies ?? []).includes('perception')
+                      ? proficiency *
+                        ((draft.skill_expertise ?? []).includes('perception')
+                          ? 2
+                          : 1)
+                      : 0)}
+                </strong>
+              </div>
+              <div>
+                <span>Passive Investigation</span>
+                <strong>
+                  {10 +
+                    modifier('intelligence') +
+                    ((draft.skill_proficiencies ?? []).includes('investigation')
+                      ? proficiency *
+                        ((draft.skill_expertise ?? []).includes('investigation')
+                          ? 2
+                          : 1)
+                      : 0)}
+                </strong>
+              </div>
+              <div>
+                <span>Passive Insight</span>
+                <strong>
+                  {10 +
+                    modifier('wisdom') +
+                    ((draft.skill_proficiencies ?? []).includes('insight')
+                      ? proficiency *
+                        ((draft.skill_expertise ?? []).includes('insight')
+                          ? 2
+                          : 1)
+                      : 0)}
+                </strong>
+              </div>
+            </div>
+            <section className="proficiency-section">
+              <h2>Saving throws</h2>
+              <div className="save-grid">
+                {abilities.map((ability) => {
+                  const proficient = (
+                    draft.saving_throw_proficiencies ?? []
+                  ).includes(ability)
+                  return (
+                    <label key={ability}>
+                      <input
+                        disabled={!canEdit}
+                        type="checkbox"
+                        checked={proficient}
+                        onChange={() =>
+                          toggleList('saving_throw_proficiencies', ability)
+                        }
+                      />
+                      <span>{ability}</span>
+                      <strong>
+                        {signed(
+                          modifier(ability) + (proficient ? proficiency : 0),
+                        )}
+                      </strong>
+                    </label>
+                  )
+                })}
+              </div>
+              <h2>Skills</h2>
+              <div className="skill-grid">
+                {skills.map(([skill, ability]) => {
+                  const proficient = (draft.skill_proficiencies ?? []).includes(
+                    skill,
+                  )
+                  const expert = (draft.skill_expertise ?? []).includes(skill)
+                  return (
+                    <div key={skill}>
+                      <label>
+                        <input
+                          disabled={!canEdit}
+                          type="checkbox"
+                          checked={proficient}
+                          onChange={() =>
+                            toggleList('skill_proficiencies', skill)
+                          }
+                        />
+                        <span>{skill.replaceAll('_', ' ')}</span>
+                        <small>{ability.slice(0, 3)}</small>
+                        <strong>
+                          {signed(
+                            modifier(ability) +
+                              (proficient ? proficiency * (expert ? 2 : 1) : 0),
+                          )}
+                        </strong>
+                      </label>
+                      {proficient && (
+                        <label className="expertise-toggle">
+                          <input
+                            disabled={!canEdit}
+                            type="checkbox"
+                            checked={expert}
+                            onChange={() =>
+                              toggleList('skill_expertise', skill)
+                            }
+                          />{' '}
+                          expertise
+                        </label>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            </section>
             <div className="sheet-details">
               {(
                 ['ancestry', 'class_name', 'subclass', 'background'] as const
