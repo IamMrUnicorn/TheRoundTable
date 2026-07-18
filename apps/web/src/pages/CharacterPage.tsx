@@ -5,6 +5,7 @@ import { Link, Navigate, useParams } from 'react-router-dom'
 
 import { useAuth } from '../features/auth/auth-context'
 import { CharacterFeaturesPanel } from '../features/characters/CharacterFeaturesPanel'
+import { CharacterMemoryPanel } from '../features/characters/CharacterMemoryPanel'
 import { CharacterSpellcastingPanel } from '../features/characters/CharacterSpellcastingPanel'
 import {
   type Character,
@@ -907,11 +908,12 @@ export function CharacterPage() {
                     onChange={(event) => field('notes', event.target.value)}
                   />
                 </label>
-                <p className="muted-copy">
-                  Structured inventory history, discoveries, relationships, and
-                  session memories will collect here as live-session events are
-                  implemented.
-                </p>
+                <CharacterMemoryPanel
+                  canEdit={Boolean(canEdit)}
+                  campaignId={character.data.campaign_id}
+                  characterId={characterId}
+                  userId={identity?.id ?? ''}
+                />
               </section>
             )}
           </div>

@@ -1154,6 +1154,87 @@ button:disabled {
   min-height: 2rem;
   padding: 0.3rem 0.55rem;
 }
+.structured-memory-panel,
+.memory-timeline {
+  display: grid;
+  gap: 1rem;
+}
+.memory-toolbar,
+.memory-create-form {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 0.6rem;
+}
+.memory-create-form {
+  grid-template-columns: repeat(3, 1fr);
+  border: 1px solid var(--line);
+  border-radius: 0.9rem;
+  padding: 1rem;
+}
+.memory-toolbar input,
+.memory-toolbar select,
+.memory-create-form input,
+.memory-create-form select,
+.memory-create-form textarea {
+  border: 1px solid var(--line);
+  border-radius: 0.55rem;
+  padding: 0.7rem;
+  background: #151f1d;
+  color: var(--ink);
+}
+.memory-summary-field,
+.memory-create-form button {
+  grid-column: 1 / -1;
+}
+.memory-timeline article {
+  display: grid;
+  gap: 0.7rem;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--line);
+  border-radius: 0.8rem;
+  padding: 1rem;
+  background: #151f1d;
+}
+.memory-timeline article.pinned {
+  border-left-color: var(--gold);
+}
+.memory-timeline header,
+.memory-timeline header > div:last-child,
+.memory-timeline footer,
+.memory-tags {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+.memory-timeline header {
+  justify-content: space-between;
+}
+.memory-timeline header span {
+  color: var(--gold);
+  font-size: 0.7rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+.memory-timeline h3 {
+  margin: 0.2rem 0 0;
+  font-family: var(--font-display);
+}
+.memory-timeline footer {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+.memory-tags span {
+  border-radius: 999px;
+  padding: 0.25rem 0.5rem;
+  background: rgb(212 164 92 / 12%);
+  color: var(--gold);
+  font-size: 0.7rem;
+}
+.memory-timeline button {
+  min-height: 2rem;
+  padding: 0.3rem 0.55rem;
+}
 .notes-field {
   grid-column: 1 / -1;
 }
@@ -2553,9 +2634,18 @@ button:disabled {
     grid-template-columns: 1fr;
   }
   .spell-profile > header,
-  .spell-row {
+  .spell-row,
+  .memory-timeline header {
     align-items: stretch;
     flex-direction: column;
+  }
+  .memory-toolbar,
+  .memory-create-form {
+    grid-template-columns: 1fr;
+  }
+  .memory-summary-field,
+  .memory-create-form button {
+    grid-column: auto;
   }
   .notes-field {
     grid-column: auto;

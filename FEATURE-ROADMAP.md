@@ -104,8 +104,8 @@ This is the source-of-truth checklist for the entire application. Completed work
 - [ ] Rules-aware carrying-capacity explanation derived from Strength, size, system/version, optional encumbrance rules, and traits such as Powerful Build—not from class.
 - [ ] Adaptive Abilities & Spells tab covering ancestry/species, background, class and subclass features, feats, passive effects, limited resources, and complete spellcasting; non-spellcasters must not receive an empty spell layout. *(Features and the manual spellbook/slot foundation are complete; advanced spell metadata editing and rules automation remain.)*
 - [ ] Spell presentation grouped by cantrips and spell level with known/prepared state, slots, pact slots, concentration, rituals, components, range, duration, favorites, and frequently used actions.
-- [ ] Memory tab combining player notes, inventory/equipment history, NPCs met, locations visited, discoveries, objectives, and character-specific session history.
-- [ ] Searchable, filterable, tagged, and pinnable memories with source campaign/session, real timestamp, in-world timestamp, location, related entities, log source, and optional player annotation.
+- [ ] Memory tab combining player notes, inventory/equipment history, NPCs met, locations visited, discoveries, objectives, and character-specific session history. *(Manual structured memories and notes complete; automatic inventory/session ingestion pending.)*
+- [x] Searchable, filterable, tagged, and pinnable memories with source campaign/session, real timestamp, in-world timestamp, location, related entities, log source, and optional player annotation.
 - [ ] Structured character events for item gain/transfer/use/loss, relationships, travel, discoveries, damage, healing, rests, conditions, rolls, and major actions instead of reconstructing history from plain prose.
 - [ ] Human-readable memory summaries generated from structured events while retaining trustworthy provenance.
 

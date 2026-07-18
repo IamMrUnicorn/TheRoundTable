@@ -384,6 +384,23 @@ assert.deepEqual(forbiddenSpellUpdate, [])
 const { response: invalidSlotResponse } = await request(`/rest/v1/character_spell_slots?profile_id=eq.${spellProfileId}&spell_level=eq.1`, { token: owner.token, method: 'PATCH', body: { remaining: 5 } })
 assert.equal(invalidSlotResponse.status, 400)
 
+const { data: privateMemoryRows, response: privateMemoryResponse } = await request('/rest/v1/character_memories', { token: owner.token, method: 'POST', body: { character_id: characterId, created_by: owner.id, campaign_id: campaignId, kind: 'note', visibility: 'private', title: 'A private fear', summary: 'Ember distrusts deep water.', tags: ['private'] } })
+assert.equal(privateMemoryResponse.status, 201)
+const { data: sharedMemoryRows, response: sharedMemoryResponse } = await request('/rest/v1/character_memories', { token: owner.token, method: 'POST', body: { character_id: characterId, created_by: owner.id, campaign_id: campaignId, kind: 'item', visibility: 'shared', title: 'Received the Moonstone Key', summary: 'Archivist Nera entrusted the key to Ember.', in_world_time: '14 Emberfall, midnight', location: 'The Sunken Library', source_name: 'Archivist Nera', tags: ['item', 'key'] } })
+assert.equal(sharedMemoryResponse.status, 201)
+const sharedMemoryId = sharedMemoryRows[0].id
+const { data: partyMemories, response: partyMemoriesResponse } = await request(`/rest/v1/character_memories?character_id=eq.${characterId}&select=id,title,visibility`, { token: outsider.token })
+assert.equal(partyMemoriesResponse.status, 200)
+assert.deepEqual(partyMemories, [{ id: sharedMemoryId, title: 'Received the Moonstone Key', visibility: 'shared' }])
+const { data: ownerMemories } = await request(`/rest/v1/character_memories?character_id=eq.${characterId}&select=id`, { token: owner.token })
+assert.equal(ownerMemories.length, 2)
+const { data: forbiddenMemoryUpdate, response: forbiddenMemoryUpdateResponse } = await request(`/rest/v1/character_memories?id=eq.${sharedMemoryId}`, { token: outsider.token, method: 'PATCH', body: { is_pinned: true } })
+assert.equal(forbiddenMemoryUpdateResponse.status, 200)
+assert.deepEqual(forbiddenMemoryUpdate, [])
+const { response: pinMemoryResponse } = await request(`/rest/v1/character_memories?id=eq.${sharedMemoryId}`, { token: owner.token, method: 'PATCH', body: { is_pinned: true } })
+assert.equal(pinMemoryResponse.status, 200)
+assert.equal(privateMemoryRows[0].visibility, 'private')
+
 const { data: forbiddenCampaignUpdate, response: forbiddenCampaignUpdateResponse } =
   await request(`/rest/v1/campaigns?id=eq.${campaignId}`, {
     token: outsider.token,

@@ -172,6 +172,30 @@ create table public.character_spell_slots (
   check (remaining <= maximum)
 );
 
+create table public.character_memories (
+  id bigint generated always as identity primary key,
+  character_id bigint not null references public.characters (id) on delete cascade,
+  created_by uuid not null references public.profiles (id) on delete restrict,
+  campaign_id bigint references public.campaigns (id) on delete set null,
+  session_id bigint,
+  kind text not null default 'note' check (kind in ('note', 'item', 'relationship', 'location', 'discovery', 'objective', 'damage', 'healing', 'rest', 'condition', 'roll', 'action', 'other')),
+  visibility text not null default 'private' check (visibility in ('private', 'shared')),
+  title text not null check (char_length(title) between 1 and 160),
+  summary text not null default '' check (char_length(summary) <= 5000),
+  occurred_at timestamptz not null default now(),
+  in_world_time text not null default '' check (char_length(in_world_time) <= 160),
+  location text not null default '' check (char_length(location) <= 160),
+  source_name text not null default '' check (char_length(source_name) <= 160),
+  source_reference text not null default '' check (char_length(source_reference) <= 500),
+  player_annotation text not null default '' check (char_length(player_annotation) <= 5000),
+  tags text[] not null default '{}',
+  is_pinned boolean not null default false,
+  metadata jsonb not null default '{}'::jsonb check (jsonb_typeof(metadata) = 'object'),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  check (cardinality(tags) <= 30 and char_length(array_to_string(tags, ',')) <= 2000)
+);
+
 create table public.availability_rules (
   id bigint generated always as identity primary key,
   campaign_id bigint not null references public.campaigns (id) on delete cascade,
@@ -225,6 +249,10 @@ create table public.session_attendance (
   updated_at timestamptz not null default now(),
   primary key (session_id, user_id)
 );
+
+alter table public.character_memories
+  add constraint character_memories_session_id_fkey
+  foreign key (session_id) references public.sessions (id) on delete set null;
 
 create table public.campaign_announcements (
   id bigint generated always as identity primary key,
@@ -366,6 +394,10 @@ create index character_spellcasting_profiles_character_idx
   on public.character_spellcasting_profiles (character_id, name);
 create index character_spells_profile_level_idx
   on public.character_spells (profile_id, spell_level, name);
+create index character_memories_character_time_idx
+  on public.character_memories (character_id, is_pinned desc, occurred_at desc);
+create index character_memories_campaign_session_idx
+  on public.character_memories (campaign_id, session_id) where campaign_id is not null;
 create index availability_rules_user_campaign_idx on public.availability_rules (user_id, campaign_id);
 create index availability_exceptions_campaign_time_idx on public.availability_exceptions (campaign_id, starts_at, ends_at);
 create index availability_exceptions_user_id_idx on public.availability_exceptions (user_id);
@@ -429,6 +461,7 @@ for each row execute function private.set_updated_at();
 create trigger character_spellcasting_profiles_set_updated_at before update on public.character_spellcasting_profiles for each row execute function private.set_updated_at();
 create trigger character_spells_set_updated_at before update on public.character_spells for each row execute function private.set_updated_at();
 create trigger character_spell_slots_set_updated_at before update on public.character_spell_slots for each row execute function private.set_updated_at();
+create trigger character_memories_set_updated_at before update on public.character_memories for each row execute function private.set_updated_at();
 
 create trigger availability_rules_set_updated_at before update on public.availability_rules for each row execute function private.set_updated_at();
 create trigger availability_exceptions_set_updated_at before update on public.availability_exceptions for each row execute function private.set_updated_at();
@@ -737,6 +770,7 @@ alter table public.character_features enable row level security;
 alter table public.character_spellcasting_profiles enable row level security;
 alter table public.character_spells enable row level security;
 alter table public.character_spell_slots enable row level security;
+alter table public.character_memories enable row level security;
 alter table public.availability_rules enable row level security;
 alter table public.availability_exceptions enable row level security;
 alter table public.sessions enable row level security;
@@ -937,6 +971,23 @@ with check (exists (select 1 from public.character_spellcasting_profiles join pu
 create policy character_spell_slots_delete_owner on public.character_spell_slots for delete to authenticated
 using (exists (select 1 from public.character_spellcasting_profiles join public.characters on characters.id = character_spellcasting_profiles.character_id where character_spellcasting_profiles.id = character_spell_slots.profile_id and characters.owner_id = (select auth.uid())));
 
+create policy character_memories_select_allowed on public.character_memories for select to authenticated
+using (exists (
+  select 1 from public.characters
+  where characters.id = character_memories.character_id
+    and (
+      characters.owner_id = (select auth.uid())
+      or (character_memories.visibility = 'shared' and characters.campaign_id is not null and (select private.is_campaign_member(characters.campaign_id)))
+    )
+));
+create policy character_memories_insert_owner on public.character_memories for insert to authenticated
+with check (created_by = (select auth.uid()) and exists (select 1 from public.characters where characters.id = character_memories.character_id and characters.owner_id = (select auth.uid())));
+create policy character_memories_update_owner on public.character_memories for update to authenticated
+using (exists (select 1 from public.characters where characters.id = character_memories.character_id and characters.owner_id = (select auth.uid())))
+with check (created_by = (select auth.uid()) and exists (select 1 from public.characters where characters.id = character_memories.character_id and characters.owner_id = (select auth.uid())));
+create policy character_memories_delete_owner on public.character_memories for delete to authenticated
+using (exists (select 1 from public.characters where characters.id = character_memories.character_id and characters.owner_id = (select auth.uid())));
+
 create policy availability_rules_select_members on public.availability_rules for select to authenticated using ((select private.is_campaign_member(campaign_id)));
 create policy availability_rules_insert_own on public.availability_rules for insert to authenticated with check (user_id = (select auth.uid()) and (select private.is_campaign_member(campaign_id)));
 create policy availability_rules_update_own on public.availability_rules for update to authenticated using (user_id = (select auth.uid())) with check (user_id = (select auth.uid()) and (select private.is_campaign_member(campaign_id)));
@@ -1054,10 +1105,12 @@ revoke all on table public.campaign_world_states, public.campaign_gm_states, pub
 revoke all on table public.campaign_inventory_items, public.campaign_tasks from anon, authenticated;
 revoke all on table public.campaign_references from anon, authenticated;
 revoke all on table public.character_spellcasting_profiles, public.character_spells, public.character_spell_slots from anon, authenticated;
+revoke all on table public.character_memories from anon, authenticated;
 revoke all on sequence public.campaigns_id_seq from anon, authenticated;
 revoke all on sequence public.characters_id_seq from anon, authenticated;
 revoke all on sequence public.character_features_id_seq from anon, authenticated;
 revoke all on sequence public.character_spellcasting_profiles_id_seq, public.character_spells_id_seq from anon, authenticated;
+revoke all on sequence public.character_memories_id_seq from anon, authenticated;
 revoke all on sequence public.availability_rules_id_seq, public.availability_exceptions_id_seq, public.sessions_id_seq from anon, authenticated;
 revoke all on sequence public.campaign_announcements_id_seq from anon, authenticated;
 revoke all on sequence public.notifications_id_seq from anon, authenticated;
@@ -1072,6 +1125,7 @@ grant select, insert, update, delete on table public.campaign_members to authent
 grant select, insert, update, delete on table public.characters to authenticated;
 grant select, insert, update, delete on table public.character_features to authenticated;
 grant select, insert, update, delete on table public.character_spellcasting_profiles, public.character_spells, public.character_spell_slots to authenticated;
+grant select, insert, update, delete on table public.character_memories to authenticated;
 grant select, insert, update, delete on table public.availability_rules, public.availability_exceptions, public.sessions, public.session_attendance to authenticated;
 grant select, insert, update, delete on table public.campaign_announcements to authenticated;
 grant select, update, delete on table public.notifications to authenticated;
@@ -1089,5 +1143,6 @@ grant usage, select on sequence public.campaigns_id_seq to authenticated;
 grant usage, select on sequence public.characters_id_seq to authenticated;
 grant usage, select on sequence public.character_features_id_seq to authenticated;
 grant usage, select on sequence public.character_spellcasting_profiles_id_seq, public.character_spells_id_seq to authenticated;
+grant usage, select on sequence public.character_memories_id_seq to authenticated;
 grant usage, select on sequence public.availability_rules_id_seq, public.availability_exceptions_id_seq, public.sessions_id_seq to authenticated;
 grant usage, select on sequence public.campaign_announcements_id_seq to authenticated;

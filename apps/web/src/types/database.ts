@@ -7,8 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  // Allows createClient to infer the linked project's PostgREST version.
   __InternalSupabase: {
     PostgrestVersion: '14.5'
   }
@@ -756,6 +755,104 @@ export type Database = {
             columns: ['character_id']
             isOneToOne: false
             referencedRelation: 'characters'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      character_memories: {
+        Row: {
+          campaign_id: number | null
+          character_id: number
+          created_at: string
+          created_by: string
+          id: number
+          in_world_time: string
+          is_pinned: boolean
+          kind: string
+          location: string
+          metadata: Json
+          occurred_at: string
+          player_annotation: string
+          session_id: number | null
+          source_name: string
+          source_reference: string
+          summary: string
+          tags: string[]
+          title: string
+          updated_at: string
+          visibility: string
+        }
+        Insert: {
+          campaign_id?: number | null
+          character_id: number
+          created_at?: string
+          created_by: string
+          id?: never
+          in_world_time?: string
+          is_pinned?: boolean
+          kind?: string
+          location?: string
+          metadata?: Json
+          occurred_at?: string
+          player_annotation?: string
+          session_id?: number | null
+          source_name?: string
+          source_reference?: string
+          summary?: string
+          tags?: string[]
+          title: string
+          updated_at?: string
+          visibility?: string
+        }
+        Update: {
+          campaign_id?: number | null
+          character_id?: number
+          created_at?: string
+          created_by?: string
+          id?: never
+          in_world_time?: string
+          is_pinned?: boolean
+          kind?: string
+          location?: string
+          metadata?: Json
+          occurred_at?: string
+          player_annotation?: string
+          session_id?: number | null
+          source_name?: string
+          source_reference?: string
+          summary?: string
+          tags?: string[]
+          title?: string
+          updated_at?: string
+          visibility?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'character_memories_campaign_id_fkey'
+            columns: ['campaign_id']
+            isOneToOne: false
+            referencedRelation: 'campaigns'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'character_memories_character_id_fkey'
+            columns: ['character_id']
+            isOneToOne: false
+            referencedRelation: 'characters'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'character_memories_created_by_fkey'
+            columns: ['created_by']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'character_memories_session_id_fkey'
+            columns: ['session_id']
+            isOneToOne: false
+            referencedRelation: 'sessions'
             referencedColumns: ['id']
           },
         ]
