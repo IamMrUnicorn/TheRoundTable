@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { type FormEvent, useEffect, useState } from 'react'
 
 import { supabase } from '../../lib/supabase'
+import { DiceRollerPanel } from '../dice/DiceRollerPanel'
 import { updateSession } from '../scheduling/scheduling'
 import { createSessionEvent, listSessionEvents } from './session-events'
 
@@ -163,6 +164,13 @@ export function SessionEventPanel({
           )}
         </div>
       </div>
+      <DiceRollerPanel
+        actorId={actorId}
+        campaignId={campaignId}
+        characters={characters}
+        isManager={isManager}
+        sessionId={sessionId}
+      />
       <form
         className="session-event-form"
         onSubmit={(event: FormEvent) => {
