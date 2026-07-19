@@ -28,7 +28,8 @@ create table public.campaigns (
     check (status in ('forming', 'active', 'paused', 'completed', 'archived')),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  requires_join_approval boolean not null default false
+  requires_join_approval boolean not null default false,
+  ruleset text not null default 'D&D 5e' check (char_length(ruleset) between 1 and 80)
 );
 
 create table public.campaign_members (

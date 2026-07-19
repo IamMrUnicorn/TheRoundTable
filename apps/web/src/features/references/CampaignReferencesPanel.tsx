@@ -26,17 +26,24 @@ const blank = {
 }
 
 export function CampaignReferencesPanel({
+  allowedKinds = ['npc', 'faction', 'location'],
   campaignId,
+  initialFilter = 'all',
   isManager,
   userId,
 }: {
+  allowedKinds?: string[]
   campaignId: number
+  initialFilter?: string
   isManager: boolean
   userId: string
 }) {
   const client = useQueryClient()
-  const [draft, setDraft] = useState(blank)
-  const [filter, setFilter] = useState('all')
+  const [draft, setDraft] = useState({
+    ...blank,
+    kind: allowedKinds[0] ?? 'npc',
+  })
+  const [filter, setFilter] = useState(initialFilter)
   const [search, setSearch] = useState('')
   const references = useQuery({
     queryKey: ['campaign-references', campaignId],
@@ -48,7 +55,7 @@ export function CampaignReferencesPanel({
     mutationFn: () =>
       createCampaignReference({ ...draft, campaignId, createdBy: userId }),
     onSuccess: async () => {
-      setDraft(blank)
+      setDraft({ ...blank, kind: allowedKinds[0] ?? 'npc' })
       await refresh()
     },
   })
@@ -63,6 +70,7 @@ export function CampaignReferencesPanel({
   })
   const visible = references.data?.filter(
     (item) =>
+      allowedKinds.includes(item.kind) &&
       (filter === 'all' || item.kind === filter) &&
       `${item.name} ${item.summary} ${item.tags.join(' ')}`
         .toLowerCase()
@@ -100,9 +108,13 @@ export function CampaignReferencesPanel({
               setDraft({ ...draft, kind: event.target.value })
             }
           >
-            <option value="npc">NPC</option>
-            <option value="faction">Faction</option>
-            <option value="location">Location</option>
+            {allowedKinds.includes('npc') && <option value="npc">NPC</option>}
+            {allowedKinds.includes('faction') && (
+              <option value="faction">Faction</option>
+            )}
+            {allowedKinds.includes('location') && (
+              <option value="location">Location</option>
+            )}
           </select>
           <input
             required
@@ -174,10 +186,14 @@ export function CampaignReferencesPanel({
           value={filter}
           onChange={(event) => setFilter(event.target.value)}
         >
-          <option value="all">All types</option>
-          <option value="npc">NPCs</option>
-          <option value="faction">Factions</option>
-          <option value="location">Locations</option>
+          {allowedKinds.length > 1 && <option value="all">All types</option>}
+          {allowedKinds.includes('npc') && <option value="npc">NPCs</option>}
+          {allowedKinds.includes('faction') && (
+            <option value="faction">Factions</option>
+          )}
+          {allowedKinds.includes('location') && (
+            <option value="location">Locations</option>
+          )}
         </select>
       </div>
       <div className="reference-list">

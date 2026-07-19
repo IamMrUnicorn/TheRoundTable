@@ -13,7 +13,12 @@ export function CampaignCreatePage() {
     [edition, setEdition] = useState('D&D 5e')
   const create = useMutation({
     mutationFn: () =>
-      createCampaign({ description, name, ownerId: identity!.id }),
+      createCampaign({
+        description,
+        name,
+        ownerId: identity!.id,
+        ruleset: edition,
+      }),
     onSuccess: (campaign) => navigate(`/campaigns/${campaign.id}`),
   })
   return (
@@ -79,6 +84,13 @@ export function CampaignCreatePage() {
               shared library.
             </span>
           </div>
+          {create.isError && (
+            <p className="form-message error wide-field">
+              {create.error instanceof Error
+                ? create.error.message
+                : 'The campaign could not be created.'}
+            </p>
+          )}
           <button disabled={create.isPending}>
             Create campaign <ArrowRight />
           </button>

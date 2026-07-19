@@ -27,7 +27,7 @@ This is the source-of-truth checklist for the entire application. Completed work
 
 ## 2. Dashboard and personal organization
 
-- [x] Mockup-aligned launch flow with focused campaign and character creation routes.
+- [x] Mockup-aligned launchpad with upcoming sessions, room routing, notifications, invite-code joining, creation shortcuts, and compact personal collections.
 - [x] Persistent navigation for Characters, Parties, Calendar, role-aware Current Session, and Profile.
 - [x] Focused character and campaign-calendar hubs outside the dashboard feature stack.
 - [x] Contextual next-step guidance and a visible end-to-end campaign-to-play checklist.
@@ -47,7 +47,7 @@ This is the source-of-truth checklist for the entire application. Completed work
 - [x] Dedicated campaign-creation page with name, edition choice, opening lore, and map-library handoff.
 - [x] Owner, Game Master, player, and observer role model.
 - [ ] Campaign name, description, image, status, and archive settings. *(Settings complete except image.)*
-- [ ] Ruleset/edition, campaign timezone, cadence, and expected duration. *(Scheduling fields stored; settings UI pending.)*
+- [ ] Ruleset/edition, campaign timezone, cadence, and expected duration. *(Ruleset, timezone, cadence, and preferred duration are stored and editable; broader rules configuration pending.)*
 - [ ] House rules, content warnings, and safety preferences.
 - [ ] Co-GM assignment and granular permissions. *(Game Master role assignment complete.)*
 - [x] Approve, remove, or ban members; voluntarily leave a campaign.
@@ -75,6 +75,8 @@ This is the source-of-truth checklist for the entire application. Completed work
 ## 5. Campaign home and shared information
 
 - [x] Role-aware campaign tabs that switch views in place for overview, NPCs, world/locations, planning, history, scheduling, and player management.
+- [x] At-a-glance campaign overview for next session, previous-session context, and player/party characters.
+- [x] Separate NPC/faction and location-focused reference views.
 - [x] Party roster and assigned characters.
 - [x] Next session, attendance, and availability summary.
 - [x] Announcements and pinned resources.

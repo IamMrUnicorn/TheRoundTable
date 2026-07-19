@@ -130,6 +130,362 @@
   gap: 0.75rem;
 }
 
+.home-launchpad-page .dashboard-content {
+  width: min(100%, 1180px);
+}
+
+.launchpad-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.launchpad-heading h1 {
+  margin: 0.25rem 0;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 3.75rem);
+}
+
+.launchpad-heading p {
+  margin: 0;
+}
+
+.launchpad-heading .secondary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  text-decoration: none;
+}
+
+.launchpad-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(260px, 0.75fr);
+  gap: 1rem;
+}
+
+.launchpad-card {
+  padding: clamp(1rem, 2.5vw, 1.5rem);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: rgb(18 31 29 / 92%);
+}
+
+.launchpad-card h2 {
+  margin: 0.2rem 0 0;
+  font-family: var(--font-display);
+}
+
+.launchpad-card .section-heading {
+  margin-bottom: 1rem;
+}
+
+.launchpad-card .section-heading > svg {
+  color: var(--gold);
+}
+
+.launchpad-sessions {
+  grid-row: span 2;
+}
+
+.launchpad-session-list {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.launchpad-session-list > a {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  color: inherit;
+  background: rgb(255 255 255 / 2%);
+  text-decoration: none;
+}
+
+.launchpad-session-list > a:hover {
+  border-color: rgb(212 164 92 / 55%);
+}
+
+.launchpad-session-list time {
+  display: grid;
+  width: 3.2rem;
+  place-items: center;
+  padding: 0.4rem;
+  border-radius: 10px;
+  background: var(--surface-raised);
+}
+
+.launchpad-session-list time strong {
+  font-size: 1.35rem;
+}
+
+.launchpad-session-list time span,
+.launchpad-session-list small,
+.launchpad-session-list > a > span {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.launchpad-session-list > a > div {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.launchpad-session-list .room-open {
+  padding: 0.35rem 0.5rem;
+  border-radius: 999px;
+  color: #181107;
+  background: var(--gold);
+  font-weight: 800;
+}
+
+.launchpad-empty {
+  display: grid;
+  gap: 0.4rem;
+  padding: 1.5rem;
+  border: 1px dashed var(--line);
+  border-radius: 12px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.launchpad-empty a {
+  color: var(--gold);
+}
+
+.join-card form {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.join-card form button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.notification-count {
+  display: grid;
+  min-width: 2rem;
+  min-height: 2rem;
+  place-items: center;
+  border-radius: 50%;
+  color: #181107;
+  background: var(--gold);
+  font-weight: 900;
+}
+
+.launchpad-notification-list {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.launchpad-notification-list article button {
+  display: grid;
+  width: 100%;
+  gap: 0.2rem;
+  padding: 0.7rem;
+  border: 1px solid var(--line);
+  color: inherit;
+  background: rgb(255 255 255 / 2%);
+  text-align: left;
+}
+
+.launchpad-notification-list article.is-read {
+  opacity: 0.58;
+}
+
+.launchpad-notification-list span,
+.launchpad-notification-list small {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.text-button {
+  padding: 0.6rem 0;
+  color: var(--gold);
+  background: transparent;
+}
+
+.quick-start-card > div {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 1rem;
+}
+
+.quick-start-card a {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.quick-start-card a > svg:first-child {
+  color: var(--gold);
+}
+
+.quick-start-card a span {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.quick-start-card small {
+  color: var(--muted);
+}
+
+.invitation-inbox,
+.collection-section {
+  margin-top: 1rem;
+}
+
+.compact-collection-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.campaign-overview-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.campaign-overview-summary[hidden] {
+  display: none;
+}
+
+.campaign-overview-summary > article {
+  min-height: 185px;
+  padding: 1.15rem;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: linear-gradient(145deg, rgb(35 53 49 / 90%), rgb(18 29 27 / 96%));
+}
+
+.campaign-overview-summary h2 {
+  margin: 0.45rem 0;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+}
+
+.campaign-overview-summary p:not(.eyebrow) {
+  color: var(--muted);
+}
+
+.forward-arrow {
+  transform: rotate(180deg);
+}
+
+.overview-character-list {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.overview-character-list > a {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.45rem;
+  border-radius: 9px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.overview-character-list > a:hover {
+  background: rgb(255 255 255 / 5%);
+}
+
+.overview-character-list > a > span {
+  display: grid;
+  width: 2rem;
+  height: 2rem;
+  place-items: center;
+  border-radius: 50%;
+  color: #181107;
+  background: var(--gold);
+  font-weight: 900;
+}
+
+.overview-character-list > a > div {
+  display: grid;
+}
+
+.overview-character-list small {
+  overflow: hidden;
+  color: var(--muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wizard-progress {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  margin: 0 0 1rem;
+  padding: 0;
+  list-style: none;
+}
+
+.wizard-progress li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem;
+  border-bottom: 2px solid var(--line);
+  color: var(--muted);
+}
+
+.wizard-progress li.current,
+.wizard-progress li.complete {
+  border-color: var(--gold);
+  color: var(--ink);
+}
+
+.wizard-progress li span {
+  display: grid;
+  width: 1.65rem;
+  height: 1.65rem;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--surface-raised);
+  font-weight: 800;
+}
+
+.wizard-progress li.complete span {
+  color: #181107;
+  background: var(--gold);
+}
+
+.wizard-summary {
+  display: grid;
+  gap: 0.35rem;
+  padding: 1rem;
+  border: 1px solid rgb(212 164 92 / 35%);
+  border-radius: 12px;
+  background: rgb(212 164 92 / 6%);
+}
+
+.wizard-summary strong {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+}
+
+.wizard-summary small {
+  margin-top: 0.4rem;
+  color: var(--muted);
+}
+
 .global-app-nav {
   position: sticky;
   z-index: 100;
@@ -3930,5 +4286,35 @@ button:disabled {
 
   .creation-choice-grid > a {
     min-height: 230px;
+  }
+
+  .launchpad-heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .launchpad-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .launchpad-sessions {
+    grid-row: auto;
+  }
+
+  .compact-collection-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .campaign-overview-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .launchpad-session-list > a {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .launchpad-session-list > a > span {
+    grid-column: 2;
+    justify-self: start;
   }
 }

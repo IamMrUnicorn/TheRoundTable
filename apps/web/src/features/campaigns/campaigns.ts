@@ -58,6 +58,7 @@ export async function createCampaign(input: {
   description: string
   name: string
   ownerId: string
+  ruleset?: string
 }) {
   const { data, error } = await supabase
     .from('campaigns')
@@ -65,6 +66,7 @@ export async function createCampaign(input: {
       description: input.description.trim(),
       name: input.name.trim(),
       owner_id: input.ownerId,
+      ruleset: input.ruleset?.trim() || 'D&D 5e',
       slug: createSlug(input.name),
     })
     .select('*')
@@ -104,6 +106,7 @@ export async function updateCampaignSettings(
     name: string
     preferredSessionMinutes: number
     requiresJoinApproval: boolean
+    ruleset: string
     status: string
     timezone: string
   },
@@ -116,6 +119,7 @@ export async function updateCampaignSettings(
       name: input.name.trim(),
       preferred_session_minutes: input.preferredSessionMinutes,
       requires_join_approval: input.requiresJoinApproval,
+      ruleset: input.ruleset.trim(),
       status: input.status,
       timezone: input.timezone.trim(),
     })

@@ -107,6 +107,24 @@ export function CharacterCreatePage() {
           </div>
           <BookOpen />
         </div>
+        {mode === 'wizard' && (
+          <ol className="wizard-progress" aria-label="Character creation steps">
+            {['Identity', 'Path', 'Campaign'].map((label, index) => (
+              <li
+                className={
+                  index + 1 === step
+                    ? 'current'
+                    : index + 1 < step
+                      ? 'complete'
+                      : ''
+                }
+                key={label}
+              >
+                <span>{index + 1}</span> {label}
+              </li>
+            ))}
+          </ol>
+        )}
         <form className="focused-create-form" onSubmit={submit}>
           {(mode === 'manual' || step === 1) && (
             <>
@@ -135,6 +153,7 @@ export function CharacterCreatePage() {
                 Appearance or concept
                 <textarea
                   rows={4}
+                  maxLength={5000}
                   value={form.description}
                   onChange={(e) =>
                     setForm({ ...form, description: e.target.value })
@@ -148,6 +167,7 @@ export function CharacterCreatePage() {
               <label>
                 Ancestry / species
                 <input
+                  required={mode === 'wizard'}
                   maxLength={80}
                   value={form.ancestry}
                   onChange={(e) =>
@@ -158,6 +178,7 @@ export function CharacterCreatePage() {
               <label>
                 Class
                 <input
+                  required={mode === 'wizard'}
                   maxLength={80}
                   value={form.className}
                   onChange={(e) =>
@@ -166,6 +187,26 @@ export function CharacterCreatePage() {
                 />
               </label>
             </>
+          )}
+          {mode === 'wizard' && step === 3 && (
+            <div className="wizard-summary wide-field">
+              <p className="eyebrow">Character summary</p>
+              <strong>{form.name}</strong>
+              <span>
+                Level {form.level} {form.ancestry} {form.className}
+              </span>
+              <small>
+                The complete sheet opens next so you can assign abilities,
+                equipment, features, spells, biography, and memories.
+              </small>
+            </div>
+          )}
+          {create.isError && (
+            <p className="form-message error wide-field">
+              {create.error instanceof Error
+                ? create.error.message
+                : 'The character could not be created.'}
+            </p>
           )}
           {(mode === 'manual' || step === 3) && (
             <label>

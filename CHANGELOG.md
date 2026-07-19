@@ -8,6 +8,12 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 
 ### Added
 
+- Rebuilt the authenticated home page as a compact launchpad with upcoming sessions, automatic waiting-room/DM-prep routing, inline invite-code joining, notification triage, campaign invitations, and creation shortcuts.
+- Added compact campaign and character collections below the launchpad so full personal libraries remain available without overwhelming the first screen.
+- Added campaign overview summaries for the next session, previous-session context, and the signed-in player's character or Game Master's party roster.
+- Split the mixed campaign encyclopedia into NPC/faction and location-focused workspaces while retaining search, secrets, tags, editing, and all existing records.
+- Added a persisted campaign ruleset/edition field, creation-time selection, owner editing, campaign-header context, declarative schema update, and generated migration.
+- Added character-wizard progress, guided-field validation, final summary, clearer post-creation expectations, and visible campaign/character creation failures.
 - Added a mockup-driven information architecture with focused campaign creation, a manual-versus-guided character entry screen, and a three-step character wizard.
 - Added role-aware campaign workspaces: players receive Overview, NPC Library, Map & Past Locations, and Session History, while Game Masters also receive Session Planner, Scheduler, and Player Management.
 - Added in-place campaign tab switching so users no longer need to scroll through every feature card to locate a tool.

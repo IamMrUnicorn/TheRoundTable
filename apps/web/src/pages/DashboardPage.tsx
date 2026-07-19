@@ -1,58 +1,39 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   ArrowRight,
+  Bell,
   CalendarClock,
   KeyRound,
   Plus,
   Shield,
   UserRound,
   Users,
-  X,
 } from 'lucide-react'
 import { type FormEvent, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { BrandLogo } from '../components/BrandLogo'
-
-import {
-  createCampaign,
-  joinCampaign,
-  listCampaigns,
-} from '../features/campaigns/campaigns'
 import { useAuth } from '../features/auth/auth-context'
+import { joinCampaign, listCampaigns } from '../features/campaigns/campaigns'
+import { listOwnedCharacters } from '../features/characters/characters'
 import {
-  createCharacter,
-  listOwnedCharacters,
-} from '../features/characters/characters'
+  listMyInvitations,
+  respondCampaignInvitation,
+} from '../features/invitations/invitations'
 import {
   listNotifications,
   markAllNotificationsRead,
   markNotificationRead,
 } from '../features/notifications/notifications'
-import {
-  listMyInvitations,
-  respondCampaignInvitation,
-} from '../features/invitations/invitations'
 import { listUpcomingSessions } from '../features/scheduling/scheduling'
-
-type Panel = 'character' | 'create' | 'join' | null
 
 function errorMessage(error: unknown) {
   return error instanceof Error ? error.message : 'Something went wrong.'
 }
 
 export function DashboardPage() {
-  const { identity, signOut } = useAuth()
-  const navigate = useNavigate()
+  const { identity } = useAuth()
   const queryClient = useQueryClient()
-  const [panel, setPanel] = useState<Panel>(null)
-  const [name, setName] = useState('')
-  const [description, setDescription] = useState('')
+  const navigate = useNavigate()
   const [inviteCode, setInviteCode] = useState('')
-  const [characterName, setCharacterName] = useState('')
-  const [ancestry, setAncestry] = useState('')
-  const [className, setClassName] = useState('')
-  const [characterCampaign, setCharacterCampaign] = useState('')
-
   const campaigns = useQuery({
     queryKey: ['campaigns', identity?.id],
     queryFn: () => listCampaigns(identity!.id),
@@ -78,39 +59,12 @@ export function DashboardPage() {
     queryFn: () => listUpcomingSessions(identity!.id),
     enabled: Boolean(identity),
   })
-
-  const createMutation = useMutation({
-    mutationFn: () =>
-      createCampaign({
-        description,
-        name,
-        ownerId: identity!.id,
-      }),
-    onSuccess: async (campaign) => {
-      await queryClient.invalidateQueries({ queryKey: ['campaigns'] })
-      navigate(`/campaigns/${campaign.id}`)
-    },
-  })
-
-  const joinMutation = useMutation({
+  const join = useMutation({
     mutationFn: () => joinCampaign(inviteCode),
     onSuccess: async (campaignId) => {
+      setInviteCode('')
       await queryClient.invalidateQueries({ queryKey: ['campaigns'] })
       navigate(`/campaigns/${campaignId}`)
-    },
-  })
-  const characterMutation = useMutation({
-    mutationFn: () =>
-      createCharacter({
-        ancestry,
-        campaignId: characterCampaign ? Number(characterCampaign) : null,
-        className,
-        name: characterName,
-        ownerId: identity!.id,
-      }),
-    onSuccess: async (character) => {
-      await queryClient.invalidateQueries({ queryKey: ['characters'] })
-      navigate(`/characters/${character.id}`)
     },
   })
   const readNotification = useMutation({
@@ -127,512 +81,235 @@ export function DashboardPage() {
     mutationFn: ({ token, accept }: { token: string; accept: boolean }) =>
       respondCampaignInvitation(token, accept),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['invitations'] })
-      await queryClient.invalidateQueries({ queryKey: ['campaigns'] })
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['invitations'] }),
+        queryClient.invalidateQueries({ queryKey: ['campaigns'] }),
+      ])
     },
   })
 
-  function submitCreate(event: FormEvent) {
-    event.preventDefault()
-    if (name.trim()) createMutation.mutate()
-  }
-
-  function submitJoin(event: FormEvent) {
-    event.preventDefault()
-    if (inviteCode.trim()) joinMutation.mutate()
-  }
-
   const nextSession = upcomingSessions.data?.[0]
   const currentSession = upcomingSessions.data?.find((session) => {
-    const startsWithinWindow =
-      Date.parse(session.starts_at) <= Date.now() + 18 * 60 * 60 * 1000
-    return ['active', 'paused'].includes(session.status) || startsWithinWindow
+    const opensAt = Date.parse(session.starts_at) - 18 * 60 * 60 * 1000
+    return (
+      ['active', 'paused'].includes(session.status) || Date.now() >= opensAt
+    )
   })
   const currentCampaign = campaigns.data?.find(
     (campaign) => campaign.id === currentSession?.campaign_id,
   )
-  const currentSessionLabel =
+  const isCurrentSessionManager =
     currentCampaign?.membershipRole === 'owner' ||
     currentCampaign?.membershipRole === 'game_master'
-      ? ['active', 'paused'].includes(currentSession?.status ?? '')
-        ? 'Return to the play screen'
-        : 'Open DM preparation'
-      : ['active', 'paused'].includes(currentSession?.status ?? '')
-        ? 'Return to the play screen'
-        : 'Enter the waiting room'
+  const unread = notifications.data?.filter((item) => !item.read_at) ?? []
 
   return (
-    <main className="dashboard-page">
-      <header className="app-header">
-        <Link to="/" className="brand-mark">
-          <BrandLogo />
-          <span>The Round Table</span>
-        </Link>
-        <div className="heading-actions">
-          <Link className="text-link" to="/profile">
-            Profile
-          </Link>
-          <button className="secondary-button" onClick={() => void signOut()}>
-            Sign out
-          </button>
-        </div>
-      </header>
-
+    <main className="dashboard-page home-launchpad-page">
       <section className="dashboard-content">
-        <div className="dashboard-heading compact-heading">
+        <header className="launchpad-heading">
           <div>
-            <p className="eyebrow">Campaign hub</p>
-            <h1>Choose your next adventure.</h1>
-            <p>
-              Create a table as Game Master or join your party with an invite
-              code.
-            </p>
+            <p className="eyebrow">Your round table</p>
+            <h1>Welcome back, adventurer.</h1>
+            <p>Everything requiring your attention is gathered here.</p>
           </div>
           <div className="heading-actions">
-            <button
-              className="secondary-button"
-              onClick={() => navigate('/characters/new')}
-            >
-              <UserRound aria-hidden="true" size={18} /> New character
-            </button>
-            <button
-              className="secondary-button"
-              onClick={() => setPanel('join')}
-            >
-              <KeyRound aria-hidden="true" size={18} /> Join campaign
-            </button>
-            <button onClick={() => navigate('/campaigns/new')}>
-              <Plus aria-hidden="true" size={18} /> Create campaign
-            </button>
-          </div>
-        </div>
-
-        <section className="next-step-panel" aria-labelledby="next-step-title">
-          <div>
-            <p className="eyebrow">Your next step</p>
-            <h2 id="next-step-title">
-              {currentSession
-                ? currentSessionLabel
-                : nextSession
-                  ? 'Prepare for your next session'
-                  : campaigns.data?.length
-                    ? 'Schedule your party’s next session'
-                    : 'Create or join your first party'}
-            </h2>
-            <p>
-              {currentSession
-                ? `${currentSession.title} is available now. This opens the correct room for your campaign role.`
-                : nextSession
-                  ? `${nextSession.title} is scheduled for ${new Date(nextSession.starts_at).toLocaleString()}. The waiting room opens 18 hours before it begins.`
-                  : campaigns.data?.length
-                    ? 'Choose a party calendar, add availability, and propose a time. The GM confirms it before play.'
-                    : 'Game Masters create a party; players join with the eight-character invite code.'}
-            </p>
-          </div>
-          {currentSession ? (
-            <Link
-              className="primary-flow-action"
-              to={`/campaigns/${currentSession.campaign_id}/sessions/${currentSession.id}`}
-            >
-              {currentSessionLabel} <ArrowRight />
+            <Link className="secondary-button" to="/campaigns/new">
+              <Plus size={18} /> New campaign
             </Link>
-          ) : nextSession ? (
-            <Link
-              className="primary-flow-action"
-              to={`/campaigns/${nextSession.campaign_id}/schedule`}
-            >
-              Review session <ArrowRight />
+            <Link className="secondary-button" to="/characters/new">
+              <UserRound size={18} /> New character
             </Link>
-          ) : campaigns.data?.length ? (
-            <Link className="primary-flow-action" to="/calendar">
-              Open calendar <ArrowRight />
-            </Link>
-          ) : (
-            <button onClick={() => navigate('/campaigns/new')}>
-              Create a campaign <ArrowRight />
-            </button>
-          )}
-          <ol className="flow-checklist">
-            <li className={campaigns.data?.length ? 'complete' : 'current'}>
-              <strong>1</strong>
-              <span>Join a party</span>
-            </li>
-            <li
-              className={
-                characters.data?.length
-                  ? 'complete'
-                  : campaigns.data?.length
-                    ? 'current'
-                    : ''
-              }
-            >
-              <strong>2</strong>
-              <span>Create a character</span>
-            </li>
-            <li
-              className={
-                nextSession
-                  ? 'complete'
-                  : campaigns.data?.length
-                    ? 'current'
-                    : ''
-              }
-            >
-              <strong>3</strong>
-              <span>Schedule</span>
-            </li>
-            <li className={currentSession ? 'current' : ''}>
-              <strong>4</strong>
-              <span>Wait, prep, then play</span>
-            </li>
-          </ol>
-        </section>
+          </div>
+        </header>
 
-        {panel && (
-          <section className="action-panel" aria-label={`${panel} campaign`}>
-            <button
-              className="icon-button"
-              aria-label="Close"
-              onClick={() => setPanel(null)}
-            >
-              <X aria-hidden="true" size={18} />
-            </button>
-            {panel === 'create' ? (
-              <form onSubmit={submitCreate}>
-                <div>
-                  <p className="eyebrow">New table</p>
-                  <h2>Create a campaign</h2>
-                </div>
-                <label htmlFor="campaign-name">Campaign name</label>
-                <input
-                  id="campaign-name"
-                  maxLength={100}
-                  required
-                  value={name}
-                  onChange={(event) => setName(event.target.value)}
-                  placeholder="The Ember Crown"
-                />
-                <label htmlFor="campaign-description">
-                  Description <span>(optional)</span>
-                </label>
-                <textarea
-                  id="campaign-description"
-                  maxLength={2000}
-                  rows={4}
-                  value={description}
-                  onChange={(event) => setDescription(event.target.value)}
-                  placeholder="A short introduction for your players…"
-                />
-                {createMutation.isError && (
-                  <p className="form-message error">
-                    {errorMessage(createMutation.error)}
-                  </p>
-                )}
-                <button disabled={createMutation.isPending}>
-                  {createMutation.isPending ? 'Creating…' : 'Create campaign'}
-                </button>
-              </form>
-            ) : panel === 'join' ? (
-              <form onSubmit={submitJoin}>
-                <div>
-                  <p className="eyebrow">Find your party</p>
-                  <h2>Join a campaign</h2>
-                </div>
-                <label htmlFor="invite-code">Eight-character invite code</label>
-                <input
-                  id="invite-code"
-                  autoCapitalize="characters"
-                  maxLength={8}
-                  minLength={8}
-                  pattern="[A-Fa-f0-9]{8}"
-                  required
-                  value={inviteCode}
-                  onChange={(event) => setInviteCode(event.target.value)}
-                  placeholder="A1B2C3D4"
-                />
-                {joinMutation.isError && (
-                  <p className="form-message error">
-                    {errorMessage(joinMutation.error)}
-                  </p>
-                )}
-                <button disabled={joinMutation.isPending}>
-                  {joinMutation.isPending ? 'Joining…' : 'Join the table'}
-                </button>
-              </form>
-            ) : (
-              <form
-                onSubmit={(event) => {
-                  event.preventDefault()
-                  if (characterName.trim()) characterMutation.mutate()
-                }}
-              >
-                <div>
-                  <p className="eyebrow">New hero</p>
-                  <h2>Create a character</h2>
-                </div>
-                <label htmlFor="character-name">Character name</label>
-                <input
-                  id="character-name"
-                  maxLength={80}
-                  required
-                  value={characterName}
-                  onChange={(event) => setCharacterName(event.target.value)}
-                  placeholder="Seraphina Dawn"
-                />
-                <label htmlFor="ancestry">Ancestry</label>
-                <input
-                  id="ancestry"
-                  maxLength={80}
-                  value={ancestry}
-                  onChange={(event) => setAncestry(event.target.value)}
-                  placeholder="Human, Elf, Dwarf…"
-                />
-                <label htmlFor="class-name">Class</label>
-                <input
-                  id="class-name"
-                  maxLength={80}
-                  value={className}
-                  onChange={(event) => setClassName(event.target.value)}
-                  placeholder="Fighter, Wizard, Cleric…"
-                />
-                <label htmlFor="character-campaign">
-                  Campaign <span>(optional)</span>
-                </label>
-                <select
-                  id="character-campaign"
-                  value={characterCampaign}
-                  onChange={(event) => setCharacterCampaign(event.target.value)}
-                >
-                  <option value="">Unassigned</option>
-                  {campaigns.data?.map((campaign) => (
-                    <option key={campaign.id} value={campaign.id}>
-                      {campaign.name}
-                    </option>
-                  ))}
-                </select>
-                {characterMutation.isError && (
-                  <p className="form-message error">
-                    {errorMessage(characterMutation.error)}
-                  </p>
-                )}
-                <button disabled={characterMutation.isPending}>
-                  {characterMutation.isPending
-                    ? 'Creating…'
-                    : 'Create character'}
-                </button>
-              </form>
-            )}
-          </section>
-        )}
-
-        <section className="campaign-section upcoming-section">
-          <div className="section-heading">
-            <div>
-              <p className="eyebrow">Around the corner</p>
-              <h2>Upcoming sessions</h2>
-            </div>
-            <span>{upcomingSessions.data?.length ?? 0} on your calendar</span>
-          </div>
-          {upcomingSessions.isLoading && (
-            <p className="muted-copy">Checking the party calendar…</p>
-          )}
-          {upcomingSessions.isError && (
-            <p className="form-message error">
-              {errorMessage(upcomingSessions.error)}
-            </p>
-          )}
-          {upcomingSessions.data?.length === 0 && (
-            <div className="empty-state compact-empty-state">
-              <CalendarClock aria-hidden="true" />
-              <div>
-                <h3>No upcoming sessions yet.</h3>
-                <p>Open a campaign to propose a time with your party.</p>
-              </div>
-            </div>
-          )}
-          <div className="upcoming-session-list">
-            {upcomingSessions.data?.map((session) => (
-              <Link
-                key={session.id}
-                to={`/campaigns/${session.campaign_id}/schedule`}
-              >
-                <div className="session-date" aria-hidden="true">
-                  <strong>
-                    {new Date(session.starts_at).toLocaleDateString(undefined, {
-                      day: 'numeric',
-                    })}
-                  </strong>
-                  <span>
-                    {new Date(session.starts_at).toLocaleDateString(undefined, {
-                      month: 'short',
-                    })}
-                  </span>
-                </div>
-                <div>
-                  <span>{session.campaigns?.name ?? 'Campaign'}</span>
-                  <h3>{session.title}</h3>
-                  <p>
-                    {new Date(session.starts_at).toLocaleString(undefined, {
-                      dateStyle: 'medium',
-                      timeStyle: 'short',
-                    })}{' '}
-                    · {session.status}
-                  </p>
-                </div>
-                <span
-                  className={`attendance-pill ${session.attendanceResponse}`}
-                >
-                  {session.attendanceResponse}
-                </span>
-                <ArrowRight aria-hidden="true" size={18} />
-              </Link>
-            ))}
-          </div>
-        </section>
-
-        <section className="campaign-section">
-          <div className="section-heading">
-            <div>
-              <p className="eyebrow">Your tables</p>
-              <h2>Campaigns</h2>
-            </div>
-            <span>{campaigns.data?.length ?? 0} active memberships</span>
-          </div>
-
-          {campaigns.isLoading && (
-            <p className="muted-copy">Gathering your campaigns…</p>
-          )}
-          {campaigns.isError && (
-            <p className="form-message error">
-              {errorMessage(campaigns.error)}
-            </p>
-          )}
-          {campaigns.data?.length === 0 && (
-            <div className="empty-state">
-              <Users aria-hidden="true" />
-              <h3>Your table is waiting.</h3>
-              <p>Create a campaign or enter an invite code to begin.</p>
-            </div>
-          )}
-          <div className="campaign-grid">
-            {campaigns.data?.map((campaign) => (
-              <Link
-                className="campaign-card"
-                key={campaign.id}
-                to={`/campaigns/${campaign.id}`}
-              >
-                <div className="campaign-card-meta">
-                  <span>
-                    {campaign.membershipRole === 'owner' ? (
-                      <Shield aria-hidden="true" size={15} />
-                    ) : (
-                      <Users aria-hidden="true" size={15} />
-                    )}
-                    {campaign.membershipRole.replace('_', ' ')}
-                  </span>
-                  <span>{campaign.status}</span>
-                </div>
-                <h3>{campaign.name}</h3>
-                <p>{campaign.description || 'No campaign description yet.'}</p>
-                <span className="card-link">
-                  Enter campaign <ArrowRight aria-hidden="true" size={17} />
-                </span>
-              </Link>
-            ))}
-          </div>
-        </section>
-
-        <section className="campaign-section">
-          <div className="section-heading">
-            <div>
-              <p className="eyebrow">Your heroes</p>
-              <h2>Characters</h2>
-            </div>
-            <span>{characters.data?.length ?? 0} characters</span>
-          </div>
-          {characters.isLoading && (
-            <p className="muted-copy">Gathering your characters…</p>
-          )}
-          {characters.data?.length === 0 && (
-            <div className="empty-state">
-              <UserRound aria-hidden="true" />
-              <h3>No characters yet.</h3>
-              <p>Create a hero and assign them to one of your campaigns.</p>
-            </div>
-          )}
-          <div className="campaign-grid">
-            {characters.data?.map((character) => (
-              <Link
-                className="campaign-card character-card"
-                key={character.id}
-                to={`/characters/${character.id}`}
-              >
-                <div className="campaign-card-meta">
-                  <span>
-                    <UserRound size={15} /> Level {character.level}
-                  </span>
-                  <span>{character.class_name || 'Unclassed'}</span>
-                </div>
-                <h3>{character.name}</h3>
-                <p>
-                  {character.ancestry || 'Unknown ancestry'} ·{' '}
-                  {character.current_hp}/{character.max_hp} HP · AC{' '}
-                  {character.armor_class}
-                </p>
-                <span className="card-link">
-                  Open character sheet <ArrowRight size={17} />
-                </span>
-              </Link>
-            ))}
-          </div>
-        </section>
-
-        <section className="campaign-section notification-section">
-          <div className="section-heading">
-            <div>
-              <p className="eyebrow">What changed</p>
-              <h2>Notifications</h2>
-            </div>
-            {notifications.data?.some((item) => !item.read_at) && (
-              <button
-                className="secondary-button"
-                onClick={() => readAllNotifications.mutate()}
-              >
-                Mark all read
-              </button>
-            )}
-          </div>
-          {notifications.data?.length === 0 && (
-            <p className="muted-copy">You are all caught up.</p>
-          )}
-          <div className="notification-list">
-            {notifications.data?.map((item) => (
-              <article className={item.read_at ? 'is-read' : ''} key={item.id}>
-                <div>
-                  <span>{item.kind.replace('_', ' ')}</span>
-                  <strong>{item.title}</strong>
-                  <p>{item.body}</p>
-                  <small>{new Date(item.created_at).toLocaleString()}</small>
-                </div>
-                {!item.read_at && (
-                  <button
-                    className="secondary-button"
-                    onClick={() => readNotification.mutate(item.id)}
-                  >
-                    Mark read
-                  </button>
-                )}
-              </article>
-            ))}
-          </div>
-        </section>
-
-        {Boolean(invitations.data?.length) && (
-          <section className="campaign-section">
+        <div className="launchpad-grid">
+          <section className="launchpad-card launchpad-sessions">
             <div className="section-heading">
               <div>
-                <p className="eyebrow">Your invitations</p>
-                <h2>Join a new table</h2>
+                <p className="eyebrow">Coming up</p>
+                <h2>Upcoming sessions</h2>
+              </div>
+              <CalendarClock aria-hidden="true" />
+            </div>
+            {upcomingSessions.isLoading && (
+              <p className="muted-copy">Checking your calendar…</p>
+            )}
+            {upcomingSessions.isError && (
+              <p className="form-message error">
+                {errorMessage(upcomingSessions.error)}
+              </p>
+            )}
+            {!upcomingSessions.isLoading && !nextSession && (
+              <div className="launchpad-empty">
+                <strong>No sessions scheduled</strong>
+                <span>Open a campaign to coordinate your next gathering.</span>
+                <Link to="/calendar">Open calendar</Link>
+              </div>
+            )}
+            <div className="launchpad-session-list">
+              {upcomingSessions.data?.slice(0, 3).map((session) => {
+                const roomOpen = session.id === currentSession?.id
+                return (
+                  <Link
+                    key={session.id}
+                    to={
+                      roomOpen
+                        ? `/campaigns/${session.campaign_id}/sessions/${session.id}`
+                        : `/campaigns/${session.campaign_id}/schedule`
+                    }
+                  >
+                    <time dateTime={session.starts_at}>
+                      <strong>
+                        {new Date(session.starts_at).toLocaleDateString(
+                          undefined,
+                          { day: 'numeric' },
+                        )}
+                      </strong>
+                      <span>
+                        {new Date(session.starts_at).toLocaleDateString(
+                          undefined,
+                          { month: 'short' },
+                        )}
+                      </span>
+                    </time>
+                    <div>
+                      <span>{session.campaigns?.name ?? 'Campaign'}</span>
+                      <strong>{session.title}</strong>
+                      <small>
+                        {new Date(session.starts_at).toLocaleTimeString(
+                          undefined,
+                          { hour: 'numeric', minute: '2-digit' },
+                        )}{' '}
+                        · {session.attendanceResponse}
+                      </small>
+                    </div>
+                    <span className={roomOpen ? 'room-open' : ''}>
+                      {roomOpen
+                        ? isCurrentSessionManager
+                          ? 'DM prep'
+                          : 'Waiting room'
+                        : session.status}
+                    </span>
+                  </Link>
+                )
+              })}
+            </div>
+            {upcomingSessions.data && upcomingSessions.data.length > 3 && (
+              <Link className="text-link" to="/calendar">
+                View all sessions <ArrowRight size={16} />
+              </Link>
+            )}
+          </section>
+
+          <section className="launchpad-card join-card">
+            <div className="section-heading">
+              <div>
+                <p className="eyebrow">Have an invitation?</p>
+                <h2>Join a campaign</h2>
+              </div>
+              <KeyRound aria-hidden="true" />
+            </div>
+            <form
+              onSubmit={(event: FormEvent) => {
+                event.preventDefault()
+                join.mutate()
+              }}
+            >
+              <label htmlFor="dashboard-invite-code">Invite code</label>
+              <input
+                id="dashboard-invite-code"
+                required
+                maxLength={20}
+                value={inviteCode}
+                onChange={(event) => setInviteCode(event.target.value)}
+                placeholder="Enter eight-character code"
+              />
+              {join.isError && (
+                <p className="form-message error">{errorMessage(join.error)}</p>
+              )}
+              {join.isSuccess && (
+                <p className="form-message success">Campaign joined.</p>
+              )}
+              <button disabled={join.isPending || !inviteCode.trim()}>
+                Join campaign <ArrowRight size={17} />
+              </button>
+            </form>
+          </section>
+
+          <section className="launchpad-card notification-preview">
+            <div className="section-heading">
+              <div>
+                <p className="eyebrow">What changed</p>
+                <h2>Notifications</h2>
+              </div>
+              <span className="notification-count">{unread.length}</span>
+            </div>
+            {notifications.isLoading && (
+              <p className="muted-copy">Gathering notifications…</p>
+            )}
+            {notifications.data?.length === 0 && (
+              <div className="launchpad-empty">
+                <Bell aria-hidden="true" />
+                <strong>You are all caught up.</strong>
+              </div>
+            )}
+            <div className="launchpad-notification-list">
+              {notifications.data?.slice(0, 4).map((item) => (
+                <article
+                  className={item.read_at ? 'is-read' : ''}
+                  key={item.id}
+                >
+                  <button
+                    disabled={Boolean(item.read_at)}
+                    onClick={() => readNotification.mutate(item.id)}
+                  >
+                    <span>{item.kind.replaceAll('_', ' ')}</span>
+                    <strong>{item.title}</strong>
+                    <small>{new Date(item.created_at).toLocaleString()}</small>
+                  </button>
+                </article>
+              ))}
+            </div>
+            {unread.length > 0 && (
+              <button
+                className="text-button"
+                onClick={() => readAllNotifications.mutate()}
+              >
+                Mark all as read
+              </button>
+            )}
+          </section>
+
+          <section className="launchpad-card quick-start-card">
+            <p className="eyebrow">Quick start</p>
+            <h2>Build your next adventure</h2>
+            <div>
+              <Link to="/campaigns/new">
+                <Users aria-hidden="true" />
+                <span>
+                  <strong>Create a campaign</strong>
+                  <small>Start a new table as Game Master</small>
+                </span>
+                <ArrowRight size={17} />
+              </Link>
+              <Link to="/characters/new">
+                <UserRound aria-hidden="true" />
+                <span>
+                  <strong>Create a character</strong>
+                  <small>Choose manual entry or the guided wizard</small>
+                </span>
+                <ArrowRight size={17} />
+              </Link>
+            </div>
+          </section>
+        </div>
+
+        {Boolean(invitations.data?.length) && (
+          <section className="campaign-section invitation-inbox">
+            <div className="section-heading">
+              <div>
+                <p className="eyebrow">Action required</p>
+                <h2>Campaign invitations</h2>
               </div>
             </div>
             <div className="invitation-list">
@@ -675,6 +352,107 @@ export function DashboardPage() {
             </div>
           </section>
         )}
+
+        <section className="campaign-section collection-section">
+          <div className="section-heading">
+            <div>
+              <p className="eyebrow">Your tables</p>
+              <h2>Campaigns</h2>
+            </div>
+            <Link className="text-link" to="/parties">
+              View parties <ArrowRight size={16} />
+            </Link>
+          </div>
+          {campaigns.isLoading && (
+            <p className="muted-copy">Gathering campaigns…</p>
+          )}
+          {campaigns.data?.length === 0 && (
+            <div className="empty-state compact-empty-state">
+              <Users aria-hidden="true" />
+              <div>
+                <h3>Your table is waiting.</h3>
+                <p>Create a campaign or use the invite-code form above.</p>
+              </div>
+            </div>
+          )}
+          <div className="campaign-grid compact-collection-grid">
+            {campaigns.data?.slice(0, 4).map((campaign) => (
+              <Link
+                className="campaign-card"
+                key={campaign.id}
+                to={`/campaigns/${campaign.id}`}
+              >
+                <div className="campaign-card-meta">
+                  <span>
+                    {campaign.membershipRole === 'owner' ? (
+                      <Shield size={15} />
+                    ) : (
+                      <Users size={15} />
+                    )}
+                    {campaign.membershipRole.replace('_', ' ')}
+                  </span>
+                  <span>{campaign.status}</span>
+                </div>
+                <h3>{campaign.name}</h3>
+                <p>
+                  {campaign.description || 'The story is waiting to begin.'}
+                </p>
+                <span className="card-link">
+                  Enter campaign <ArrowRight size={17} />
+                </span>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        <section className="campaign-section collection-section">
+          <div className="section-heading">
+            <div>
+              <p className="eyebrow">Your heroes</p>
+              <h2>Characters</h2>
+            </div>
+            <Link className="text-link" to="/characters">
+              View characters <ArrowRight size={16} />
+            </Link>
+          </div>
+          {characters.isLoading && (
+            <p className="muted-copy">Gathering characters…</p>
+          )}
+          {characters.data?.length === 0 && (
+            <div className="empty-state compact-empty-state">
+              <UserRound aria-hidden="true" />
+              <div>
+                <h3>No characters yet.</h3>
+                <p>Create manually or let the wizard guide you.</p>
+              </div>
+            </div>
+          )}
+          <div className="campaign-grid compact-collection-grid">
+            {characters.data?.slice(0, 4).map((character) => (
+              <Link
+                className="campaign-card character-card"
+                key={character.id}
+                to={`/characters/${character.id}`}
+              >
+                <div className="campaign-card-meta">
+                  <span>
+                    <UserRound size={15} /> Level {character.level}
+                  </span>
+                  <span>{character.class_name || 'Unclassed'}</span>
+                </div>
+                <h3>{character.name}</h3>
+                <p>
+                  {character.ancestry || 'Unknown ancestry'} ·{' '}
+                  {character.current_hp}/{character.max_hp} HP · AC{' '}
+                  {character.armor_class}
+                </p>
+                <span className="card-link">
+                  Open sheet <ArrowRight size={17} />
+                </span>
+              </Link>
+            ))}
+          </div>
+        </section>
       </section>
     </main>
   )

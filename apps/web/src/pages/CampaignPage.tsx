@@ -56,6 +56,7 @@ export function CampaignPage() {
     cadence: 'weekly',
     preferredSessionMinutes: 180,
     requiresJoinApproval: false,
+    ruleset: 'D&D 5e',
     status: 'forming',
   })
   const [announcement, setAnnouncement] = useState({
@@ -110,6 +111,7 @@ export function CampaignPage() {
         cadence: campaign.data.cadence,
         preferredSessionMinutes: campaign.data.preferred_session_minutes,
         requiresJoinApproval: campaign.data.requires_join_approval,
+        ruleset: campaign.data.ruleset,
         status: campaign.data.status,
       })
   }, [campaign.data])
@@ -241,7 +243,9 @@ export function CampaignPage() {
               <>
                 <section className="campaign-hero">
                   <div>
-                    <p className="eyebrow">{campaign.data.status} campaign</p>
+                    <p className="eyebrow">
+                      {campaign.data.status} campaign · {campaign.data.ruleset}
+                    </p>
                     <h1>{campaign.data.name}</h1>
                     <p>
                       {campaign.data.description ||
@@ -327,6 +331,117 @@ export function CampaignPage() {
                     </>
                   )}
                 </nav>
+
+                <section
+                  className="campaign-overview-summary"
+                  hidden={campaignTab !== 'overview'}
+                >
+                  <article>
+                    <p className="eyebrow">Next session</p>
+                    {nextSession.data ? (
+                      <>
+                        <h2>{nextSession.data.title}</h2>
+                        <p>
+                          {new Date(nextSession.data.starts_at).toLocaleString(
+                            undefined,
+                            {
+                              dateStyle: 'medium',
+                              timeStyle: 'short',
+                            },
+                          )}
+                        </p>
+                        <Link
+                          className="card-link"
+                          to={`/campaigns/${campaignId}/sessions/${nextSession.data.id}`}
+                        >
+                          {['active', 'paused'].includes(
+                            nextSession.data.status,
+                          )
+                            ? 'Open play screen'
+                            : isManager
+                              ? 'Open DM prep'
+                              : 'Check waiting room'}{' '}
+                          <ArrowLeft className="forward-arrow" size={16} />
+                        </Link>
+                      </>
+                    ) : (
+                      <>
+                        <h2>Not scheduled</h2>
+                        <p>Coordinate availability and propose a time.</p>
+                        <Link
+                          className="card-link"
+                          to={`/campaigns/${campaignId}/schedule`}
+                        >
+                          Open scheduler
+                        </Link>
+                      </>
+                    )}
+                  </article>
+                  <article>
+                    <p className="eyebrow">Previously</p>
+                    {sessionHistory.data?.[0] ? (
+                      <>
+                        <h2>{sessionHistory.data[0].title}</h2>
+                        <p>
+                          {sessionHistory.data[0].agenda ||
+                            'Open the session archive for its complete log.'}
+                        </p>
+                        <button
+                          className="text-button"
+                          onClick={() => setCampaignTab('history')}
+                        >
+                          View session history
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <h2>The story begins here</h2>
+                        <p>Completed sessions and recaps will appear here.</p>
+                      </>
+                    )}
+                  </article>
+                  <article>
+                    <p className="eyebrow">
+                      {isManager ? 'Party at a glance' : 'Your character'}
+                    </p>
+                    {characters.data?.filter(
+                      (character) =>
+                        isManager || character.owner_id === identity?.id,
+                    ).length ? (
+                      <div className="overview-character-list">
+                        {characters.data
+                          .filter(
+                            (character) =>
+                              isManager || character.owner_id === identity?.id,
+                          )
+                          .slice(0, 4)
+                          .map((character) => (
+                            <Link
+                              key={character.id}
+                              to={`/characters/${character.id}`}
+                            >
+                              <span>{character.name.slice(0, 1)}</span>
+                              <div>
+                                <strong>{character.name}</strong>
+                                <small>
+                                  Level {character.level}{' '}
+                                  {character.class_name || 'adventurer'} ·{' '}
+                                  {character.current_hp}/{character.max_hp} HP
+                                </small>
+                              </div>
+                            </Link>
+                          ))}
+                      </div>
+                    ) : (
+                      <>
+                        <h2>No character assigned</h2>
+                        <Link className="card-link" to="/characters/new">
+                          Create a character
+                        </Link>
+                      </>
+                    )}
+                  </article>
+                </section>
 
                 <section
                   id="overview"
@@ -438,6 +553,13 @@ export function CampaignPage() {
                     isManager={isManager}
                     userId={identity!.id}
                   />
+                  <CampaignReferencesPanel
+                    allowedKinds={['location']}
+                    campaignId={campaignId}
+                    initialFilter="location"
+                    isManager={isManager}
+                    userId={identity!.id}
+                  />
                 </div>
 
                 <div
@@ -457,7 +579,9 @@ export function CampaignPage() {
 
                 <div hidden={campaignTab !== 'npcs'}>
                   <CampaignReferencesPanel
+                    allowedKinds={['npc', 'faction']}
                     campaignId={campaignId}
+                    initialFilter="npc"
                     isManager={isManager}
                     userId={identity!.id}
                   />
@@ -823,6 +947,20 @@ export function CampaignPage() {
                               setSettings({
                                 ...settings,
                                 description: event.target.value,
+                              })
+                            }
+                          />
+                        </label>
+                        <label>
+                          Ruleset / edition
+                          <input
+                            required
+                            maxLength={80}
+                            value={settings.ruleset}
+                            onChange={(event) =>
+                              setSettings({
+                                ...settings,
+                                ruleset: event.target.value,
                               })
                             }
                           />
