@@ -6,6 +6,16 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 
 ## [Unreleased]
 
+### Dashboard review changes
+
+- Added a dedicated Parties page containing the complete campaign library, ruleset/cadence context, campaign creation, and sample-data tooling; Home and Parties no longer render the same route.
+- Added an authenticated sample-campaign generator that creates a representative character, announcements, public/private notes, world state, quests, NPCs, factions, locations, party inventory, completed history, and an upcoming session through normal RLS-protected APIs.
+- Added automatic rollback of a newly created sample campaign if any dependent sample record fails, preventing partially populated test campaigns.
+
+- Combined dashboard notifications with upcoming sessions and moved Quick Start into the vacated card.
+- Removed redundant campaign and character collection cards from Home; the persistent Parties and Characters navigation now owns those complete collections.
+- Changed the primary logo destination from Parties to Home and corrected character-creation links to open the dedicated creation flow.
+
 ### Added
 
 - Rebuilt the authenticated home page as a compact launchpad with upcoming sessions, automatic waiting-room/DM-prep routing, inline invite-code joining, notification triage, campaign invitations, and creation shortcuts.

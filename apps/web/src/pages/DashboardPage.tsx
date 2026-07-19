@@ -5,7 +5,6 @@ import {
   CalendarClock,
   KeyRound,
   Plus,
-  Shield,
   UserRound,
   Users,
 } from 'lucide-react'
@@ -13,7 +12,6 @@ import { type FormEvent, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../features/auth/auth-context'
 import { joinCampaign, listCampaigns } from '../features/campaigns/campaigns'
-import { listOwnedCharacters } from '../features/characters/characters'
 import {
   listMyInvitations,
   respondCampaignInvitation,
@@ -37,11 +35,6 @@ export function DashboardPage() {
   const campaigns = useQuery({
     queryKey: ['campaigns', identity?.id],
     queryFn: () => listCampaigns(identity!.id),
-    enabled: Boolean(identity),
-  })
-  const characters = useQuery({
-    queryKey: ['characters', identity?.id],
-    queryFn: () => listOwnedCharacters(identity!.id),
     enabled: Boolean(identity),
   })
   const notifications = useQuery({
@@ -199,6 +192,51 @@ export function DashboardPage() {
                 View all sessions <ArrowRight size={16} />
               </Link>
             )}
+            <div className="launchpad-notifications-inline">
+              <div className="section-heading">
+                <div>
+                  <p className="eyebrow">What changed</p>
+                  <h2>Notifications</h2>
+                </div>
+                <span className="notification-count">{unread.length}</span>
+              </div>
+              {notifications.isLoading && (
+                <p className="muted-copy">Gathering notifications…</p>
+              )}
+              {notifications.data?.length === 0 && (
+                <div className="launchpad-empty inline-empty">
+                  <Bell aria-hidden="true" />
+                  <strong>You are all caught up.</strong>
+                </div>
+              )}
+              <div className="launchpad-notification-list">
+                {notifications.data?.slice(0, 4).map((item) => (
+                  <article
+                    className={item.read_at ? 'is-read' : ''}
+                    key={item.id}
+                  >
+                    <button
+                      disabled={Boolean(item.read_at)}
+                      onClick={() => readNotification.mutate(item.id)}
+                    >
+                      <span>{item.kind.replaceAll('_', ' ')}</span>
+                      <strong>{item.title}</strong>
+                      <small>
+                        {new Date(item.created_at).toLocaleString()}
+                      </small>
+                    </button>
+                  </article>
+                ))}
+              </div>
+              {unread.length > 0 && (
+                <button
+                  className="text-button"
+                  onClick={() => readAllNotifications.mutate()}
+                >
+                  Mark all as read
+                </button>
+              )}
+            </div>
           </section>
 
           <section className="launchpad-card join-card">
@@ -234,50 +272,6 @@ export function DashboardPage() {
                 Join campaign <ArrowRight size={17} />
               </button>
             </form>
-          </section>
-
-          <section className="launchpad-card notification-preview">
-            <div className="section-heading">
-              <div>
-                <p className="eyebrow">What changed</p>
-                <h2>Notifications</h2>
-              </div>
-              <span className="notification-count">{unread.length}</span>
-            </div>
-            {notifications.isLoading && (
-              <p className="muted-copy">Gathering notifications…</p>
-            )}
-            {notifications.data?.length === 0 && (
-              <div className="launchpad-empty">
-                <Bell aria-hidden="true" />
-                <strong>You are all caught up.</strong>
-              </div>
-            )}
-            <div className="launchpad-notification-list">
-              {notifications.data?.slice(0, 4).map((item) => (
-                <article
-                  className={item.read_at ? 'is-read' : ''}
-                  key={item.id}
-                >
-                  <button
-                    disabled={Boolean(item.read_at)}
-                    onClick={() => readNotification.mutate(item.id)}
-                  >
-                    <span>{item.kind.replaceAll('_', ' ')}</span>
-                    <strong>{item.title}</strong>
-                    <small>{new Date(item.created_at).toLocaleString()}</small>
-                  </button>
-                </article>
-              ))}
-            </div>
-            {unread.length > 0 && (
-              <button
-                className="text-button"
-                onClick={() => readAllNotifications.mutate()}
-              >
-                Mark all as read
-              </button>
-            )}
           </section>
 
           <section className="launchpad-card quick-start-card">
@@ -352,107 +346,6 @@ export function DashboardPage() {
             </div>
           </section>
         )}
-
-        <section className="campaign-section collection-section">
-          <div className="section-heading">
-            <div>
-              <p className="eyebrow">Your tables</p>
-              <h2>Campaigns</h2>
-            </div>
-            <Link className="text-link" to="/parties">
-              View parties <ArrowRight size={16} />
-            </Link>
-          </div>
-          {campaigns.isLoading && (
-            <p className="muted-copy">Gathering campaigns…</p>
-          )}
-          {campaigns.data?.length === 0 && (
-            <div className="empty-state compact-empty-state">
-              <Users aria-hidden="true" />
-              <div>
-                <h3>Your table is waiting.</h3>
-                <p>Create a campaign or use the invite-code form above.</p>
-              </div>
-            </div>
-          )}
-          <div className="campaign-grid compact-collection-grid">
-            {campaigns.data?.slice(0, 4).map((campaign) => (
-              <Link
-                className="campaign-card"
-                key={campaign.id}
-                to={`/campaigns/${campaign.id}`}
-              >
-                <div className="campaign-card-meta">
-                  <span>
-                    {campaign.membershipRole === 'owner' ? (
-                      <Shield size={15} />
-                    ) : (
-                      <Users size={15} />
-                    )}
-                    {campaign.membershipRole.replace('_', ' ')}
-                  </span>
-                  <span>{campaign.status}</span>
-                </div>
-                <h3>{campaign.name}</h3>
-                <p>
-                  {campaign.description || 'The story is waiting to begin.'}
-                </p>
-                <span className="card-link">
-                  Enter campaign <ArrowRight size={17} />
-                </span>
-              </Link>
-            ))}
-          </div>
-        </section>
-
-        <section className="campaign-section collection-section">
-          <div className="section-heading">
-            <div>
-              <p className="eyebrow">Your heroes</p>
-              <h2>Characters</h2>
-            </div>
-            <Link className="text-link" to="/characters">
-              View characters <ArrowRight size={16} />
-            </Link>
-          </div>
-          {characters.isLoading && (
-            <p className="muted-copy">Gathering characters…</p>
-          )}
-          {characters.data?.length === 0 && (
-            <div className="empty-state compact-empty-state">
-              <UserRound aria-hidden="true" />
-              <div>
-                <h3>No characters yet.</h3>
-                <p>Create manually or let the wizard guide you.</p>
-              </div>
-            </div>
-          )}
-          <div className="campaign-grid compact-collection-grid">
-            {characters.data?.slice(0, 4).map((character) => (
-              <Link
-                className="campaign-card character-card"
-                key={character.id}
-                to={`/characters/${character.id}`}
-              >
-                <div className="campaign-card-meta">
-                  <span>
-                    <UserRound size={15} /> Level {character.level}
-                  </span>
-                  <span>{character.class_name || 'Unclassed'}</span>
-                </div>
-                <h3>{character.name}</h3>
-                <p>
-                  {character.ancestry || 'Unknown ancestry'} ·{' '}
-                  {character.current_hp}/{character.max_hp} HP · AC{' '}
-                  {character.armor_class}
-                </p>
-                <span className="card-link">
-                  Open sheet <ArrowRight size={17} />
-                </span>
-              </Link>
-            ))}
-          </div>
-        </section>
       </section>
     </main>
   )

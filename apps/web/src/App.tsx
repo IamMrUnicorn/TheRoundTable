@@ -14,6 +14,7 @@ import { CalendarHubPage } from './pages/CalendarHubPage'
 import { SessionPage } from './pages/SessionPage'
 import { CharacterCreatePage } from './pages/CharacterCreatePage'
 import { CampaignCreatePage } from './pages/CampaignCreatePage'
+import { PartiesPage } from './pages/PartiesPage'
 import { AppNav } from './components/AppNav'
 import { BrandLogo } from './components/BrandLogo'
 import './App.css'
@@ -73,7 +74,7 @@ function AppRoutes() {
           path="/parties"
           element={
             <ProtectedRoute>
-              <DashboardPage />
+              <PartiesPage />
             </ProtectedRoute>
           }
         />

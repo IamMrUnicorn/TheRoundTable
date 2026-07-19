@@ -287,6 +287,23 @@
   gap: 0.35rem;
 }
 
+.launchpad-notifications-inline {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+
+.launchpad-notifications-inline .section-heading {
+  margin-bottom: 0.65rem;
+}
+
+.launchpad-notifications-inline .inline-empty {
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  padding: 0.75rem;
+  text-align: left;
+}
+
 .launchpad-notification-list article button {
   display: grid;
   width: 100%;
@@ -484,6 +501,65 @@
 .wizard-summary small {
   margin-top: 0.4rem;
   color: var(--muted);
+}
+
+.hub-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.hub-heading h1 {
+  margin: 0.25rem 0;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 3.75rem);
+}
+
+.hub-heading p {
+  margin-bottom: 0;
+}
+
+.parties-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.parties-grid .campaign-card > small {
+  color: var(--muted);
+  text-transform: capitalize;
+}
+
+.sample-data-panel {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1.25rem;
+  margin-top: 1.25rem;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  border: 1px dashed rgb(212 164 92 / 48%);
+  border-radius: 18px;
+  background: rgb(212 164 92 / 5%);
+}
+
+.sample-data-panel > svg {
+  width: 42px;
+  height: 42px;
+  color: var(--gold);
+}
+
+.sample-data-panel h2 {
+  margin: 0.25rem 0;
+  font-family: var(--font-display);
+}
+
+.sample-data-panel p:not(.eyebrow),
+.sample-data-panel small {
+  color: var(--muted);
+}
+
+.sample-data-message {
+  grid-column: 2 / -1;
 }
 
 .global-app-nav {
@@ -4293,6 +4369,11 @@ button:disabled {
     flex-direction: column;
   }
 
+  .hub-heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
   .launchpad-grid {
     grid-template-columns: 1fr;
   }
@@ -4303,6 +4384,18 @@ button:disabled {
 
   .compact-collection-grid {
     grid-template-columns: 1fr;
+  }
+
+  .parties-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sample-data-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .sample-data-message {
+    grid-column: auto;
   }
 
   .campaign-overview-summary {

@@ -28,6 +28,9 @@ This is the source-of-truth checklist for the entire application. Completed work
 ## 2. Dashboard and personal organization
 
 - [x] Mockup-aligned launchpad with upcoming sessions, room routing, notifications, invite-code joining, creation shortcuts, and compact personal collections.
+- [x] Combined upcoming-session and notification surface with redundant campaign/character collections delegated to their dedicated navigation pages.
+- [x] Dedicated Parties and campaign-library route distinct from Home.
+- [x] Authenticated sample-campaign generator for repeatable feature testing without bypassing RLS.
 - [x] Persistent navigation for Characters, Parties, Calendar, role-aware Current Session, and Profile.
 - [x] Focused character and campaign-calendar hubs outside the dashboard feature stack.
 - [x] Contextual next-step guidance and a visible end-to-end campaign-to-play checklist.

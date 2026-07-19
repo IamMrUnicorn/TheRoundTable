@@ -61,11 +61,7 @@ export function AppNav() {
 
   return (
     <header className="global-app-nav">
-      <Link
-        to="/parties"
-        className="brand-mark"
-        aria-label="The Round Table home"
-      >
+      <Link to="/" className="brand-mark" aria-label="The Round Table home">
         <BrandLogo />
         <span>The Round Table</span>
       </Link>

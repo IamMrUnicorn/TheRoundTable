@@ -19,9 +19,9 @@ export function CharactersPage() {
           <div>
             <p className="eyebrow">Your collection</p>
             <h1>Characters</h1>
-            <p>Open a sheet or create a character from the Parties page.</p>
+            <p>Open an existing sheet or begin a new character.</p>
           </div>
-          <Link className="card-link" to="/parties">
+          <Link className="card-link" to="/characters/new">
             Create a character
           </Link>
         </div>
@@ -45,7 +45,7 @@ export function CharactersPage() {
             <div className="empty-state">
               <UserRound />
               <h2>No characters yet</h2>
-              <p>Create your first character from Parties.</p>
+              <p>Create manually or use the guided wizard.</p>
             </div>
           )}
         </div>

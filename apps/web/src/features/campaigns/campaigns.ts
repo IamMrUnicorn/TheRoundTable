@@ -76,6 +76,224 @@ export async function createCampaign(input: {
   return data
 }
 
+export async function createSampleCampaign(ownerId: string) {
+  const campaign = await createCampaign({
+    description:
+      'A testing campaign filled with representative characters, sessions, lore, quests, inventory, and campaign references.',
+    name: `The Ember Crown · Sample ${new Date().toLocaleDateString()}`,
+    ownerId,
+    ruleset: 'D&D 2024',
+  })
+  const now = Date.now()
+  const pastStart = new Date(now - 7 * 24 * 60 * 60 * 1000)
+  const futureStart = new Date(now + 2 * 24 * 60 * 60 * 1000)
+  const withCampaign = { campaign_id: campaign.id }
+
+  const results = await Promise.all([
+    supabase.from('characters').insert({
+      ...withCampaign,
+      ancestry: 'Owlin',
+      appearance:
+        'A charcoal-feathered scholar wearing a weathered green cloak and a brass astrolabe.',
+      armor_class: 14,
+      background: 'Sage',
+      biography:
+        'Left the Starlit Archive after discovering a map burned into an impossible constellation.',
+      charisma: 11,
+      class_name: 'Wizard',
+      constitution: 14,
+      current_hp: 31,
+      dexterity: 16,
+      intelligence: 18,
+      languages: ['Common', 'Elvish', 'Celestial'],
+      level: 5,
+      max_hp: 38,
+      name: 'Sable Quill',
+      owner_id: ownerId,
+      saving_throw_proficiencies: ['intelligence', 'wisdom'],
+      skill_proficiencies: ['arcana', 'history', 'investigation'],
+      strength: 8,
+      wisdom: 15,
+    }),
+    supabase.from('campaign_announcements').insert([
+      {
+        ...withCampaign,
+        author_id: ownerId,
+        body: 'Bring your character sheets and decide whether the party trusts Captain Veyra before the next session.',
+        is_pinned: true,
+        title: 'Next session preparation',
+      },
+      {
+        ...withCampaign,
+        author_id: ownerId,
+        body: 'The party reached Ashfall Harbor and recovered the first fragment of the Ember Crown.',
+        title: 'Chapter two complete',
+      },
+    ]),
+    supabase.from('campaign_documents').insert([
+      {
+        ...withCampaign,
+        author_id: ownerId,
+        body: 'The Crown was divided into three fragments after the War of Cinders. Each fragment responds to a different oath.',
+        is_pinned: true,
+        kind: 'note',
+        title: 'The Ember Crown',
+        visibility: 'shared',
+      },
+      {
+        ...withCampaign,
+        author_id: ownerId,
+        body: 'Veyra secretly serves the Glass Consortium, but intends to betray them if the party protects her crew.',
+        kind: 'note',
+        title: 'Captain Veyra — private motives',
+        visibility: 'game_master',
+      },
+    ]),
+    supabase.from('campaign_world_states').insert({
+      ...withCampaign,
+      current_location: 'Ashfall Harbor',
+      in_world_datetime: '14 Emberwane, 742 AR — dusk',
+      summary:
+        'A volcanic storm has trapped every ship in port while agents of the Glass Consortium search the lower city.',
+      updated_by: ownerId,
+      weather: 'Warm black rain and distant thunder',
+    }),
+    supabase.from('campaign_objectives').insert([
+      {
+        ...withCampaign,
+        created_by: ownerId,
+        description: 'Follow the cipher found inside the lighthouse lens.',
+        priority: 'high',
+        title: 'Find the second Crown fragment',
+      },
+      {
+        ...withCampaign,
+        created_by: ownerId,
+        description: 'Learn why Veyra lied about the Black Gull’s cargo.',
+        priority: 'normal',
+        title: 'Question Captain Veyra',
+      },
+    ]),
+    supabase.from('campaign_references').insert([
+      {
+        ...withCampaign,
+        created_by: ownerId,
+        details:
+          'A quick-witted privateer who values her crew more than any flag.',
+        kind: 'npc',
+        name: 'Captain Veyra Holt',
+        status: 'uneasy ally',
+        summary: 'Captain of the Black Gull',
+        tags: ['captain', 'harbor', 'ally'],
+      },
+      {
+        ...withCampaign,
+        created_by: ownerId,
+        details:
+          'A trade syndicate collecting magical relics through bribery and coercion.',
+        kind: 'faction',
+        name: 'The Glass Consortium',
+        status: 'hostile',
+        summary: 'Relic merchants and information brokers',
+        tags: ['villain', 'merchant', 'secret'],
+      },
+      {
+        ...withCampaign,
+        created_by: ownerId,
+        details:
+          'A steep harbor city built across black volcanic shelves and linked by brass lifts.',
+        kind: 'location',
+        name: 'Ashfall Harbor',
+        status: 'current location',
+        summary: 'Stormbound city on the Cinder Coast',
+        tags: ['city', 'harbor', 'current'],
+      },
+      {
+        ...withCampaign,
+        created_by: ownerId,
+        details:
+          'Its shattered lens concealed a cipher pointing toward the drowned observatory.',
+        kind: 'location',
+        name: 'The Cinder Lighthouse',
+        status: 'explored',
+        summary: 'Abandoned lighthouse above the old breakwater',
+        tags: ['ruin', 'clue', 'past'],
+      },
+    ]),
+    supabase.from('campaign_inventory_items').insert([
+      {
+        ...withCampaign,
+        category: 'quest',
+        created_by: ownerId,
+        description:
+          'Warm to the touch and etched with half of an ancient oath.',
+        holder: 'Sable Quill',
+        name: 'First Ember Crown Fragment',
+      },
+      {
+        ...withCampaign,
+        category: 'consumable',
+        created_by: ownerId,
+        description: 'Restores a small amount of vitality.',
+        name: 'Potion of Healing',
+        quantity: 3,
+      },
+    ]),
+    supabase
+      .from('sessions')
+      .insert([
+        {
+          ...withCampaign,
+          agenda:
+            'Arrival at Ashfall Harbor, lighthouse exploration, and the Consortium ambush.',
+          created_by: ownerId,
+          ends_at: new Date(
+            pastStart.getTime() + 3 * 60 * 60 * 1000,
+          ).toISOString(),
+          starts_at: pastStart.toISOString(),
+          status: 'completed',
+          title: 'The Lighthouse Cipher',
+        },
+        {
+          ...withCampaign,
+          agenda:
+            'Investigate the Black Gull, meet the harbor council, and choose an ally.',
+          created_by: ownerId,
+          ends_at: new Date(
+            futureStart.getTime() + 3 * 60 * 60 * 1000,
+          ).toISOString(),
+          starts_at: futureStart.toISOString(),
+          status: 'scheduled',
+          title: 'Secrets of the Black Gull',
+        },
+      ])
+      .select('id, status'),
+  ])
+
+  const failed = results.find((result) => result.error)
+  if (failed?.error) {
+    await supabase.from('campaigns').delete().eq('id', campaign.id)
+    throw failed.error
+  }
+
+  const sessions = results.at(-1)?.data as
+    { id: number; status: string }[] | null
+  const scheduled = sessions?.find((session) => session.status === 'scheduled')
+  if (scheduled) {
+    const { error } = await supabase.from('session_attendance').insert({
+      response: 'attending',
+      session_id: scheduled.id,
+      user_id: ownerId,
+    })
+    if (error) {
+      await supabase.from('campaigns').delete().eq('id', campaign.id)
+      throw error
+    }
+  }
+
+  return campaign
+}
+
 export async function joinCampaign(inviteCode: string) {
   const { data, error } = await supabase.rpc('join_campaign', {
     campaign_code: inviteCode.trim().toUpperCase(),
