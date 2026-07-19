@@ -531,6 +531,38 @@ assert.equal(healthEvents[0].kind, 'damage')
 assert.equal(healthEvents[0].metadata.absorbed_by_temporary_hp, 7)
 assert.equal(healthEvents[1].kind, 'healing')
 assert.equal(healthEvents[1].metadata.current_hp, 22)
+const { data: conditionStatus, response: conditionStatusResponse } = await request('/rest/v1/rpc/apply_character_status_change', {
+  token: owner.token,
+  method: 'POST',
+  body: { session_id: sessionId, character_id: characterId, operation: 'condition_add', value: 'stunned' },
+})
+assert.equal(conditionStatusResponse.status, 200)
+assert.ok(conditionStatus.conditions.includes('stunned'))
+const { data: concentrationStatus, response: concentrationStatusResponse } = await request('/rest/v1/rpc/apply_character_status_change', {
+  token: outsider.token,
+  method: 'POST',
+  body: { session_id: sessionId, character_id: characterId, operation: 'concentration_start', value: 'Haste' },
+})
+assert.equal(concentrationStatusResponse.status, 200)
+assert.equal(concentrationStatus.concentration, 'Haste')
+const { data: deathStatus, response: deathStatusResponse } = await request('/rest/v1/rpc/apply_character_status_change', {
+  token: owner.token,
+  method: 'POST',
+  body: { session_id: sessionId, character_id: characterId, operation: 'death_success' },
+})
+assert.equal(deathStatusResponse.status, 200)
+assert.equal(deathStatus.death_save_successes, 3)
+const { response: forbiddenStatusResponse } = await request('/rest/v1/rpc/apply_character_status_change', {
+  token: invitee.token,
+  method: 'POST',
+  body: { session_id: sessionId, character_id: characterId, operation: 'condition_remove', value: 'stunned' },
+})
+assert.equal(forbiddenStatusResponse.status, 403)
+const { data: statusEvents } = await request(`/rest/v1/session_events?session_id=eq.${sessionId}&kind=eq.condition&select=metadata&order=created_at.asc`, { token: owner.token })
+assert.equal(statusEvents.length, 3)
+assert.equal(statusEvents[0].metadata.operation, 'condition_add')
+assert.equal(statusEvents[1].metadata.concentration, 'Haste')
+assert.equal(statusEvents[2].metadata.death_successes, 3)
 
 const { response: attendanceResponse } = await request('/rest/v1/session_attendance', {
   token: owner.token,

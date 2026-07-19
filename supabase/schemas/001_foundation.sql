@@ -95,6 +95,7 @@ create table public.characters (
   allies_organizations text not null default '' check (char_length(allies_organizations) <= 5000),
   languages text[] not null default '{}',
   senses text[] not null default '{}',
+  concentration text not null default '' check (char_length(concentration) <= 160),
   constraint characters_saving_throw_proficiencies_check check (saving_throw_proficiencies <@ array['strength', 'dexterity', 'constitution', 'intelligence', 'wisdom', 'charisma']),
   constraint characters_skill_proficiencies_check check (skill_proficiencies <@ array['acrobatics', 'animal_handling', 'arcana', 'athletics', 'deception', 'history', 'insight', 'intimidation', 'investigation', 'medicine', 'nature', 'perception', 'performance', 'persuasion', 'religion', 'sleight_of_hand', 'stealth', 'survival']),
   constraint characters_skill_expertise_check check (skill_expertise <@ skill_proficiencies),
@@ -982,6 +983,143 @@ as $$
   select private.apply_character_health_change(session_id, character_id, change_kind, amount);
 $$;
 
+create function private.apply_character_status_change(
+  requested_session_id bigint,
+  requested_character_id bigint,
+  requested_operation text,
+  requested_value text default ''
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  current_user_id uuid := (select auth.uid());
+  target public.characters;
+  target_campaign_id bigint;
+  previous_conditions text[];
+  previous_concentration text;
+  previous_successes smallint;
+  previous_failures smallint;
+  event_title text;
+  event_body text;
+  allowed_conditions constant text[] := array['blinded', 'charmed', 'deafened', 'frightened', 'grappled', 'incapacitated', 'invisible', 'paralyzed', 'petrified', 'poisoned', 'prone', 'restrained', 'stunned', 'unconscious'];
+begin
+  if current_user_id is null then
+    raise exception 'Authentication is required.' using errcode = '42501';
+  end if;
+  if requested_operation not in ('condition_add', 'condition_remove', 'concentration_start', 'concentration_end', 'death_success', 'death_failure', 'death_reset') then
+    raise exception 'Unsupported status change.' using errcode = '22023';
+  end if;
+
+  select campaign_id into target_campaign_id
+  from public.sessions
+  where id = requested_session_id and status = 'active';
+  if target_campaign_id is null then
+    raise exception 'Status changes require an active campaign session.' using errcode = 'P0001';
+  end if;
+
+  select * into target from public.characters
+  where id = requested_character_id and campaign_id = target_campaign_id
+  for update;
+  if not found then
+    raise exception 'Character is not part of this session campaign.' using errcode = 'P0001';
+  end if;
+  if target.owner_id <> current_user_id and not private.is_campaign_manager(target_campaign_id) then
+    raise exception 'You cannot change this character''s status.' using errcode = '42501';
+  end if;
+
+  previous_conditions := target.conditions;
+  previous_concentration := target.concentration;
+  previous_successes := target.death_save_successes;
+  previous_failures := target.death_save_failures;
+
+  if requested_operation in ('condition_add', 'condition_remove') then
+    requested_value := lower(trim(requested_value));
+    if not (requested_value = any(allowed_conditions)) then
+      raise exception 'Unknown condition.' using errcode = '22023';
+    end if;
+    if requested_operation = 'condition_add' then
+      if not (requested_value = any(target.conditions)) then
+        target.conditions := array_append(target.conditions, requested_value);
+      end if;
+      event_title := target.name || ' gained ' || requested_value;
+    else
+      target.conditions := array_remove(target.conditions, requested_value);
+      event_title := target.name || ' lost ' || requested_value;
+    end if;
+    event_body := 'Conditions: ' || coalesce(array_to_string(previous_conditions, ', '), 'none') || ' → ' || coalesce(nullif(array_to_string(target.conditions, ', '), ''), 'none') || '.';
+  elsif requested_operation = 'concentration_start' then
+    requested_value := trim(requested_value);
+    if char_length(requested_value) not between 1 and 160 then
+      raise exception 'Concentration source must be 1–160 characters.' using errcode = '22023';
+    end if;
+    target.concentration := requested_value;
+    event_title := target.name || ' began concentrating';
+    event_body := case when previous_concentration = '' then requested_value else previous_concentration || ' → ' || requested_value end || '.';
+  elsif requested_operation = 'concentration_end' then
+    target.concentration := '';
+    event_title := target.name || ' ended concentration';
+    event_body := case when previous_concentration = '' then 'No concentration was active.' else previous_concentration || ' ended.' end;
+  elsif requested_operation = 'death_success' then
+    target.death_save_successes := least(3, target.death_save_successes + 1);
+    event_title := target.name || ' marked a death-save success';
+    event_body := 'Death saves: ' || target.death_save_successes || ' successes, ' || target.death_save_failures || ' failures.';
+  elsif requested_operation = 'death_failure' then
+    target.death_save_failures := least(3, target.death_save_failures + 1);
+    event_title := target.name || ' marked a death-save failure';
+    event_body := 'Death saves: ' || target.death_save_successes || ' successes, ' || target.death_save_failures || ' failures.';
+  else
+    target.death_save_successes := 0;
+    target.death_save_failures := 0;
+    event_title := target.name || ' reset death saves';
+    event_body := 'Death-save counters reset to zero.';
+  end if;
+
+  update public.characters set
+    conditions = target.conditions,
+    concentration = target.concentration,
+    death_save_successes = target.death_save_successes,
+    death_save_failures = target.death_save_failures
+  where id = target.id;
+
+  insert into public.session_events (
+    session_id, campaign_id, actor_id, character_id, kind, visibility, title, body, metadata
+  ) values (
+    requested_session_id, target_campaign_id, current_user_id, target.id, 'condition', 'party', event_title, event_body,
+    jsonb_build_object(
+      'operation', requested_operation, 'value', requested_value,
+      'previous_conditions', previous_conditions, 'conditions', target.conditions,
+      'previous_concentration', previous_concentration, 'concentration', target.concentration,
+      'previous_death_successes', previous_successes, 'death_successes', target.death_save_successes,
+      'previous_death_failures', previous_failures, 'death_failures', target.death_save_failures
+    )
+  );
+
+  return jsonb_build_object(
+    'character_id', target.id, 'conditions', target.conditions,
+    'concentration', target.concentration,
+    'death_save_successes', target.death_save_successes,
+    'death_save_failures', target.death_save_failures
+  );
+end;
+$$;
+
+create function public.apply_character_status_change(
+  session_id bigint,
+  character_id bigint,
+  operation text,
+  value text default ''
+)
+returns jsonb
+language sql
+security invoker
+set search_path = ''
+as $$
+  select private.apply_character_status_change(session_id, character_id, operation, value);
+$$;
+
 revoke execute on function private.set_updated_at() from public, anon, authenticated;
 revoke execute on function private.record_character_inventory_memory() from public, anon, authenticated;
 revoke execute on function private.record_session_event_memory() from public, anon, authenticated;
@@ -997,6 +1135,8 @@ revoke execute on function private.transfer_campaign_ownership(bigint, uuid) fro
 revoke execute on function public.transfer_campaign_ownership(bigint, uuid) from public, anon;
 revoke execute on function private.apply_character_health_change(bigint, bigint, text, integer) from public, anon;
 revoke execute on function public.apply_character_health_change(bigint, bigint, text, integer) from public, anon;
+revoke execute on function private.apply_character_status_change(bigint, bigint, text, text) from public, anon;
+revoke execute on function public.apply_character_status_change(bigint, bigint, text, text) from public, anon;
 grant usage on schema private to authenticated;
 grant execute on function private.is_campaign_member(bigint) to authenticated;
 grant execute on function private.is_campaign_owner(bigint) to authenticated;
@@ -1008,6 +1148,8 @@ grant execute on function private.transfer_campaign_ownership(bigint, uuid) to a
 grant execute on function public.transfer_campaign_ownership(bigint, uuid) to authenticated;
 grant execute on function private.apply_character_health_change(bigint, bigint, text, integer) to authenticated;
 grant execute on function public.apply_character_health_change(bigint, bigint, text, integer) to authenticated;
+grant execute on function private.apply_character_status_change(bigint, bigint, text, text) to authenticated;
+grant execute on function public.apply_character_status_change(bigint, bigint, text, text) to authenticated;
 
 alter table public.profiles enable row level security;
 alter table public.campaigns enable row level security;

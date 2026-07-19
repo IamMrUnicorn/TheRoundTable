@@ -3,6 +3,7 @@ import { type FormEvent, useEffect, useState } from 'react'
 
 import { supabase } from '../../lib/supabase'
 import { CombatHealthPanel } from '../combat/CombatHealthPanel'
+import { CombatStatusPanel } from '../combat/CombatStatusPanel'
 import { DiceRollerPanel } from '../dice/DiceRollerPanel'
 import { updateSession } from '../scheduling/scheduling'
 import { createSessionEvent, listSessionEvents } from './session-events'
@@ -34,8 +35,11 @@ export function SessionEventPanel({
   actorId: string
   campaignId: number
   characters: {
+    concentration: string
     conditions: string[]
     current_hp: number
+    death_save_failures: number
+    death_save_successes: number
     id: number
     max_hp: number
     name: string
@@ -181,6 +185,14 @@ export function SessionEventPanel({
         sessionId={sessionId}
       />
       <CombatHealthPanel
+        actorId={actorId}
+        campaignId={campaignId}
+        characters={characters}
+        isManager={isManager}
+        sessionId={sessionId}
+        sessionStatus={sessionStatus}
+      />
+      <CombatStatusPanel
         actorId={actorId}
         campaignId={campaignId}
         characters={characters}

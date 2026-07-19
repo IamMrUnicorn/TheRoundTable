@@ -1077,6 +1077,7 @@ export type Database = {
           campaign_id: number | null
           charisma: number
           class_name: string
+          concentration: string
           conditions: string[]
           constitution: number
           created_at: string
@@ -1131,6 +1132,7 @@ export type Database = {
           campaign_id?: number | null
           charisma?: number
           class_name?: string
+          concentration?: string
           conditions?: string[]
           constitution?: number
           created_at?: string
@@ -1185,6 +1187,7 @@ export type Database = {
           campaign_id?: number | null
           charisma?: number
           class_name?: string
+          concentration?: string
           conditions?: string[]
           constitution?: number
           created_at?: string
@@ -1521,6 +1524,15 @@ export type Database = {
           change_kind: string
           character_id: number
           session_id: number
+        }
+        Returns: Json
+      }
+      apply_character_status_change: {
+        Args: {
+          character_id: number
+          operation: string
+          session_id: number
+          value?: string
         }
         Returns: Json
       }

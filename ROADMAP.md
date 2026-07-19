@@ -127,9 +127,9 @@ This roadmap translates the play-screen sketch and the proven V5 foundations int
 ### Combat state
 
 - [ ] Current/max/temporary HP controls. *(Atomic current/temporary HP damage and recovery controls complete; max-HP play controls remain.)*
-- [ ] Damage, healing, and death-saving throws. *(Damage and healing complete; death-saving throw workflow remains.)*
-- [ ] Conditions with source and optional duration.
-- [ ] Concentration tracking and checks.
+- [x] Damage, healing, and death-saving throws.
+- [ ] Conditions with source and optional duration. *(Atomic add/remove controls and history complete; structured source and duration remain.)*
+- [ ] Concentration tracking and checks. *(Concentration source tracking and start/end history complete; automatic damage checks remain.)*
 - [ ] Armor class, speed, senses, and status display in party cards.
 - [ ] Hidden/unknown values for creatures where appropriate.
 - [ ] Defeated, unconscious, stabilized, dead, and removed states.

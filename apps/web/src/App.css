@@ -1431,6 +1431,57 @@ button:disabled {
   min-height: 2rem;
   padding: 0.35rem 0.55rem;
 }
+.combat-status-panel {
+  display: grid;
+  gap: 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 0.8rem;
+  padding: 0.9rem;
+  background: rgb(108 92 150 / 7%);
+}
+.combat-status-panel h3,
+.combat-status-panel p {
+  margin: 0;
+}
+.combat-status-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr));
+  gap: 0.65rem;
+}
+.combat-status-grid article {
+  display: grid;
+  gap: 0.55rem;
+  border: 1px solid var(--line);
+  border-radius: 0.65rem;
+  padding: 0.75rem;
+  background: #151f1d;
+}
+.combat-status-grid article > header,
+.status-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.combat-status-grid article > header {
+  justify-content: space-between;
+}
+.status-controls input,
+.status-controls select {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  padding: 0.55rem;
+  background: #101816;
+  color: var(--ink);
+}
+.status-controls input {
+  flex: 1 1 10rem;
+}
+.status-controls button {
+  min-height: 2rem;
+  padding: 0.35rem 0.55rem;
+}
 .session-log-status,
 .session-event-filters {
   display: flex;
