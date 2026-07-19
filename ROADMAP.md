@@ -116,12 +116,12 @@ This roadmap translates the play-screen sketch and the proven V5 foundations int
 
 ### Proposed actions and Game Master approval
 
-- [ ] Player action composer for attack, magic, item, movement, speech, and custom intent.
-- [ ] Soft approval for ordinary actions unless denied by the Game Master.
-- [ ] Hard approval for exceptional/custom actions.
+- [x] Player action composer for attack, magic, item, movement, speech, and custom intent.
+- [x] Soft approval for ordinary actions unless denied by the Game Master.
+- [x] Hard approval for exceptional/custom actions.
 - [ ] Reaction prompts with accept/decline and expiration.
-- [ ] Game Master queue for pending player actions.
-- [ ] Approve, deny, edit, or request clarification.
+- [x] Game Master queue for pending player actions.
+- [ ] Approve, deny, edit, or request clarification. *(Approve, deny, clarification, and written rulings complete; direct action editing pending.)*
 - [ ] Action resolution creates structured log events.
 
 ### Combat state

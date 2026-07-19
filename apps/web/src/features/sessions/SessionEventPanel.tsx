@@ -3,6 +3,7 @@ import { type FormEvent, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import { supabase } from '../../lib/supabase'
+import { ActionProposalPanel } from '../actions/ActionProposalPanel'
 import { CombatHealthPanel } from '../combat/CombatHealthPanel'
 import { CombatStatusPanel } from '../combat/CombatStatusPanel'
 import { InitiativePanel } from '../combat/InitiativePanel'
@@ -275,14 +276,13 @@ export function SessionEventPanel({
             isManager={isManager}
             sessionId={sessionId}
           />
-          <div className="play-view-placeholder">
-            <p className="eyebrow">Action workspace</p>
-            <h3>Character actions are coming next.</h3>
-            <p>
-              Attacks, spells, inventory, and custom actions will live here
-              without crowding the session log.
-            </p>
-          </div>
+          <ActionProposalPanel
+            actorId={actorId}
+            campaignId={campaignId}
+            characters={characters}
+            isManager={isManager}
+            sessionId={sessionId}
+          />
         </div>
       )}
       {activeView === 'combat' && (

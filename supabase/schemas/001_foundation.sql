@@ -295,6 +295,24 @@ create table public.session_initiative_entries (
   unique (session_id, character_id)
 );
 
+create table public.session_action_proposals (
+  id bigint generated always as identity primary key,
+  session_id bigint not null references public.sessions (id) on delete cascade,
+  campaign_id bigint not null references public.campaigns (id) on delete cascade,
+  character_id bigint references public.characters (id) on delete set null,
+  created_by uuid not null references public.profiles (id) on delete restrict,
+  kind text not null check (kind in ('attack', 'magic', 'item', 'movement', 'speech', 'custom')),
+  title text not null check (char_length(title) between 1 and 160),
+  details text not null default '' check (char_length(details) <= 5000),
+  approval_mode text not null default 'soft' check (approval_mode in ('soft', 'hard')),
+  status text not null default 'pending' check (status in ('pending', 'approved', 'denied', 'clarification')),
+  reviewer_note text not null default '' check (char_length(reviewer_note) <= 2000),
+  reviewed_by uuid references public.profiles (id) on delete set null,
+  reviewed_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
 create table public.session_events (
   id bigint generated always as identity primary key,
   session_id bigint not null references public.sessions (id) on delete cascade,
@@ -474,6 +492,11 @@ create index session_encounters_campaign_id_idx on public.session_encounters (ca
 create index session_encounters_active_character_id_idx on public.session_encounters (active_character_id);
 create index session_initiative_entries_campaign_id_idx on public.session_initiative_entries (campaign_id);
 create index session_initiative_entries_character_id_idx on public.session_initiative_entries (character_id);
+create index session_action_proposals_session_created_idx on public.session_action_proposals (session_id, created_at desc);
+create index session_action_proposals_campaign_id_idx on public.session_action_proposals (campaign_id);
+create index session_action_proposals_character_id_idx on public.session_action_proposals (character_id) where character_id is not null;
+create index session_action_proposals_created_by_idx on public.session_action_proposals (created_by);
+create index session_action_proposals_reviewed_by_idx on public.session_action_proposals (reviewed_by) where reviewed_by is not null;
 create index session_attendance_user_id_idx on public.session_attendance (user_id);
 create index session_events_session_timeline_idx on public.session_events (session_id, occurred_at desc, sequence_number desc);
 create index session_events_character_idx on public.session_events (character_id, occurred_at desc) where character_id is not null;
@@ -633,6 +656,7 @@ create trigger sessions_set_updated_at before update on public.sessions for each
 create trigger session_attendance_set_updated_at before update on public.session_attendance for each row execute function private.set_updated_at();
 create trigger session_encounters_set_updated_at before update on public.session_encounters for each row execute function private.set_updated_at();
 create trigger session_initiative_entries_set_updated_at before update on public.session_initiative_entries for each row execute function private.set_updated_at();
+create trigger session_action_proposals_set_updated_at before update on public.session_action_proposals for each row execute function private.set_updated_at();
 create trigger campaign_announcements_set_updated_at before update on public.campaign_announcements for each row execute function private.set_updated_at();
 create trigger campaign_documents_set_updated_at before update on public.campaign_documents for each row execute function private.set_updated_at();
 create trigger campaign_world_states_set_updated_at before update on public.campaign_world_states for each row execute function private.set_updated_at();
@@ -1200,6 +1224,7 @@ alter table public.sessions enable row level security;
 alter table public.session_attendance enable row level security;
 alter table public.session_encounters enable row level security;
 alter table public.session_initiative_entries enable row level security;
+alter table public.session_action_proposals enable row level security;
 alter table public.session_events enable row level security;
 alter table public.campaign_announcements enable row level security;
 alter table public.notifications enable row level security;
@@ -1454,6 +1479,10 @@ create policy initiative_entries_insert_allowed on public.session_initiative_ent
 create policy initiative_entries_update_allowed on public.session_initiative_entries for update to authenticated using ((select private.is_campaign_manager(campaign_id)) or exists (select 1 from public.characters where id = character_id and owner_id = (select auth.uid()))) with check ((select private.is_campaign_manager(campaign_id)) or exists (select 1 from public.characters where id = character_id and owner_id = (select auth.uid())));
 create policy initiative_entries_delete_allowed on public.session_initiative_entries for delete to authenticated using ((select private.is_campaign_manager(campaign_id)) or exists (select 1 from public.characters where id = character_id and owner_id = (select auth.uid())));
 
+create policy action_proposals_select_members on public.session_action_proposals for select to authenticated using ((select private.is_campaign_member(campaign_id)));
+create policy action_proposals_insert_own on public.session_action_proposals for insert to authenticated with check (created_by = (select auth.uid()) and reviewed_by is null and reviewed_at is null and ((approval_mode = 'soft' and status = 'approved') or (approval_mode = 'hard' and status = 'pending')) and exists (select 1 from public.sessions where id = session_id and sessions.campaign_id = session_action_proposals.campaign_id and sessions.status in ('active', 'paused')) and (character_id is null or exists (select 1 from public.characters where id = character_id and characters.campaign_id = session_action_proposals.campaign_id and characters.owner_id = (select auth.uid()))));
+create policy action_proposals_update_managers on public.session_action_proposals for update to authenticated using ((select private.is_campaign_manager(campaign_id))) with check ((select private.is_campaign_manager(campaign_id)));
+
 create policy session_events_select_allowed on public.session_events for select to authenticated
 using ((select private.is_campaign_member(campaign_id)) and (visibility = 'party' or (select private.is_campaign_manager(campaign_id))));
 create policy session_events_insert_allowed on public.session_events for insert to authenticated
@@ -1598,6 +1627,7 @@ grant select, insert, update, delete on table public.character_memories to authe
 grant select, insert, update, delete on table public.character_inventory_items to authenticated;
 grant select, insert, update, delete on table public.availability_rules, public.availability_exceptions, public.sessions, public.session_attendance to authenticated;
 grant select, insert, update, delete on table public.session_encounters, public.session_initiative_entries to authenticated;
+grant select, insert, update on table public.session_action_proposals to authenticated;
 grant select, insert on table public.session_events to authenticated;
 grant select, insert, update, delete on table public.campaign_announcements to authenticated;
 grant select, update, delete on table public.notifications to authenticated;
@@ -1620,6 +1650,7 @@ grant usage, select on sequence public.character_inventory_items_id_seq to authe
 grant usage, select on sequence public.availability_rules_id_seq, public.availability_exceptions_id_seq, public.sessions_id_seq to authenticated;
 grant usage, select on sequence public.session_events_id_seq to authenticated;
 grant usage, select on sequence public.session_initiative_entries_id_seq to authenticated;
+grant usage, select on sequence public.session_action_proposals_id_seq to authenticated;
 grant usage, select on sequence public.campaign_announcements_id_seq to authenticated;
 
 do $$

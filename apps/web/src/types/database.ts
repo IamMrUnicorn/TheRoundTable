@@ -1360,6 +1360,60 @@ export type Database = {
         }
         Relationships: []
       }
+      session_action_proposals: {
+        Row: {
+          approval_mode: string
+          campaign_id: number
+          character_id: number | null
+          created_at: string
+          created_by: string
+          details: string
+          id: number
+          kind: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          reviewer_note: string
+          session_id: number
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          approval_mode?: string
+          campaign_id: number
+          character_id?: number | null
+          created_at?: string
+          created_by: string
+          details?: string
+          id?: never
+          kind: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          reviewer_note?: string
+          session_id: number
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          approval_mode?: string
+          campaign_id?: number
+          character_id?: number | null
+          created_at?: string
+          created_by?: string
+          details?: string
+          id?: never
+          kind?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          reviewer_note?: string
+          session_id?: number
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       session_initiative_entries: {
         Row: {
           action_used: boolean

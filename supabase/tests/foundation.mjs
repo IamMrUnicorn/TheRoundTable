@@ -529,6 +529,25 @@ const { data: forgedResourceRows, response: forgedResourceResponse } = await req
 })
 assert.equal(forgedResourceResponse.status, 200)
 assert.deepEqual(forgedResourceRows, [])
+const { data: softActionRows, response: softActionResponse } = await request('/rest/v1/session_action_proposals', {
+  token: owner.token,
+  method: 'POST',
+  body: { session_id: sessionId, campaign_id: campaignId, character_id: characterId, created_by: owner.id, kind: 'attack', title: 'Strike the sentinel', approval_mode: 'soft', status: 'approved' },
+})
+assert.equal(softActionResponse.status, 201)
+assert.equal(softActionRows[0].status, 'approved')
+const { data: hardActionRows, response: hardActionResponse } = await request('/rest/v1/session_action_proposals', {
+  token: invitee.token,
+  method: 'POST',
+  body: { session_id: sessionId, campaign_id: campaignId, created_by: invitee.id, kind: 'custom', title: 'Swing from the chandelier', approval_mode: 'hard', status: 'pending' },
+})
+assert.equal(hardActionResponse.status, 201)
+const { data: forgedApprovalRows, response: forgedApprovalResponse } = await request(`/rest/v1/session_action_proposals?id=eq.${hardActionRows[0].id}`, { token: invitee.token, method: 'PATCH', body: { status: 'approved', reviewed_by: invitee.id } })
+assert.equal(forgedApprovalResponse.status, 200)
+assert.deepEqual(forgedApprovalRows, [])
+const { data: approvedActionRows, response: approvedActionResponse } = await request(`/rest/v1/session_action_proposals?id=eq.${hardActionRows[0].id}`, { token: owner.token, method: 'PATCH', body: { status: 'approved', reviewed_by: owner.id, reviewed_at: new Date().toISOString(), reviewer_note: 'Make an Acrobatics check.' } })
+assert.equal(approvedActionResponse.status, 200)
+assert.equal(approvedActionRows[0].status, 'approved')
 const { response: encounterResponse } = await request('/rest/v1/session_encounters', {
   token: outsider.token,
   method: 'POST',

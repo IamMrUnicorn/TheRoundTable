@@ -261,6 +261,12 @@
   .play-workspace-tabs {
     grid-template-columns: 1fr;
   }
+  .action-proposal-panel > form {
+    grid-template-columns: 1fr;
+  }
+  .action-proposal-panel textarea {
+    grid-column: auto;
+  }
 }
 
 button,
@@ -1642,6 +1648,106 @@ button:disabled {
 .play-view-placeholder h3 {
   margin: 0;
   color: var(--ink);
+}
+.action-proposal-panel {
+  display: grid;
+  gap: 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: 0.8rem;
+  padding: 0.9rem;
+  background: rgb(91 123 151 / 6%);
+}
+.action-proposal-panel > header,
+.action-proposal-list article > header,
+.proposal-review {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+.action-proposal-panel > header,
+.action-proposal-list article > header {
+  justify-content: space-between;
+}
+.action-proposal-panel h3,
+.action-proposal-panel h4,
+.action-proposal-panel p {
+  margin: 0;
+}
+.action-proposal-panel > form {
+  display: grid;
+  grid-template-columns: 0.7fr 1fr 2fr;
+  gap: 0.55rem;
+}
+.action-proposal-panel input,
+.action-proposal-panel select,
+.action-proposal-panel textarea {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 0.55rem;
+  padding: 0.65rem;
+  background: #151f1d;
+  color: var(--ink);
+}
+.action-proposal-panel textarea {
+  grid-column: 1 / -1;
+}
+.action-proposal-panel form > label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--muted);
+}
+.action-proposal-list {
+  display: grid;
+  gap: 0.55rem;
+  max-height: 28rem;
+  overflow: auto;
+}
+.action-proposal-list article {
+  display: grid;
+  gap: 0.45rem;
+  border-left: 3px solid var(--line);
+  border-radius: 0.6rem;
+  padding: 0.75rem;
+  background: #151f1d;
+}
+.action-proposal-list article.proposal-pending {
+  border-left-color: var(--gold);
+}
+.action-proposal-list article.proposal-approved {
+  border-left-color: #64b85b;
+}
+.action-proposal-list article.proposal-denied {
+  border-left-color: #b74752;
+}
+.action-proposal-list article.proposal-clarification {
+  border-left-color: #6794bd;
+}
+.action-proposal-list header,
+.action-proposal-list small {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+.action-proposal-list header span {
+  color: var(--gold);
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.action-proposal-list blockquote {
+  margin: 0;
+  border-left: 2px solid var(--gold);
+  padding-left: 0.7rem;
+  color: var(--muted);
+}
+.proposal-review {
+  flex-wrap: wrap;
+}
+.proposal-review input {
+  flex: 1 1 15rem;
+}
+.proposal-review button {
+  min-height: 2.2rem;
+  padding: 0.4rem 0.6rem;
 }
 @keyframes workspace-view-in {
   from {

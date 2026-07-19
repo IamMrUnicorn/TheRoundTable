@@ -8,6 +8,9 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 
 ### Added
 
+- Replaced the Actions workspace placeholder with a shared player-intent composer covering attacks, magic, items, movement, speech, and custom actions.
+- Added soft approval for ordinary declarations and hard approval requests with a three-second synchronized Game Master queue, written rulings, approve, deny, and clarification outcomes.
+- Added character-attributed proposal history, responsive action cards, indexed hosted storage, explicit grants, and RLS tests proving players cannot approve their own exceptional requests.
 - Added persistent per-combatant action economy for actions, bonus actions, reactions, object interactions, and movement spent during live initiative.
 - Added active-turn-aware controls, automatic incoming-turn resource resets, reaction use outside the active turn, character-speed movement context, and three-second shared-state refresh.
 - Extended initiative RLS tests to prove owners can change their own resources while other players cannot, with database constraints preventing impossible movement values.
