@@ -52,3 +52,20 @@ export async function reviewActionProposal(input: {
     .eq('id', input.proposalId)
   if (error) throw error
 }
+
+export async function editActionProposal(input: {
+  details: string
+  kind: string
+  proposalId: number
+  title: string
+}) {
+  const { error } = await supabase
+    .from('session_action_proposals')
+    .update({
+      details: input.details.trim(),
+      kind: input.kind,
+      title: input.title.trim(),
+    })
+    .eq('id', input.proposalId)
+  if (error) throw error
+}

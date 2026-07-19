@@ -8,6 +8,9 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 
 ### Added
 
+- Added automatic, exactly-once projection of approved action proposals into the immutable structured session event log, including action kind, approval mode, proposal identity, reviewer, details, and GM ruling.
+- Added Game Master editing of pending action type, title, and details before approval, with responsive inline edit controls.
+- Added trigger-level integration tests proving pending actions never log early, approved actions log once, and subsequent proposal edits cannot duplicate session history.
 - Added a contextual dashboard “Your next step” guide that derives one primary action from the signed-in user’s campaigns, characters, scheduled sessions, 18-hour room eligibility, live status, and GM/player role.
 - Added a visible Join party → Create character → Schedule → Wait/Prep/Play checklist and role-specific links directly to scheduling, waiting rooms, DM preparation, or active play.
 - Added shared workflow breadcrumbs across campaign, scheduling, waiting/preparation, and play pages so users can identify their current stage and navigate backward without remembering route rules.

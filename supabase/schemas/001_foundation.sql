@@ -650,6 +650,40 @@ create trigger session_events_record_memory
 after insert on public.session_events
 for each row execute function private.record_session_event_memory();
 
+create function private.record_approved_action_proposal()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  if new.status <> 'approved' or
+    (tg_op = 'UPDATE' and old.status = 'approved') then
+    return new;
+  end if;
+
+  insert into public.session_events (
+    session_id, campaign_id, actor_id, character_id, kind, visibility,
+    title, body, metadata
+  ) values (
+    new.session_id, new.campaign_id, new.created_by, new.character_id,
+    'action', 'party', new.title,
+    new.details || case when new.reviewer_note = '' then '' else E'\n\nGM ruling: ' || new.reviewer_note end,
+    jsonb_build_object(
+      'action_proposal_id', new.id,
+      'action_kind', new.kind,
+      'approval_mode', new.approval_mode,
+      'reviewed_by', new.reviewed_by
+    )
+  );
+  return new;
+end;
+$$;
+
+create trigger action_proposals_record_approved_event
+after insert or update of status on public.session_action_proposals
+for each row execute function private.record_approved_action_proposal();
+
 create trigger availability_rules_set_updated_at before update on public.availability_rules for each row execute function private.set_updated_at();
 create trigger availability_exceptions_set_updated_at before update on public.availability_exceptions for each row execute function private.set_updated_at();
 create trigger sessions_set_updated_at before update on public.sessions for each row execute function private.set_updated_at();
@@ -1178,6 +1212,7 @@ as $$
 $$;
 
 revoke execute on function private.set_updated_at() from public, anon, authenticated;
+revoke execute on function private.record_approved_action_proposal() from public, anon, authenticated;
 revoke execute on function private.record_character_inventory_memory() from public, anon, authenticated;
 revoke execute on function private.record_session_event_memory() from public, anon, authenticated;
 revoke execute on function private.create_profile_for_new_user() from public, anon, authenticated;

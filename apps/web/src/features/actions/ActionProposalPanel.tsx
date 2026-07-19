@@ -1,8 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Check, HelpCircle, Send, X } from 'lucide-react'
+import { Check, HelpCircle, Pencil, Save, Send, X } from 'lucide-react'
 import { type FormEvent, useState } from 'react'
 import {
   createActionProposal,
+  editActionProposal,
   listActionProposals,
   reviewActionProposal,
 } from './actions'
@@ -36,6 +37,10 @@ export function ActionProposalPanel({
   const [details, setDetails] = useState('')
   const [requiresApproval, setRequiresApproval] = useState(false)
   const [reviewNotes, setReviewNotes] = useState<Record<number, string>>({})
+  const [editingId, setEditingId] = useState<number | null>(null)
+  const [editTitle, setEditTitle] = useState('')
+  const [editDetails, setEditDetails] = useState('')
+  const [editKind, setEditKind] = useState('custom')
   const availableCharacters = isManager
     ? characters
     : characters.filter((character) => character.owner_id === actorId)
@@ -72,6 +77,19 @@ export function ActionProposalPanel({
         status,
       }),
     onSuccess: () => client.invalidateQueries({ queryKey: key }),
+  })
+  const edit = useMutation({
+    mutationFn: () =>
+      editActionProposal({
+        details: editDetails,
+        kind: editKind,
+        proposalId: editingId!,
+        title: editTitle,
+      }),
+    onSuccess: async () => {
+      setEditingId(null)
+      await client.invalidateQueries({ queryKey: key })
+    },
   })
 
   return (
@@ -165,50 +183,97 @@ export function ActionProposalPanel({
                 <blockquote>GM: {proposal.reviewer_note}</blockquote>
               )}
               {isManager && proposal.status === 'pending' && (
-                <div className="proposal-review">
-                  <input
-                    placeholder="Optional ruling or clarification"
-                    value={reviewNotes[proposal.id] ?? ''}
-                    onChange={(event) =>
-                      setReviewNotes({
-                        ...reviewNotes,
-                        [proposal.id]: event.target.value,
-                      })
-                    }
-                  />
-                  <button
-                    onClick={() =>
-                      review.mutate({
-                        proposalId: proposal.id,
-                        status: 'approved',
-                      })
-                    }
-                  >
-                    <Check /> Approve
-                  </button>
-                  <button
-                    className="secondary-button"
-                    onClick={() =>
-                      review.mutate({
-                        proposalId: proposal.id,
-                        status: 'clarification',
-                      })
-                    }
-                  >
-                    <HelpCircle /> Clarify
-                  </button>
-                  <button
-                    className="danger-button"
-                    onClick={() =>
-                      review.mutate({
-                        proposalId: proposal.id,
-                        status: 'denied',
-                      })
-                    }
-                  >
-                    <X /> Deny
-                  </button>
-                </div>
+                <>
+                  {editingId === proposal.id ? (
+                    <div className="proposal-edit">
+                      <select
+                        value={editKind}
+                        onChange={(event) => setEditKind(event.target.value)}
+                      >
+                        {kinds.map((value) => (
+                          <option key={value}>{value}</option>
+                        ))}
+                      </select>
+                      <input
+                        value={editTitle}
+                        onChange={(event) => setEditTitle(event.target.value)}
+                      />
+                      <textarea
+                        rows={2}
+                        value={editDetails}
+                        onChange={(event) => setEditDetails(event.target.value)}
+                      />
+                      <button
+                        disabled={!editTitle.trim() || edit.isPending}
+                        onClick={() => edit.mutate()}
+                      >
+                        <Save /> Save edit
+                      </button>
+                      <button
+                        className="secondary-button"
+                        onClick={() => setEditingId(null)}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      className="proposal-edit-trigger secondary-button"
+                      onClick={() => {
+                        setEditingId(proposal.id)
+                        setEditKind(proposal.kind)
+                        setEditTitle(proposal.title)
+                        setEditDetails(proposal.details)
+                      }}
+                    >
+                      <Pencil /> Edit before ruling
+                    </button>
+                  )}
+                  <div className="proposal-review">
+                    <input
+                      placeholder="Optional ruling or clarification"
+                      value={reviewNotes[proposal.id] ?? ''}
+                      onChange={(event) =>
+                        setReviewNotes({
+                          ...reviewNotes,
+                          [proposal.id]: event.target.value,
+                        })
+                      }
+                    />
+                    <button
+                      onClick={() =>
+                        review.mutate({
+                          proposalId: proposal.id,
+                          status: 'approved',
+                        })
+                      }
+                    >
+                      <Check /> Approve
+                    </button>
+                    <button
+                      className="secondary-button"
+                      onClick={() =>
+                        review.mutate({
+                          proposalId: proposal.id,
+                          status: 'clarification',
+                        })
+                      }
+                    >
+                      <HelpCircle /> Clarify
+                    </button>
+                    <button
+                      className="danger-button"
+                      onClick={() =>
+                        review.mutate({
+                          proposalId: proposal.id,
+                          status: 'denied',
+                        })
+                      }
+                    >
+                      <X /> Deny
+                    </button>
+                  </div>
+                </>
               )}
             </article>
           )

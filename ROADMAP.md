@@ -122,8 +122,8 @@ This roadmap translates the play-screen sketch and the proven V5 foundations int
 - [x] Hard approval for exceptional/custom actions.
 - [ ] Reaction prompts with accept/decline and expiration.
 - [x] Game Master queue for pending player actions.
-- [ ] Approve, deny, edit, or request clarification. *(Approve, deny, clarification, and written rulings complete; direct action editing pending.)*
-- [ ] Action resolution creates structured log events.
+- [x] Approve, deny, edit, or request clarification.
+- [x] Action resolution creates exactly-once structured log events with proposal and ruling provenance.
 
 ### Combat state
 

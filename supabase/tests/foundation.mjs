@@ -536,18 +536,29 @@ const { data: softActionRows, response: softActionResponse } = await request('/r
 })
 assert.equal(softActionResponse.status, 201)
 assert.equal(softActionRows[0].status, 'approved')
+const { data: softActionEvents } = await request(`/rest/v1/session_events?metadata->>action_proposal_id=eq.${softActionRows[0].id}&select=title,kind,metadata`, { token: owner.token })
+assert.equal(softActionEvents.length, 1)
+assert.equal(softActionEvents[0].title, 'Strike the sentinel')
+assert.equal(softActionEvents[0].kind, 'action')
 const { data: hardActionRows, response: hardActionResponse } = await request('/rest/v1/session_action_proposals', {
   token: invitee.token,
   method: 'POST',
   body: { session_id: sessionId, campaign_id: campaignId, created_by: invitee.id, kind: 'custom', title: 'Swing from the chandelier', approval_mode: 'hard', status: 'pending' },
 })
 assert.equal(hardActionResponse.status, 201)
+const { data: pendingActionEvents } = await request(`/rest/v1/session_events?metadata->>action_proposal_id=eq.${hardActionRows[0].id}&select=id`, { token: owner.token })
+assert.deepEqual(pendingActionEvents, [])
 const { data: forgedApprovalRows, response: forgedApprovalResponse } = await request(`/rest/v1/session_action_proposals?id=eq.${hardActionRows[0].id}`, { token: invitee.token, method: 'PATCH', body: { status: 'approved', reviewed_by: invitee.id } })
 assert.equal(forgedApprovalResponse.status, 200)
 assert.deepEqual(forgedApprovalRows, [])
 const { data: approvedActionRows, response: approvedActionResponse } = await request(`/rest/v1/session_action_proposals?id=eq.${hardActionRows[0].id}`, { token: owner.token, method: 'PATCH', body: { status: 'approved', reviewed_by: owner.id, reviewed_at: new Date().toISOString(), reviewer_note: 'Make an Acrobatics check.' } })
 assert.equal(approvedActionResponse.status, 200)
 assert.equal(approvedActionRows[0].status, 'approved')
+const { data: approvedActionEvents } = await request(`/rest/v1/session_events?metadata->>action_proposal_id=eq.${hardActionRows[0].id}&select=title,body`, { token: owner.token })
+assert.deepEqual(approvedActionEvents, [{ title: 'Swing from the chandelier', body: '\n\nGM ruling: Make an Acrobatics check.' }])
+await request(`/rest/v1/session_action_proposals?id=eq.${hardActionRows[0].id}`, { token: owner.token, method: 'PATCH', body: { reviewer_note: 'Edited without status transition.' } })
+const { data: deduplicatedActionEvents } = await request(`/rest/v1/session_events?metadata->>action_proposal_id=eq.${hardActionRows[0].id}&select=id`, { token: owner.token })
+assert.equal(deduplicatedActionEvents.length, 1)
 const { response: encounterResponse } = await request('/rest/v1/session_encounters', {
   token: outsider.token,
   method: 'POST',

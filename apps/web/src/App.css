@@ -267,6 +267,12 @@
   .action-proposal-panel textarea {
     grid-column: auto;
   }
+  .proposal-edit {
+    grid-template-columns: 1fr;
+  }
+  .proposal-edit textarea {
+    grid-column: auto;
+  }
   .next-step-panel {
     grid-template-columns: 1fr;
   }
@@ -1872,6 +1878,22 @@ button:disabled {
 .proposal-review button {
   min-height: 2.2rem;
   padding: 0.4rem 0.6rem;
+}
+.proposal-edit {
+  display: grid;
+  grid-template-columns: 0.7fr 2fr auto auto;
+  gap: 0.45rem;
+  padding: 0.6rem;
+  border: 1px solid var(--gold);
+  border-radius: 0.6rem;
+}
+.proposal-edit textarea {
+  grid-column: 1 / -1;
+}
+.proposal-edit-trigger {
+  width: fit-content;
+  min-height: 2rem;
+  padding: 0.35rem 0.55rem;
 }
 @keyframes workspace-view-in {
   from {
