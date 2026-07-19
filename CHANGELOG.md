@@ -8,6 +8,9 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 
 ### Added
 
+- Added persisted per-player session readiness with a complete lobby roster, self-service ready/not-ready controls, five-second cross-browser refresh, and RLS protection against changing another member's state.
+- Added Game Master pause and resume controls, a visible paused-session banner, and current-session discovery that treats paused play as an ongoing session.
+- Extended the one-current-session database constraint across both active and paused sessions and added integration coverage for lifecycle transitions and readiness authorization.
 - Added a persistent authenticated navigation bar with direct Characters, Parties, Calendar, Current Session, and Profile destinations.
 - Added focused character and calendar hubs so users no longer need to find those collections inside the dashboard feature stack.
 - Added role-aware Current Session discovery: active sessions and sessions beginning within 18 hours route players to a waiting room and campaign managers to DM preparation.

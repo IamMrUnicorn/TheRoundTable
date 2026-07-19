@@ -107,6 +107,8 @@ export function SessionEventPanel({
         client.invalidateQueries({
           queryKey: ['campaign-session-history', campaignId],
         }),
+        client.invalidateQueries({ queryKey: ['session', sessionId] }),
+        client.invalidateQueries({ queryKey: ['upcoming-sessions'] }),
       ])
     },
   })
@@ -167,13 +169,42 @@ export function SessionEventPanel({
               </button>
             )}
           {isManager && sessionStatus === 'active' && (
-            <button
-              type="button"
-              disabled={lifecycle.isPending}
-              onClick={() => lifecycle.mutate('completed')}
-            >
-              End session
-            </button>
+            <>
+              <button
+                type="button"
+                className="secondary-button"
+                disabled={lifecycle.isPending}
+                onClick={() => lifecycle.mutate('paused')}
+              >
+                Pause
+              </button>
+              <button
+                type="button"
+                disabled={lifecycle.isPending}
+                onClick={() => lifecycle.mutate('completed')}
+              >
+                End session
+              </button>
+            </>
+          )}
+          {isManager && sessionStatus === 'paused' && (
+            <>
+              <button
+                type="button"
+                disabled={lifecycle.isPending}
+                onClick={() => lifecycle.mutate('active')}
+              >
+                Resume
+              </button>
+              <button
+                type="button"
+                className="secondary-button"
+                disabled={lifecycle.isPending}
+                onClick={() => lifecycle.mutate('completed')}
+              >
+                End session
+              </button>
+            </>
           )}
         </div>
       </div>

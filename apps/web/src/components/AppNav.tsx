@@ -28,13 +28,21 @@ export function AppNav() {
   const eligible = sessions.data
     ?.filter(
       (session) =>
-        session.status === 'active' ||
+        ['active', 'paused'].includes(session.status) ||
         (new Date(session.starts_at).getTime() >= now &&
           new Date(session.starts_at).getTime() <= now + eighteenHours),
     )
     .sort((a, b) => {
-      if (a.status === 'active' && b.status !== 'active') return -1
-      if (b.status === 'active' && a.status !== 'active') return 1
+      if (
+        ['active', 'paused'].includes(a.status) &&
+        !['active', 'paused'].includes(b.status)
+      )
+        return -1
+      if (
+        ['active', 'paused'].includes(b.status) &&
+        !['active', 'paused'].includes(a.status)
+      )
+        return 1
       return Date.parse(a.starts_at) - Date.parse(b.starts_at)
     })[0]
   const role = campaigns.data?.find(
@@ -42,10 +50,10 @@ export function AppNav() {
   )?.membershipRole
   const currentLabel = eligible
     ? role === 'owner' || role === 'game_master'
-      ? eligible.status === 'active'
+      ? ['active', 'paused'].includes(eligible.status)
         ? 'Live session'
         : 'DM prep'
-      : eligible.status === 'active'
+      : ['active', 'paused'].includes(eligible.status)
         ? 'Live session'
         : 'Waiting room'
     : 'Current session'

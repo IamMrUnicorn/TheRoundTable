@@ -251,7 +251,7 @@ create table public.sessions (
   starts_at timestamptz not null,
   ends_at timestamptz not null,
   status text not null default 'proposed'
-    check (status in ('proposed', 'scheduled', 'active', 'completed', 'cancelled')),
+    check (status in ('proposed', 'scheduled', 'active', 'paused', 'completed', 'cancelled')),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   check (ends_at > starts_at)
@@ -264,6 +264,7 @@ create table public.session_attendance (
     check (response in ('unanswered', 'attending', 'tentative', 'absent')),
   note text not null default '' check (char_length(note) <= 500),
   responded_at timestamptz,
+  ready_at timestamptz,
   updated_at timestamptz not null default now(),
   primary key (session_id, user_id)
 );
@@ -441,7 +442,7 @@ create index availability_rules_user_campaign_idx on public.availability_rules (
 create index availability_exceptions_campaign_time_idx on public.availability_exceptions (campaign_id, starts_at, ends_at);
 create index availability_exceptions_user_id_idx on public.availability_exceptions (user_id);
 create index sessions_campaign_starts_at_idx on public.sessions (campaign_id, starts_at);
-create unique index sessions_one_active_per_campaign_idx on public.sessions (campaign_id) where status = 'active';
+create unique index sessions_one_active_per_campaign_idx on public.sessions (campaign_id) where status in ('active', 'paused');
 create index sessions_created_by_idx on public.sessions (created_by);
 create index session_attendance_user_id_idx on public.session_attendance (user_id);
 create index session_events_session_timeline_idx on public.session_events (session_id, occurred_at desc, sequence_number desc);

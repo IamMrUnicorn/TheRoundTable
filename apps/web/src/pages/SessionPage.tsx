@@ -5,7 +5,12 @@ import { Link, Navigate, useParams } from 'react-router-dom'
 import { useAuth } from '../features/auth/auth-context'
 import { getCampaign } from '../features/campaigns/campaigns'
 import { listCampaignCharacters } from '../features/characters/characters'
-import { getSession, updateSession } from '../features/scheduling/scheduling'
+import {
+  getSession,
+  listSessionReadiness,
+  setSessionReady,
+  updateSession,
+} from '../features/scheduling/scheduling'
 import { SessionEventPanel } from '../features/sessions/SessionEventPanel'
 
 export function SessionPage() {
@@ -29,6 +34,21 @@ export function SessionPage() {
     queryKey: ['campaign-characters', campaignId],
     queryFn: () => listCampaignCharacters(campaignId),
     enabled: campaignId > 0,
+  })
+  const readiness = useQuery({
+    queryKey: ['session-readiness', sessionId],
+    queryFn: () => listSessionReadiness(sessionId),
+    enabled: sessionId > 0,
+    refetchInterval: 5_000,
+  })
+  const myReadiness = readiness.data?.find(
+    (entry) => entry.user_id === identity?.id,
+  )
+  const ready = useMutation({
+    mutationFn: (isReady: boolean) =>
+      setSessionReady(sessionId, identity!.id, isReady),
+    onSuccess: () =>
+      client.invalidateQueries({ queryKey: ['session-readiness', sessionId] }),
   })
   const start = useMutation({
     mutationFn: () => updateSession(sessionId, { status: 'active' }),
@@ -63,7 +83,7 @@ export function SessionPage() {
   const isManager =
     campaign.data.owner_id === identity?.id ||
     membership?.role === 'game_master'
-  const isActive = session.data.status === 'active'
+  const isActive = ['active', 'paused'].includes(session.data.status)
   const begins = new Date(session.data.starts_at)
 
   if (isActive)
@@ -78,6 +98,11 @@ export function SessionPage() {
             Campaign home
           </Link>
         </section>
+        {session.data.status === 'paused' && (
+          <div className="session-paused-banner">
+            Session paused by the Game Master
+          </div>
+        )}
         <SessionEventPanel
           actorId={identity!.id}
           campaignId={campaignId}
@@ -110,6 +135,25 @@ export function SessionPage() {
             <p>{session.data.agenda}</p>
           </div>
         )}
+        <div className="readiness-roster">
+          <strong>Party readiness</strong>
+          {campaign.data.campaign_members
+            .filter((member) => member.status === 'active')
+            .map((member) => {
+              const entry = readiness.data?.find(
+                (item) => item.user_id === member.user_id,
+              )
+              return (
+                <span
+                  key={member.user_id}
+                  className={entry?.ready_at ? 'is-ready' : ''}
+                >
+                  {entry?.ready_at ? 'Ready' : 'Not ready'} ·{' '}
+                  {member.profiles?.display_name ?? 'Party member'}
+                </span>
+              )
+            })}
+        </div>
         {isManager ? (
           <>
             <p>
@@ -117,6 +161,13 @@ export function SessionPage() {
               everyone is ready.
             </p>
             <div className="heading-actions">
+              <button
+                className="secondary-button"
+                disabled={ready.isPending}
+                onClick={() => ready.mutate(!myReadiness?.ready_at)}
+              >
+                {myReadiness?.ready_at ? 'I am no longer ready' : 'I am ready'}
+              </button>
               <Link
                 className="secondary-button"
                 to={`/campaigns/${campaignId}`}

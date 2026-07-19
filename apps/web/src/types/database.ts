@@ -1334,6 +1334,7 @@ export type Database = {
       session_attendance: {
         Row: {
           note: string
+          ready_at: string | null
           responded_at: string | null
           response: string
           session_id: number
@@ -1342,6 +1343,7 @@ export type Database = {
         }
         Insert: {
           note?: string
+          ready_at?: string | null
           responded_at?: string | null
           response?: string
           session_id: number
@@ -1350,6 +1352,7 @@ export type Database = {
         }
         Update: {
           note?: string
+          ready_at?: string | null
           responded_at?: string | null
           response?: string
           session_id?: number

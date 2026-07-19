@@ -652,7 +652,9 @@ export function CampaignPage() {
                                 className="card-link current-session-cta"
                                 to={`/campaigns/${campaignId}/sessions/${nextSession.data.id}`}
                               >
-                                {nextSession.data.status === 'active'
+                                {['active', 'paused'].includes(
+                                  nextSession.data.status,
+                                )
                                   ? 'Open play screen'
                                   : isManager
                                     ? 'Open DM prep'

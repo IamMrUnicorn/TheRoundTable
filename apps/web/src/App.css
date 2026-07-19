@@ -144,6 +144,32 @@
   border-radius: 0.8rem;
   text-align: left;
 }
+.readiness-roster {
+  display: grid;
+  gap: 0.5rem;
+  margin: 1.5rem 0;
+  text-align: left;
+}
+.readiness-roster span {
+  padding: 0.65rem 0.8rem;
+  border-radius: 0.55rem;
+  background: var(--surface-raised);
+  color: var(--muted);
+}
+.readiness-roster span.is-ready {
+  color: #b7e8b0;
+  border-left: 3px solid #64b85b;
+}
+.session-paused-banner {
+  max-width: 92rem;
+  margin: 0 auto 1rem;
+  padding: 0.8rem;
+  border: 1px solid var(--gold);
+  border-radius: 0.7rem;
+  color: var(--gold);
+  text-align: center;
+  font-weight: 800;
+}
 
 @media (max-width: 760px) {
   .global-app-nav {

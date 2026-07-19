@@ -496,6 +496,10 @@ assert.equal(sessionMemoryRows[0].kind, 'discovery')
 assert.equal(sessionMemoryRows[0].metadata.session_event_id, sessionEventId)
 const { response: activateSessionResponse } = await request(`/rest/v1/sessions?id=eq.${sessionId}`, { token: outsider.token, method: 'PATCH', body: { status: 'active' } })
 assert.equal(activateSessionResponse.status, 200)
+const { response: pauseSessionResponse } = await request(`/rest/v1/sessions?id=eq.${sessionId}`, { token: outsider.token, method: 'PATCH', body: { status: 'paused' } })
+assert.equal(pauseSessionResponse.status, 200)
+const { response: resumeSessionResponse } = await request(`/rest/v1/sessions?id=eq.${sessionId}`, { token: outsider.token, method: 'PATCH', body: { status: 'active' } })
+assert.equal(resumeSessionResponse.status, 200)
 const secondStart = new Date(start.getTime() + 7 * 86_400_000)
 const secondEnd = new Date(secondStart.getTime() + 3 * 60 * 60 * 1000)
 const { response: duplicateActiveSessionResponse } = await request('/rest/v1/sessions', {
@@ -570,6 +574,23 @@ const { response: attendanceResponse } = await request('/rest/v1/session_attenda
   body: { session_id: sessionId, user_id: owner.id, response: 'attending', responded_at: new Date().toISOString() },
 })
 assert.equal(attendanceResponse.status, 201)
+const readyAt = new Date().toISOString()
+const { response: readinessResponse } = await request('/rest/v1/session_attendance', {
+  token: invitee.token,
+  method: 'POST',
+  body: { session_id: sessionId, user_id: invitee.id, ready_at: readyAt },
+})
+assert.equal(readinessResponse.status, 201)
+const { data: readinessRows } = await request(`/rest/v1/session_attendance?session_id=eq.${sessionId}&user_id=eq.${invitee.id}&select=ready_at`, { token: owner.token })
+assert.equal(new Date(readinessRows[0].ready_at).getTime(), new Date(readyAt).getTime())
+const { response: forgedReadinessResponse } = await request(`/rest/v1/session_attendance?session_id=eq.${sessionId}&user_id=eq.${owner.id}`, {
+  token: invitee.token,
+  method: 'PATCH',
+  body: { ready_at: readyAt },
+})
+assert.equal(forgedReadinessResponse.status, 200)
+const { data: unchangedOwnerReadiness } = await request(`/rest/v1/session_attendance?session_id=eq.${sessionId}&user_id=eq.${owner.id}&select=ready_at`, { token: owner.token })
+assert.deepEqual(unchangedOwnerReadiness, [{ ready_at: null }])
 
 const { data: announcementRows, response: announcementResponse } = await request('/rest/v1/campaign_announcements', {
   token: outsider.token,

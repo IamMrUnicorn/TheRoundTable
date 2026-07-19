@@ -5,7 +5,7 @@ export async function listUpcomingSessions(userId: string) {
     supabase
       .from('sessions')
       .select('*, campaigns(name, timezone)')
-      .in('status', ['proposed', 'scheduled', 'active'])
+      .in('status', ['proposed', 'scheduled', 'active', 'paused'])
       .gte('ends_at', new Date().toISOString())
       .order('starts_at')
       .limit(8),
@@ -36,7 +36,7 @@ export async function getNextCampaignSession(campaignId: number) {
     .from('sessions')
     .select('*')
     .eq('campaign_id', campaignId)
-    .in('status', ['proposed', 'scheduled', 'active'])
+    .in('status', ['proposed', 'scheduled', 'active', 'paused'])
     .gte('ends_at', new Date().toISOString())
     .order('starts_at')
     .limit(1)
@@ -265,6 +265,31 @@ export async function respondToSession(
     { onConflict: 'session_id,user_id' },
   )
   if (error) throw error
+}
+
+export async function setSessionReady(
+  sessionId: number,
+  userId: string,
+  isReady: boolean,
+) {
+  const { error } = await supabase.from('session_attendance').upsert(
+    {
+      session_id: sessionId,
+      user_id: userId,
+      ready_at: isReady ? new Date().toISOString() : null,
+    },
+    { onConflict: 'session_id,user_id' },
+  )
+  if (error) throw error
+}
+
+export async function listSessionReadiness(sessionId: number) {
+  const { data, error } = await supabase
+    .from('session_attendance')
+    .select('ready_at, response, user_id, profiles(display_name)')
+    .eq('session_id', sessionId)
+  if (error) throw error
+  return data
 }
 
 export async function updateSession(
