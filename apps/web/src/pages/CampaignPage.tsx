@@ -41,6 +41,7 @@ import {
   getCampaignAvailabilitySummary,
   getNextCampaignSession,
   listCampaignSessionHistory,
+  updateSession,
 } from '../features/scheduling/scheduling'
 
 export function CampaignPage() {
@@ -196,6 +197,25 @@ export function CampaignPage() {
       queryClient.invalidateQueries({
         queryKey: ['campaign-invitations', campaignId],
       }),
+  })
+  const sessionLifecycle = useMutation({
+    mutationFn: ({
+      sessionId,
+      status,
+    }: {
+      sessionId: number
+      status: string
+    }) => updateSession(sessionId, { status }),
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ['next-campaign-session', campaignId],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['campaign-session-history', campaignId],
+        }),
+      ])
+    },
   })
 
   if (!Number.isSafeInteger(campaignId) || campaignId < 1) {
@@ -625,6 +645,29 @@ export function CampaignPage() {
                               <p className="member-response">
                                 Your response: <strong>{myResponse}</strong>
                               </p>
+                              {isManager &&
+                                nextSession.data.status !== 'active' && (
+                                  <button
+                                    className="start-session-button"
+                                    disabled={sessionLifecycle.isPending}
+                                    onClick={() =>
+                                      sessionLifecycle.mutate({
+                                        sessionId: nextSession.data!.id,
+                                        status: 'active',
+                                      })
+                                    }
+                                  >
+                                    Start this session
+                                  </button>
+                                )}
+                              {nextSession.data.status === 'active' && (
+                                <a
+                                  className="card-link"
+                                  href="#live-session-tools"
+                                >
+                                  Open live session tools
+                                </a>
+                              )}
                             </>
                           )
                         })()
@@ -632,8 +675,8 @@ export function CampaignPage() {
                           <div className="compact-session-empty">
                             <h3>No session proposed yet.</h3>
                             <p>
-                              Compare availability and choose the party's next
-                              gathering.
+                              Open scheduling, create a proposed session, then
+                              return here to start it.
                             </p>
                           </div>
                         )}
@@ -679,14 +722,19 @@ export function CampaignPage() {
                   </section>
 
                   {nextSession.data && identity && (
-                    <SessionEventPanel
-                      actorId={identity.id}
-                      campaignId={campaignId}
-                      characters={characters.data ?? []}
-                      isManager={isManager}
-                      sessionId={nextSession.data.id}
-                      sessionStatus={nextSession.data.status}
-                    />
+                    <div
+                      id="live-session-tools"
+                      className="live-session-anchor"
+                    >
+                      <SessionEventPanel
+                        actorId={identity.id}
+                        campaignId={campaignId}
+                        characters={characters.data ?? []}
+                        isManager={isManager}
+                        sessionId={nextSession.data.id}
+                        sessionStatus={nextSession.data.status}
+                      />
+                    </div>
                   )}
 
                   {isOwner ? (

@@ -66,6 +66,7 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 - Added an atomic health workflow that absorbs damage through temporary HP, caps healing at maximum HP, locks concurrent character updates, and records every accepted change in both session history and Character Memory.
 - Added atomic condition add/remove controls, concentration source tracking, and death-save success/failure/reset controls to the live combat workspace.
 - Added permission-checked status history carrying before/after conditions, concentration, and death-save counters into structured session events and Character Memory.
+- Moved the primary Game Master start-session action into the Next Session card, added an active-session jump link, and clarified the empty-session scheduling instructions.
 - Added an atomic invitation-response database workflow that validates the authenticated email, prevents expired or reused invitations, and creates campaign membership on acceptance.
 - Added least-privilege grants, Row Level Security, supporting indexes, and three-user integration coverage for the complete invitation lifecycle.
 - Added player-owned characters with optional campaign assignment.

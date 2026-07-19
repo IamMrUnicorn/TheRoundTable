@@ -2532,6 +2532,17 @@ button:disabled {
   gap: 0.4rem;
   color: var(--muted);
 }
+.start-session-button {
+  width: 100%;
+  min-height: 3rem;
+  background: linear-gradient(135deg, var(--gold), #b77a36);
+  color: #101816;
+  font-weight: 900;
+}
+.live-session-anchor {
+  display: contents;
+  scroll-margin-top: 1rem;
+}
 
 .campaign-attendance-summary {
   display: grid;
