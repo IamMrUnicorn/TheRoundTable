@@ -11,6 +11,7 @@ import {
 import { type FormEvent, useEffect, useState } from 'react'
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
 import { BrandLogo } from '../components/BrandLogo'
+import { FlowBreadcrumbs } from '../components/FlowBreadcrumbs'
 
 import { useAuth } from '../features/auth/auth-context'
 import { CampaignActivityPanel } from '../features/activity/CampaignActivityPanel'
@@ -213,6 +214,7 @@ export function CampaignPage() {
       </header>
 
       <section className="campaign-workspace">
+        <FlowBreadcrumbs campaignId={campaignId} current="party" />
         {campaign.isLoading && (
           <p className="muted-copy">Opening the campaign…</p>
         )}

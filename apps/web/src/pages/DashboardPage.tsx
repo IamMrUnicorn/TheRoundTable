@@ -142,6 +142,25 @@ export function DashboardPage() {
     if (inviteCode.trim()) joinMutation.mutate()
   }
 
+  const nextSession = upcomingSessions.data?.[0]
+  const currentSession = upcomingSessions.data?.find((session) => {
+    const startsWithinWindow =
+      Date.parse(session.starts_at) <= Date.now() + 18 * 60 * 60 * 1000
+    return ['active', 'paused'].includes(session.status) || startsWithinWindow
+  })
+  const currentCampaign = campaigns.data?.find(
+    (campaign) => campaign.id === currentSession?.campaign_id,
+  )
+  const currentSessionLabel =
+    currentCampaign?.membershipRole === 'owner' ||
+    currentCampaign?.membershipRole === 'game_master'
+      ? ['active', 'paused'].includes(currentSession?.status ?? '')
+        ? 'Return to the play screen'
+        : 'Open DM preparation'
+      : ['active', 'paused'].includes(currentSession?.status ?? '')
+        ? 'Return to the play screen'
+        : 'Enter the waiting room'
+
   return (
     <main className="dashboard-page">
       <header className="app-header">
@@ -187,6 +206,87 @@ export function DashboardPage() {
             </button>
           </div>
         </div>
+
+        <section className="next-step-panel" aria-labelledby="next-step-title">
+          <div>
+            <p className="eyebrow">Your next step</p>
+            <h2 id="next-step-title">
+              {currentSession
+                ? currentSessionLabel
+                : nextSession
+                  ? 'Prepare for your next session'
+                  : campaigns.data?.length
+                    ? 'Schedule your party’s next session'
+                    : 'Create or join your first party'}
+            </h2>
+            <p>
+              {currentSession
+                ? `${currentSession.title} is available now. This opens the correct room for your campaign role.`
+                : nextSession
+                  ? `${nextSession.title} is scheduled for ${new Date(nextSession.starts_at).toLocaleString()}. The waiting room opens 18 hours before it begins.`
+                  : campaigns.data?.length
+                    ? 'Choose a party calendar, add availability, and propose a time. The GM confirms it before play.'
+                    : 'Game Masters create a party; players join with the eight-character invite code.'}
+            </p>
+          </div>
+          {currentSession ? (
+            <Link
+              className="primary-flow-action"
+              to={`/campaigns/${currentSession.campaign_id}/sessions/${currentSession.id}`}
+            >
+              {currentSessionLabel} <ArrowRight />
+            </Link>
+          ) : nextSession ? (
+            <Link
+              className="primary-flow-action"
+              to={`/campaigns/${nextSession.campaign_id}/schedule`}
+            >
+              Review session <ArrowRight />
+            </Link>
+          ) : campaigns.data?.length ? (
+            <Link className="primary-flow-action" to="/calendar">
+              Open calendar <ArrowRight />
+            </Link>
+          ) : (
+            <button onClick={() => setPanel('create')}>
+              Create a campaign <ArrowRight />
+            </button>
+          )}
+          <ol className="flow-checklist">
+            <li className={campaigns.data?.length ? 'complete' : 'current'}>
+              <strong>1</strong>
+              <span>Join a party</span>
+            </li>
+            <li
+              className={
+                characters.data?.length
+                  ? 'complete'
+                  : campaigns.data?.length
+                    ? 'current'
+                    : ''
+              }
+            >
+              <strong>2</strong>
+              <span>Create a character</span>
+            </li>
+            <li
+              className={
+                nextSession
+                  ? 'complete'
+                  : campaigns.data?.length
+                    ? 'current'
+                    : ''
+              }
+            >
+              <strong>3</strong>
+              <span>Schedule</span>
+            </li>
+            <li className={currentSession ? 'current' : ''}>
+              <strong>4</strong>
+              <span>Wait, prep, then play</span>
+            </li>
+          </ol>
+        </section>
 
         {panel && (
           <section className="action-panel" aria-label={`${panel} campaign`}>

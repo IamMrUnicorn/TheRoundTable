@@ -11,6 +11,7 @@ This roadmap translates the play-screen sketch and the proven V5 foundations int
 - Character sheets, notebooks, compendiums, and maps remain useful outside a live session.
 - Desktop is the primary play surface; smaller screens receive a focused companion layout.
 - Accessibility, keyboard navigation, loading feedback, and clear errors are requirements, even when visual polish is deferred.
+- [x] A consistent Party → Schedule → Waiting/Prep → Play workflow breadcrumb and contextual dashboard entry point.
 
 ## Completed foundation
 

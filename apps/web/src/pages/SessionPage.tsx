@@ -3,6 +3,7 @@ import { CalendarClock, Play, Shield, Users } from 'lucide-react'
 import { Link, Navigate, useParams } from 'react-router-dom'
 
 import { useAuth } from '../features/auth/auth-context'
+import { FlowBreadcrumbs } from '../components/FlowBreadcrumbs'
 import { getCampaign } from '../features/campaigns/campaigns'
 import { listCampaignCharacters } from '../features/characters/characters'
 import {
@@ -98,6 +99,7 @@ export function SessionPage() {
   if (isActive)
     return (
       <main className="dashboard-page session-page">
+        <FlowBreadcrumbs campaignId={campaignId} current="play" />
         <section className="session-route-heading">
           <div>
             <p className="eyebrow">Live play · {campaign.data.name}</p>
@@ -133,6 +135,7 @@ export function SessionPage() {
 
   return (
     <main className="dashboard-page session-page">
+      <FlowBreadcrumbs campaignId={campaignId} current="room" />
       <section className="session-lobby-card">
         <div className="lobby-icon">{isManager ? <Shield /> : <Users />}</div>
         <p className="eyebrow">

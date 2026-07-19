@@ -267,6 +267,16 @@
   .action-proposal-panel textarea {
     grid-column: auto;
   }
+  .next-step-panel {
+    grid-template-columns: 1fr;
+  }
+  .flow-checklist {
+    grid-column: auto;
+    grid-template-columns: 1fr 1fr;
+  }
+  .primary-flow-action {
+    width: 100%;
+  }
 }
 
 button,
@@ -625,6 +635,120 @@ button:disabled {
 
 .dashboard-heading > div > p:last-child {
   color: var(--muted);
+}
+.next-step-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1.2rem;
+  border: 1px solid rgb(212 164 92 / 45%);
+  border-radius: 1rem;
+  padding: clamp(1rem, 3vw, 1.6rem);
+  background: linear-gradient(
+    120deg,
+    rgb(212 164 92 / 10%),
+    rgb(22 36 33 / 75%)
+  );
+}
+.next-step-panel h2,
+.next-step-panel p {
+  margin: 0;
+}
+.next-step-panel > div > p:last-child {
+  max-width: 52rem;
+  margin-top: 0.45rem;
+  color: var(--muted);
+}
+.primary-flow-action {
+  display: inline-flex;
+  min-height: 2.9rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 0.7rem;
+  padding: 0.7rem 1rem;
+  background: var(--gold);
+  color: #20170c;
+  font-weight: 800;
+  text-decoration: none;
+}
+.primary-flow-action svg {
+  width: 1rem;
+}
+.flow-checklist {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.flow-checklist li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 0.6rem;
+  padding: 0.55rem;
+  background: rgb(255 255 255 / 3%);
+  color: var(--muted);
+}
+.flow-checklist strong {
+  display: grid;
+  width: 1.65rem;
+  height: 1.65rem;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+}
+.flow-checklist li.complete {
+  color: #91d995;
+}
+.flow-checklist li.complete strong {
+  border-color: #64b85b;
+  background: rgb(67 160 71 / 18%);
+}
+.flow-checklist li.current {
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--gold);
+}
+.flow-checklist li.current strong {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+.flow-breadcrumbs {
+  display: flex;
+  max-width: 92rem;
+  align-items: center;
+  gap: 0.35rem;
+  overflow-x: auto;
+  margin: 0 auto 1rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+.flow-breadcrumbs span {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.35rem;
+}
+.flow-breadcrumbs svg {
+  width: 0.85rem;
+}
+.flow-breadcrumbs a {
+  color: inherit;
+  text-decoration: none;
+}
+.flow-breadcrumbs span.complete {
+  color: #91d995;
+}
+.flow-breadcrumbs span.current {
+  color: var(--gold);
+}
+.flow-breadcrumbs span.current b {
+  border-radius: 999px;
+  padding: 0.35rem 0.6rem;
+  background: rgb(212 164 92 / 12%);
 }
 
 .compact-heading h1 {

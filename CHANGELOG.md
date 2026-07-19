@@ -8,6 +8,9 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 
 ### Added
 
+- Added a contextual dashboard “Your next step” guide that derives one primary action from the signed-in user’s campaigns, characters, scheduled sessions, 18-hour room eligibility, live status, and GM/player role.
+- Added a visible Join party → Create character → Schedule → Wait/Prep/Play checklist and role-specific links directly to scheduling, waiting rooms, DM preparation, or active play.
+- Added shared workflow breadcrumbs across campaign, scheduling, waiting/preparation, and play pages so users can identify their current stage and navigate backward without remembering route rules.
 - Replaced the Actions workspace placeholder with a shared player-intent composer covering attacks, magic, items, movement, speech, and custom actions.
 - Added soft approval for ordinary declarations and hard approval requests with a three-second synchronized Game Master queue, written rulings, approve, deny, and clarification outcomes.
 - Added character-attributed proposal history, responsive action cards, indexed hosted storage, explicit grants, and RLS tests proving players cannot approve their own exceptional requests.

@@ -3,6 +3,7 @@ import { ArrowLeft, CalendarDays, Plus, Trash2 } from 'lucide-react'
 import { type FormEvent, useState } from 'react'
 import { Link, Navigate, useParams } from 'react-router-dom'
 import { BrandLogo } from '../components/BrandLogo'
+import { FlowBreadcrumbs } from '../components/FlowBreadcrumbs'
 
 import { useAuth } from '../features/auth/auth-context'
 import { getCampaign } from '../features/campaigns/campaigns'
@@ -221,6 +222,7 @@ export function SchedulePage() {
         </Link>
       </header>
       <section className="schedule-page">
+        <FlowBreadcrumbs campaignId={campaignId} current="schedule" />
         <div className="dashboard-heading compact-heading">
           <div>
             <p className="eyebrow">Campaign calendar</p>
