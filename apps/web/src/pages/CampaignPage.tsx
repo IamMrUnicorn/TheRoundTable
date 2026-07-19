@@ -31,7 +31,6 @@ import { CampaignKnowledgePanel } from '../features/knowledge/CampaignKnowledgeP
 import { CampaignLogisticsPanel } from '../features/logistics/CampaignLogisticsPanel'
 import { CampaignReferencesPanel } from '../features/references/CampaignReferencesPanel'
 import { CampaignStoryPanel } from '../features/story/CampaignStoryPanel'
-import { SessionEventPanel } from '../features/sessions/SessionEventPanel'
 import {
   cancelCampaignInvitation,
   createCampaignInvitation,
@@ -41,7 +40,6 @@ import {
   getCampaignAvailabilitySummary,
   getNextCampaignSession,
   listCampaignSessionHistory,
-  updateSession,
 } from '../features/scheduling/scheduling'
 
 export function CampaignPage() {
@@ -198,26 +196,6 @@ export function CampaignPage() {
         queryKey: ['campaign-invitations', campaignId],
       }),
   })
-  const sessionLifecycle = useMutation({
-    mutationFn: ({
-      sessionId,
-      status,
-    }: {
-      sessionId: number
-      status: string
-    }) => updateSession(sessionId, { status }),
-    onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({
-          queryKey: ['next-campaign-session', campaignId],
-        }),
-        queryClient.invalidateQueries({
-          queryKey: ['campaign-session-history', campaignId],
-        }),
-      ])
-    },
-  })
-
   if (!Number.isSafeInteger(campaignId) || campaignId < 1) {
     return <Navigate to="/" replace />
   }
@@ -292,7 +270,22 @@ export function CampaignPage() {
                   </div>
                 </section>
 
-                <section className="announcements-section">
+                <nav
+                  className="campaign-section-tabs"
+                  aria-label="Campaign sections"
+                >
+                  <a href="#overview">Overview</a>
+                  <a href="#story">Story</a>
+                  <a href="#logistics">Logistics</a>
+                  <a href="#party">Party</a>
+                  <a href="#sessions">Sessions</a>
+                  {isOwner && <a href="#administration">Admin</a>}
+                </nav>
+
+                <section
+                  id="overview"
+                  className="announcements-section campaign-tab-target"
+                >
                   <div className="section-heading">
                     <div>
                       <p className="eyebrow">Campaign news</p>
@@ -380,11 +373,13 @@ export function CampaignPage() {
                   </div>
                 </section>
 
-                <CampaignKnowledgePanel
-                  campaignId={campaignId}
-                  isManager={isManager}
-                  userId={identity!.id}
-                />
+                <div id="story" className="campaign-tab-target">
+                  <CampaignKnowledgePanel
+                    campaignId={campaignId}
+                    isManager={isManager}
+                    userId={identity!.id}
+                  />
+                </div>
 
                 <CampaignStoryPanel
                   campaignId={campaignId}
@@ -392,14 +387,16 @@ export function CampaignPage() {
                   userId={identity!.id}
                 />
 
-                <CampaignLogisticsPanel
-                  campaignId={campaignId}
-                  isManager={isManager}
-                  members={campaign.data.campaign_members.filter(
-                    (member) => member.status === 'active',
-                  )}
-                  userId={identity!.id}
-                />
+                <div id="logistics" className="campaign-tab-target">
+                  <CampaignLogisticsPanel
+                    campaignId={campaignId}
+                    isManager={isManager}
+                    members={campaign.data.campaign_members.filter(
+                      (member) => member.status === 'active',
+                    )}
+                    userId={identity!.id}
+                  />
+                </div>
 
                 <CampaignReferencesPanel
                   campaignId={campaignId}
@@ -488,7 +485,10 @@ export function CampaignPage() {
                 )}
 
                 <div className="workspace-grid">
-                  <section className="workspace-panel">
+                  <section
+                    id="party"
+                    className="workspace-panel campaign-tab-target"
+                  >
                     <div className="section-heading">
                       <div>
                         <p className="eyebrow">The party</p>
@@ -581,7 +581,10 @@ export function CampaignPage() {
                     </div>
                   </section>
 
-                  <section className="workspace-panel next-session-panel">
+                  <section
+                    id="sessions"
+                    className="workspace-panel next-session-panel campaign-tab-target"
+                  >
                     <div className="section-heading">
                       <div>
                         <p className="eyebrow">Party calendar</p>
@@ -645,29 +648,16 @@ export function CampaignPage() {
                               <p className="member-response">
                                 Your response: <strong>{myResponse}</strong>
                               </p>
-                              {isManager &&
-                                nextSession.data.status !== 'active' && (
-                                  <button
-                                    className="start-session-button"
-                                    disabled={sessionLifecycle.isPending}
-                                    onClick={() =>
-                                      sessionLifecycle.mutate({
-                                        sessionId: nextSession.data!.id,
-                                        status: 'active',
-                                      })
-                                    }
-                                  >
-                                    Start this session
-                                  </button>
-                                )}
-                              {nextSession.data.status === 'active' && (
-                                <a
-                                  className="card-link"
-                                  href="#live-session-tools"
-                                >
-                                  Open live session tools
-                                </a>
-                              )}
+                              <Link
+                                className="card-link current-session-cta"
+                                to={`/campaigns/${campaignId}/sessions/${nextSession.data.id}`}
+                              >
+                                {nextSession.data.status === 'active'
+                                  ? 'Open play screen'
+                                  : isManager
+                                    ? 'Open DM prep'
+                                    : 'Enter waiting room'}
+                              </Link>
                             </>
                           )
                         })()
@@ -721,24 +711,11 @@ export function CampaignPage() {
                     </Link>
                   </section>
 
-                  {nextSession.data && identity && (
-                    <div
-                      id="live-session-tools"
-                      className="live-session-anchor"
-                    >
-                      <SessionEventPanel
-                        actorId={identity.id}
-                        campaignId={campaignId}
-                        characters={characters.data ?? []}
-                        isManager={isManager}
-                        sessionId={nextSession.data.id}
-                        sessionStatus={nextSession.data.status}
-                      />
-                    </div>
-                  )}
-
                   {isOwner ? (
-                    <section className="workspace-panel campaign-settings">
+                    <section
+                      id="administration"
+                      className="workspace-panel campaign-settings campaign-tab-target"
+                    >
                       <div className="section-heading">
                         <div>
                           <p className="eyebrow">Administration</p>

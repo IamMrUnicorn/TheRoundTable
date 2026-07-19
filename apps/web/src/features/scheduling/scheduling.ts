@@ -54,6 +54,17 @@ export async function getNextCampaignSession(campaignId: number) {
   return { ...session, attendance: attendance ?? [] }
 }
 
+export async function getSession(sessionId: number) {
+  const { data, error } = await supabase
+    .from('sessions')
+    .select('*, campaigns(name, owner_id, timezone)')
+    .eq('id', sessionId)
+    .single()
+
+  if (error) throw error
+  return data
+}
+
 export async function getCampaignAvailabilitySummary(campaignId: number) {
   const [membersResult, rulesResult, exceptionsResult] = await Promise.all([
     supabase

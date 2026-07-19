@@ -27,6 +27,8 @@ This is the source-of-truth checklist for the entire application. Completed work
 
 ## 2. Dashboard and personal organization
 
+- [x] Persistent navigation for Characters, Parties, Calendar, role-aware Current Session, and Profile.
+- [x] Focused character and campaign-calendar hubs outside the dashboard feature stack.
 - [x] Active campaign list.
 - [x] Personal character collection.
 - [x] Upcoming-session overview.
@@ -69,6 +71,7 @@ This is the source-of-truth checklist for the entire application. Completed work
 
 ## 5. Campaign home and shared information
 
+- [x] Sticky section tabs that jump directly to campaign overview, story, logistics, party, sessions, and administration.
 - [x] Party roster and assigned characters.
 - [x] Next session, attendance, and availability summary.
 - [x] Announcements and pinned resources.
@@ -125,7 +128,7 @@ This is the source-of-truth checklist for the entire application. Completed work
 
 ## 8. Game Master preparation
 
-- [ ] Session preparation pages, agendas, and templates.
+- [ ] Session preparation pages, agendas, and templates. *(Dedicated role-aware DM preparation route and agenda review complete; advanced preparation tools/templates pending.)*
 - [ ] Encounter builder and difficulty estimation.
 - [ ] Monster/NPC, location, scene, quest, handout, and loot libraries.
 - [ ] Secret GM notes and random tables.
@@ -142,7 +145,7 @@ This is the source-of-truth checklist for the entire application. Completed work
 
 ## 10. Live session and play screen
 
-- [ ] Waiting room, start/pause/resume/end lifecycle, and one active session per campaign. *(Prominent start/end controls, live-tool navigation, and database enforcement for one active session complete.)*
+- [ ] Waiting room, start/pause/resume/end lifecycle, and one active session per campaign. *(Dedicated player waiting room, DM preparation/start flow, live play route, start/end controls, 18-hour entry window, and one-active-session enforcement complete; pause/resume pending.)*
 - [ ] Realtime presence, connection state, refresh recovery, and session timer. *(Realtime event delivery and visible connection state complete; presence, recovery UX, and timer remain.)*
 - [ ] Modular/resizable notebook, central stage, party rail, action bar, drawers, and overlays.
 - [ ] Persistent structured event log, chat, speech, mentions, and filters. *(Append-only structured capture, GM-only visibility, character-memory projection, realtime delivery, search, and type/participant filters complete; chat and mentions remain.)*

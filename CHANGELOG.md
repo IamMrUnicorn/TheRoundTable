@@ -8,6 +8,12 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 
 ### Added
 
+- Added a persistent authenticated navigation bar with direct Characters, Parties, Calendar, Current Session, and Profile destinations.
+- Added focused character and calendar hubs so users no longer need to find those collections inside the dashboard feature stack.
+- Added role-aware Current Session discovery: active sessions and sessions beginning within 18 hours route players to a waiting room and campaign managers to DM preparation.
+- Added a dedicated session route that automatically becomes the live play screen shortly after the Game Master starts play, with campaign context and a clear return path.
+- Added sticky campaign section tabs for instant jumps to overview, story, logistics, party, sessions, and administration.
+- Moved live session tools out of the campaign page and replaced ambiguous embedded controls with explicit Waiting Room, DM Prep, and Play Screen actions.
 - Added an authenticated profile/preferences page with editable display name and IANA timezone.
 - Added timezone, cadence, and preferred session-duration fields to campaigns as prerequisites for collaborative scheduling.
 - Added owner-only campaign settings, invite-code rotation, member role management, and member removal controls.

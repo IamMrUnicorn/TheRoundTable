@@ -2,6 +2,177 @@
   min-height: 100vh;
 }
 
+.global-app-nav {
+  position: sticky;
+  z-index: 100;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.8rem clamp(1rem, 4vw, 4rem);
+  border-bottom: 1px solid var(--border);
+  background: rgb(10 18 18 / 96%);
+  backdrop-filter: blur(16px);
+}
+
+.global-app-nav nav {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  overflow-x: auto;
+}
+.global-app-nav nav a,
+.disabled-nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border-radius: 0.65rem;
+  padding: 0.65rem 0.8rem;
+  color: var(--muted);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.global-app-nav nav a:hover,
+.global-app-nav nav a.active {
+  background: var(--surface-raised);
+  color: var(--text);
+}
+.global-app-nav .current-session-link {
+  color: var(--gold);
+}
+.disabled-nav-link {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+.global-app-nav ~ .dashboard-page > .app-header {
+  display: none;
+}
+
+.campaign-section-tabs {
+  position: sticky;
+  z-index: 20;
+  top: 4.7rem;
+  display: flex;
+  gap: 0.4rem;
+  overflow-x: auto;
+  padding: 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: 0.8rem;
+  background: rgb(14 25 23 / 94%);
+  backdrop-filter: blur(12px);
+}
+.campaign-section-tabs a {
+  padding: 0.55rem 0.85rem;
+  border-radius: 0.55rem;
+  color: var(--muted);
+  text-decoration: none;
+  font-weight: 700;
+}
+.campaign-section-tabs a:hover {
+  background: var(--surface-raised);
+  color: var(--text);
+}
+.campaign-tab-target {
+  scroll-margin-top: 9rem;
+}
+
+.simple-hub-page {
+  min-height: calc(100vh - 4.6rem);
+}
+.session-page {
+  min-height: calc(100vh - 4.6rem);
+  padding: clamp(1rem, 3vw, 3rem);
+}
+.session-route-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  max-width: 92rem;
+  margin: 0 auto 1rem;
+}
+.session-route-heading h1 {
+  margin: 0;
+}
+.session-lobby-card {
+  max-width: 48rem;
+  margin: clamp(2rem, 8vh, 7rem) auto;
+  padding: clamp(1.5rem, 5vw, 4rem);
+  border: 1px solid var(--border);
+  border-radius: 1.25rem;
+  background: var(--surface);
+  text-align: center;
+}
+.lobby-icon {
+  display: grid;
+  width: 4rem;
+  height: 4rem;
+  margin: 0 auto 1.2rem;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--surface-raised);
+  color: var(--gold);
+}
+.session-lobby-card h1 {
+  margin-bottom: 0.25rem;
+  font-size: clamp(2rem, 5vw, 3.7rem);
+}
+.session-lobby-card h2 {
+  color: var(--muted);
+  font-weight: 500;
+}
+.session-lobby-facts {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin: 1.5rem 0;
+}
+.session-lobby-facts span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.6rem 0.8rem;
+  border-radius: 0.6rem;
+  background: var(--surface-raised);
+}
+.lobby-agenda {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 0.8rem;
+  text-align: left;
+}
+
+@media (max-width: 760px) {
+  .global-app-nav {
+    align-items: stretch;
+    flex-direction: column;
+    padding-block: 0.65rem;
+  }
+  .global-app-nav nav {
+    width: 100%;
+  }
+  .global-app-nav .brand-mark {
+    padding-inline: 0.3rem;
+  }
+  .global-app-nav nav a,
+  .disabled-nav-link {
+    flex: 0 0 auto;
+  }
+  .campaign-section-tabs {
+    top: 7.8rem;
+  }
+  .campaign-tab-target {
+    scroll-margin-top: 12rem;
+  }
+  .session-route-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
 button,
 input,
 select,

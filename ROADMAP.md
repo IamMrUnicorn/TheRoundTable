@@ -61,7 +61,7 @@ This roadmap translates the play-screen sketch and the proven V5 foundations int
 ### Session lifecycle and presence
 
 - [ ] Live session route and persistent play-screen shell.
-- [ ] Waiting room before the Game Master starts play. *(Start/end controls and one-active-session enforcement complete; dedicated waiting-room UX remains.)*
+- [x] Role-aware waiting room before the Game Master starts play, with an 18-hour entry window, dedicated DM preparation route, and automatic transition to the live play screen.
 - [ ] Join/leave/reconnect presence indicators.
 - [ ] Game Master pause, resume, and end-session controls.
 - [ ] Session clock, elapsed timer, and optional break timer.

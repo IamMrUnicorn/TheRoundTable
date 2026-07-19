@@ -9,6 +9,10 @@ import { CharacterPage } from './pages/CharacterPage'
 import { ProfilePage } from './pages/ProfilePage'
 import { SchedulePage } from './pages/SchedulePage'
 import { SignInPage } from './pages/SignInPage'
+import { CharactersPage } from './pages/CharactersPage'
+import { CalendarHubPage } from './pages/CalendarHubPage'
+import { SessionPage } from './pages/SessionPage'
+import { AppNav } from './components/AppNav'
 import './App.css'
 
 const queryClient = new QueryClient({
@@ -39,55 +43,94 @@ function AppRoutes() {
   const { identity, isLoading } = useAuth()
 
   return (
-    <Routes>
-      <Route
-        path="/sign-in"
-        element={
-          !isLoading && identity ? <Navigate to="/" replace /> : <SignInPage />
-        }
-      />
-      <Route
-        path="/"
-        element={
-          <ProtectedRoute>
-            <DashboardPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/campaigns/:campaignId"
-        element={
-          <ProtectedRoute>
-            <CampaignPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/characters/:characterId"
-        element={
-          <ProtectedRoute>
-            <CharacterPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/profile"
-        element={
-          <ProtectedRoute>
-            <ProfilePage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/campaigns/:campaignId/schedule"
-        element={
-          <ProtectedRoute>
-            <SchedulePage />
-          </ProtectedRoute>
-        }
-      />
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+    <>
+      <AppNav />
+      <Routes>
+        <Route
+          path="/sign-in"
+          element={
+            !isLoading && identity ? (
+              <Navigate to="/" replace />
+            ) : (
+              <SignInPage />
+            )
+          }
+        />
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <DashboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/parties"
+          element={
+            <ProtectedRoute>
+              <DashboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/characters"
+          element={
+            <ProtectedRoute>
+              <CharactersPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/calendar"
+          element={
+            <ProtectedRoute>
+              <CalendarHubPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/campaigns/:campaignId"
+          element={
+            <ProtectedRoute>
+              <CampaignPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/characters/:characterId"
+          element={
+            <ProtectedRoute>
+              <CharacterPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <ProfilePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/campaigns/:campaignId/schedule"
+          element={
+            <ProtectedRoute>
+              <SchedulePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/campaigns/:campaignId/sessions/:sessionId"
+          element={
+            <ProtectedRoute>
+              <SessionPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </>
   )
 }
 
