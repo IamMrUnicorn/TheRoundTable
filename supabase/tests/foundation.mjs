@@ -24,6 +24,18 @@ async function request(path, { token, body, method = 'GET' } = {}) {
   return { data, response }
 }
 
+async function storageRequest(path, { token, body, contentType = 'image/png', method = 'GET' } = {}) {
+  return fetch(`${status.API_URL}/storage/v1${path}`, {
+    method,
+    headers: {
+      apikey: status.PUBLISHABLE_KEY,
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(body ? { 'Content-Type': contentType } : {}),
+    },
+    ...(body ? { body } : {}),
+  })
+}
+
 async function signUp(email) {
   const { data, response } = await request('/auth/v1/signup', {
     body: { email, password: 'local-test-password' },
@@ -820,6 +832,27 @@ assert.equal(secretReferenceResponse.status, 201)
 const { data: memberReferences, response: memberReferencesResponse } = await request(`/rest/v1/campaign_references?campaign_id=eq.${campaignId}&select=name,is_secret`, { token: invitee.token })
 assert.equal(memberReferencesResponse.status, 200)
 assert.deepEqual(memberReferences, [{ name: 'Archivist Nera', is_secret: false }])
+
+const tinyPng = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=', 'base64')
+const sharedMapPath = `${campaignId}/00000000-0000-4000-8000-000000000001.png`
+const gmMapPath = `${campaignId}/00000000-0000-4000-8000-000000000002.png`
+const forbiddenMapUpload = await storageRequest(`/object/campaign-maps/${sharedMapPath}`, { token: invitee.token, method: 'POST', body: tinyPng })
+assert.equal(forbiddenMapUpload.status, 400)
+const sharedMapUpload = await storageRequest(`/object/campaign-maps/${sharedMapPath}`, { token: owner.token, method: 'POST', body: tinyPng })
+assert.equal(sharedMapUpload.status, 200)
+const gmMapUpload = await storageRequest(`/object/campaign-maps/${gmMapPath}`, { token: owner.token, method: 'POST', body: tinyPng })
+assert.equal(gmMapUpload.status, 200)
+const { response: sharedMapResponse } = await request('/rest/v1/campaign_maps', { token: owner.token, method: 'POST', body: { campaign_id: campaignId, uploaded_by: owner.id, name: 'Aethoria world map', storage_path: sharedMapPath, mime_type: 'image/png', file_size: tinyPng.length, width: 1, height: 1, visibility: 'shared' } })
+assert.equal(sharedMapResponse.status, 201)
+const { response: gmMapResponse } = await request('/rest/v1/campaign_maps', { token: owner.token, method: 'POST', body: { campaign_id: campaignId, uploaded_by: owner.id, name: 'Hidden vault map', storage_path: gmMapPath, mime_type: 'image/png', file_size: tinyPng.length, width: 1, height: 1, visibility: 'game_master' } })
+assert.equal(gmMapResponse.status, 201)
+const { data: memberMaps, response: memberMapsResponse } = await request(`/rest/v1/campaign_maps?campaign_id=eq.${campaignId}&select=name,visibility`, { token: invitee.token })
+assert.equal(memberMapsResponse.status, 200)
+assert.deepEqual(memberMaps, [{ name: 'Aethoria world map', visibility: 'shared' }])
+const memberSharedMap = await storageRequest(`/object/authenticated/campaign-maps/${sharedMapPath}`, { token: invitee.token })
+assert.equal(memberSharedMap.status, 200)
+const memberGmMap = await storageRequest(`/object/authenticated/campaign-maps/${gmMapPath}`, { token: invitee.token })
+assert.equal(memberGmMap.status, 400)
 
 const { data: ownerNotifications, response: ownerNotificationsResponse } = await request('/rest/v1/notifications?select=kind,title&order=created_at.asc', { token: owner.token })
 assert.equal(ownerNotificationsResponse.status, 200)

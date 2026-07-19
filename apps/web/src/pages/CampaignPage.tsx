@@ -29,6 +29,7 @@ import {
 import { listCampaignCharacters } from '../features/characters/characters'
 import { CampaignKnowledgePanel } from '../features/knowledge/CampaignKnowledgePanel'
 import { CampaignLogisticsPanel } from '../features/logistics/CampaignLogisticsPanel'
+import { CampaignMapsPanel } from '../features/maps/CampaignMapsPanel'
 import { CampaignReferencesPanel } from '../features/references/CampaignReferencesPanel'
 import { CampaignStoryPanel } from '../features/story/CampaignStoryPanel'
 import {
@@ -537,6 +538,11 @@ export function CampaignPage() {
                 </div>
 
                 <div hidden={campaignTab !== 'world'}>
+                  <CampaignMapsPanel
+                    campaignId={campaignId}
+                    isManager={isManager}
+                    userId={identity!.id}
+                  />
                   <CampaignStoryPanel
                     campaignId={campaignId}
                     isManager={isManager}

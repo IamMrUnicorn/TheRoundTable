@@ -480,6 +480,23 @@ create table public.campaign_references (
   check (cardinality(tags) <= 20)
 );
 
+create table public.campaign_maps (
+  id bigint generated always as identity primary key,
+  campaign_id bigint not null references public.campaigns (id) on delete cascade,
+  uploaded_by uuid not null references public.profiles (id) on delete restrict,
+  location_reference_id bigint references public.campaign_references (id) on delete set null,
+  name text not null check (char_length(name) between 1 and 160),
+  description text not null default '' check (char_length(description) <= 3000),
+  storage_path text not null unique check (storage_path ~ '^[0-9]+/[0-9a-f-]+\.(png|jpg|jpeg|webp)$'),
+  mime_type text not null check (mime_type in ('image/png', 'image/jpeg', 'image/webp')),
+  file_size bigint not null check (file_size between 1 and 20971520),
+  width integer check (width is null or width between 1 and 50000),
+  height integer check (height is null or height between 1 and 50000),
+  visibility text not null default 'shared' check (visibility in ('shared', 'game_master')),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
 create index campaigns_owner_id_idx on public.campaigns (owner_id);
 create index campaign_members_user_id_status_idx
   on public.campaign_members (user_id, status);
@@ -544,6 +561,9 @@ create index campaign_tasks_created_by_idx on public.campaign_tasks (created_by)
 create index campaign_tasks_assigned_to_idx on public.campaign_tasks (assigned_to) where assigned_to is not null;
 create index campaign_references_campaign_kind_idx on public.campaign_references (campaign_id, kind, name);
 create index campaign_references_created_by_idx on public.campaign_references (created_by);
+create index campaign_maps_campaign_created_idx on public.campaign_maps (campaign_id, created_at desc);
+create index campaign_maps_uploaded_by_idx on public.campaign_maps (uploaded_by);
+create index campaign_maps_location_reference_idx on public.campaign_maps (location_reference_id) where location_reference_id is not null;
 
 create function private.set_updated_at()
 returns trigger
@@ -741,6 +761,7 @@ create trigger campaign_objectives_set_updated_at before update on public.campai
 create trigger campaign_inventory_items_set_updated_at before update on public.campaign_inventory_items for each row execute function private.set_updated_at();
 create trigger campaign_tasks_set_updated_at before update on public.campaign_tasks for each row execute function private.set_updated_at();
 create trigger campaign_references_set_updated_at before update on public.campaign_references for each row execute function private.set_updated_at();
+create trigger campaign_maps_set_updated_at before update on public.campaign_maps for each row execute function private.set_updated_at();
 
 create function private.notify_campaign_announcement()
 returns trigger language plpgsql security definer set search_path = '' as $$
@@ -1271,6 +1292,7 @@ alter table public.campaign_objectives enable row level security;
 alter table public.campaign_inventory_items enable row level security;
 alter table public.campaign_tasks enable row level security;
 alter table public.campaign_references enable row level security;
+alter table public.campaign_maps enable row level security;
 
 create policy profiles_select_own
 on public.profiles for select
@@ -1622,6 +1644,45 @@ using ((select private.is_campaign_manager(campaign_id))) with check ((select pr
 create policy campaign_references_delete_managers on public.campaign_references for delete to authenticated
 using ((select private.is_campaign_manager(campaign_id)));
 
+create policy campaign_maps_select_allowed on public.campaign_maps for select to authenticated
+using ((select private.is_campaign_member(campaign_id)) and (visibility = 'shared' or (select private.is_campaign_manager(campaign_id))));
+create policy campaign_maps_insert_managers on public.campaign_maps for insert to authenticated
+with check (uploaded_by = (select auth.uid()) and (select private.is_campaign_manager(campaign_id)));
+create policy campaign_maps_update_managers on public.campaign_maps for update to authenticated
+using ((select private.is_campaign_manager(campaign_id)))
+with check ((select private.is_campaign_manager(campaign_id)));
+create policy campaign_maps_delete_managers on public.campaign_maps for delete to authenticated
+using ((select private.is_campaign_manager(campaign_id)));
+
+create policy campaign_map_objects_insert_managers on storage.objects for insert to authenticated
+with check (
+  bucket_id = 'campaign-maps'
+  and case
+    when (storage.foldername(name))[1] ~ '^[0-9]+$'
+      then (select private.is_campaign_manager(((storage.foldername(name))[1])::bigint))
+    else false
+  end
+);
+create policy campaign_map_objects_select_allowed on storage.objects for select to authenticated
+using (
+  bucket_id = 'campaign-maps'
+  and exists (
+    select 1 from public.campaign_maps
+    where campaign_maps.storage_path = storage.objects.name
+      and (select private.is_campaign_member(campaign_maps.campaign_id))
+      and (campaign_maps.visibility = 'shared' or (select private.is_campaign_manager(campaign_maps.campaign_id)))
+  )
+);
+create policy campaign_map_objects_delete_managers on storage.objects for delete to authenticated
+using (
+  bucket_id = 'campaign-maps'
+  and case
+    when (storage.foldername(name))[1] ~ '^[0-9]+$'
+      then (select private.is_campaign_manager(((storage.foldername(name))[1])::bigint))
+    else false
+  end
+);
+
 grant usage on schema public to authenticated;
 revoke all on table public.profiles from anon, authenticated;
 revoke all on table public.campaigns from anon, authenticated;
@@ -1636,6 +1697,7 @@ revoke all on table public.campaign_documents from anon, authenticated;
 revoke all on table public.campaign_world_states, public.campaign_gm_states, public.campaign_objectives from anon, authenticated;
 revoke all on table public.campaign_inventory_items, public.campaign_tasks from anon, authenticated;
 revoke all on table public.campaign_references from anon, authenticated;
+revoke all on table public.campaign_maps from anon, authenticated;
 revoke all on table public.character_spellcasting_profiles, public.character_spells, public.character_spell_slots from anon, authenticated;
 revoke all on table public.character_memories from anon, authenticated;
 revoke all on table public.character_inventory_items from anon, authenticated;
@@ -1654,6 +1716,7 @@ revoke all on sequence public.campaign_documents_id_seq from anon, authenticated
 revoke all on sequence public.campaign_objectives_id_seq from anon, authenticated;
 revoke all on sequence public.campaign_inventory_items_id_seq, public.campaign_tasks_id_seq from anon, authenticated;
 revoke all on sequence public.campaign_references_id_seq from anon, authenticated;
+revoke all on sequence public.campaign_maps_id_seq from anon, authenticated;
 grant select, update on table public.profiles to authenticated;
 grant select, insert, update, delete on table public.campaigns to authenticated;
 grant select, insert, update, delete on table public.campaign_members to authenticated;
@@ -1674,11 +1737,13 @@ grant select, insert, update, delete on table public.campaign_documents to authe
 grant select, insert, update, delete on table public.campaign_world_states, public.campaign_gm_states, public.campaign_objectives to authenticated;
 grant select, insert, update, delete on table public.campaign_inventory_items, public.campaign_tasks to authenticated;
 grant select, insert, update, delete on table public.campaign_references to authenticated;
+grant select, insert, update, delete on table public.campaign_maps to authenticated;
 grant usage, select on sequence public.campaign_invitations_id_seq to authenticated;
 grant usage, select on sequence public.campaign_documents_id_seq to authenticated;
 grant usage, select on sequence public.campaign_objectives_id_seq to authenticated;
 grant usage, select on sequence public.campaign_inventory_items_id_seq, public.campaign_tasks_id_seq to authenticated;
 grant usage, select on sequence public.campaign_references_id_seq to authenticated;
+grant usage, select on sequence public.campaign_maps_id_seq to authenticated;
 grant usage, select on sequence public.campaigns_id_seq to authenticated;
 grant usage, select on sequence public.characters_id_seq to authenticated;
 grant usage, select on sequence public.character_features_id_seq to authenticated;

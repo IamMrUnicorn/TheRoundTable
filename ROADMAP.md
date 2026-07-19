@@ -229,7 +229,7 @@ This roadmap translates the play-screen sketch and the proven V5 foundations int
 
 ### Scene management
 
-- [ ] Upload/create map scenes and reusable backgrounds.
+- [ ] Upload/create map scenes and reusable backgrounds. *(Reusable private campaign map uploads are complete; promoting maps into live scenes remains.)*
 - [ ] Scene library and active-scene switching.
 - [ ] Game Master preview versus player-visible scene.
 - [ ] Grid size, scale, snapping, measurement, and coordinate system.

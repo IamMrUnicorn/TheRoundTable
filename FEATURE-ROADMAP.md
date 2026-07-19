@@ -190,7 +190,7 @@ This is the source-of-truth checklist for the entire application. Completed work
 
 ## 13. Maps, scenes, and tokens
 
-- [ ] Scene/map upload, library, switching, preview, grids, scale, snapping, and measurement.
+- [ ] Scene/map upload, library, switching, preview, grids, scale, snapping, and measurement. *(Secure campaign map upload, reusable library, location linking, full-size preview, and shared/GM-only visibility are complete; active-scene switching and tabletop geometry remain.)*
 - [ ] Layered maps, drawings, tokens, effects, and GM-only information.
 - [ ] Character, monster, NPC, object, and marker tokens.
 - [ ] Ownership, movement permissions, grouping, locking, z-order, auras, labels, and health bars.

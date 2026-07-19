@@ -471,6 +471,79 @@ export type Database = {
           },
         ]
       }
+      campaign_maps: {
+        Row: {
+          campaign_id: number
+          created_at: string
+          description: string
+          file_size: number
+          height: number | null
+          id: number
+          location_reference_id: number | null
+          mime_type: string
+          name: string
+          storage_path: string
+          updated_at: string
+          uploaded_by: string
+          visibility: string
+          width: number | null
+        }
+        Insert: {
+          campaign_id: number
+          created_at?: string
+          description?: string
+          file_size: number
+          height?: number | null
+          id?: never
+          location_reference_id?: number | null
+          mime_type: string
+          name: string
+          storage_path: string
+          updated_at?: string
+          uploaded_by: string
+          visibility?: string
+          width?: number | null
+        }
+        Update: {
+          campaign_id?: number
+          created_at?: string
+          description?: string
+          file_size?: number
+          height?: number | null
+          id?: never
+          location_reference_id?: number | null
+          mime_type?: string
+          name?: string
+          storage_path?: string
+          updated_at?: string
+          uploaded_by?: string
+          visibility?: string
+          width?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'campaign_maps_campaign_id_fkey'
+            columns: ['campaign_id']
+            isOneToOne: false
+            referencedRelation: 'campaigns'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'campaign_maps_location_reference_id_fkey'
+            columns: ['location_reference_id']
+            isOneToOne: false
+            referencedRelation: 'campaign_references'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'campaign_maps_uploaded_by_fkey'
+            columns: ['uploaded_by']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       campaign_references: {
         Row: {
           campaign_id: number
