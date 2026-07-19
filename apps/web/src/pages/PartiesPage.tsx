@@ -7,6 +7,18 @@ import {
   listCampaigns,
 } from '../features/campaigns/campaigns'
 
+function errorMessage(error: unknown) {
+  if (error instanceof Error) return error.message
+  if (
+    error &&
+    typeof error === 'object' &&
+    'message' in error &&
+    typeof error.message === 'string'
+  )
+    return error.message
+  return 'Sample data could not be created.'
+}
+
 export function PartiesPage() {
   const { identity } = useAuth()
   const navigate = useNavigate()
@@ -123,9 +135,7 @@ export function PartiesPage() {
           </button>
           {sample.isError && (
             <p className="form-message error sample-data-message">
-              {sample.error instanceof Error
-                ? sample.error.message
-                : 'Sample data could not be created.'}
+              {errorMessage(sample.error)}
             </p>
           )}
         </section>

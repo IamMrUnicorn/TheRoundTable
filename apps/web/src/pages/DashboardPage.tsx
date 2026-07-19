@@ -4,7 +4,6 @@ import {
   Bell,
   CalendarClock,
   KeyRound,
-  Plus,
   UserRound,
   Users,
 } from 'lucide-react'
@@ -104,14 +103,6 @@ export function DashboardPage() {
             <p className="eyebrow">Your round table</p>
             <h1>Welcome back, adventurer.</h1>
             <p>Everything requiring your attention is gathered here.</p>
-          </div>
-          <div className="heading-actions">
-            <Link className="secondary-button" to="/campaigns/new">
-              <Plus size={18} /> New campaign
-            </Link>
-            <Link className="secondary-button" to="/characters/new">
-              <UserRound size={18} /> New character
-            </Link>
           </div>
         </header>
 

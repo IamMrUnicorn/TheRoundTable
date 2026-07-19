@@ -127,6 +127,7 @@ export async function createSampleCampaign(ownerId: string) {
         ...withCampaign,
         author_id: ownerId,
         body: 'The party reached Ashfall Harbor and recovered the first fragment of the Ember Crown.',
+        is_pinned: false,
         title: 'Chapter two complete',
       },
     ]),
@@ -138,14 +139,17 @@ export async function createSampleCampaign(ownerId: string) {
         is_pinned: true,
         kind: 'note',
         title: 'The Ember Crown',
+        url: '',
         visibility: 'shared',
       },
       {
         ...withCampaign,
         author_id: ownerId,
         body: 'Veyra secretly serves the Glass Consortium, but intends to betray them if the party protects her crew.',
+        is_pinned: false,
         kind: 'note',
         title: 'Captain Veyra — private motives',
+        url: '',
         visibility: 'game_master',
       },
     ]),
@@ -229,14 +233,18 @@ export async function createSampleCampaign(ownerId: string) {
           'Warm to the touch and etched with half of an ancient oath.',
         holder: 'Sable Quill',
         name: 'First Ember Crown Fragment',
+        quantity: 1,
+        unit: '',
       },
       {
         ...withCampaign,
         category: 'consumable',
         created_by: ownerId,
         description: 'Restores a small amount of vitality.',
+        holder: 'Party',
         name: 'Potion of Healing',
         quantity: 3,
+        unit: '',
       },
     ]),
     supabase
@@ -362,17 +370,6 @@ export async function rotateInviteCode(campaignId: number) {
     .single()
   if (error) throw error
   return data.invite_code
-}
-
-export async function transferCampaignOwnership(
-  campaignId: number,
-  newOwnerId: string,
-) {
-  const { error } = await supabase.rpc('transfer_campaign_ownership', {
-    campaign_id: campaignId,
-    new_owner_id: newOwnerId,
-  })
-  if (error) throw error
 }
 
 export async function updateMemberRole(

@@ -1724,10 +1724,6 @@ export type Database = {
         Args: { prompt_id: number; should_accept: boolean }
         Returns: Database['public']['Tables']['session_reaction_prompts']['Row']
       }
-      transfer_campaign_ownership: {
-        Args: { campaign_id: number; new_owner_id: string }
-        Returns: undefined
-      }
     }
     Enums: {
       [_ in never]: never

@@ -6,6 +6,16 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed sample-campaign generation failures caused by omitted non-null values in mixed bulk inserts for announcements, campaign documents, and inventory.
+- Improved sample-generation errors so PostgREST messages appear in the interface instead of a generic fallback.
+- Prevented invalid numeric `max` attributes while character data is still loading.
+
+### Removed
+
+- Removed campaign ownership transfer from the campaign interface, client API, generated database types, declarative schema, and callable hosted database functions. Campaign ownership is now permanent.
+
 ### Dashboard review changes
 
 - Added a dedicated Parties page containing the complete campaign library, ruleset/cadence context, campaign creation, and sample-data tooling; Home and Parties no longer render the same route.
@@ -91,7 +101,6 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 - Added a searchable campaign encyclopedia for NPCs, factions, and locations with summaries, detailed notes, statuses, tags, type filters, and GM-only secret entries.
 - Added manager creation, status editing, deletion controls, responsive reference cards, indexed queries, explicit grants, and RLS tests proving secret references remain hidden from party members.
 - Added an RLS-aware campaign activity feed combining recent sessions, announcements, knowledge, objectives, inventory, tasks, NPCs, factions, and locations.
-- Added atomic campaign ownership transfer to an active member, with locked validation, synchronized owner membership roles, confirmation UI, and retention of the former owner as a Game Master.
 - Added optional approval-required invite-code joining, owner approval controls, persistent bans that block rejoining, and ban-lifting administration.
 - Added rules-aware character saving throws, all eighteen core skills, proficiency and expertise choices, level-derived proficiency bonus, initiative, speed, and passive Perception, Investigation, and Insight.
 - Added character survivability tracking for temporary HP, hit-die type and usage, death-save successes and failures, exhaustion, inspiration, and all standard conditions with database-enforced valid ranges.

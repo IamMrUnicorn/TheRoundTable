@@ -375,7 +375,7 @@ export function CharacterPage() {
                         disabled={!canEdit}
                         type="number"
                         min="0"
-                        max={Number(draft.max_hp)}
+                        max={Math.max(1, Number(draft.max_hp) || 1)}
                         value={Number(draft.current_hp ?? 0)}
                         onChange={(e) =>
                           field('current_hp', Number(e.target.value))
@@ -628,7 +628,7 @@ export function CharacterPage() {
                           disabled={!canEdit}
                           type="number"
                           min="0"
-                          max={Number(draft.hit_dice_total ?? 1)}
+                          max={Math.max(1, Number(draft.hit_dice_total) || 1)}
                           value={Number(draft.hit_dice_remaining ?? 1)}
                           onChange={(event) =>
                             field(

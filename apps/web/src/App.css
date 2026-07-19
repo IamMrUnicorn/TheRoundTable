@@ -1134,24 +1134,6 @@ button:disabled {
 .campaign-settings label:nth-child(2) {
   grid-column: 1 / -1;
 }
-.ownership-transfer {
-  display: grid;
-  gap: 0.7rem;
-  margin-top: 1.5rem;
-  border-top: 1px solid var(--line);
-  padding-top: 1.25rem;
-}
-.ownership-transfer h3,
-.ownership-transfer p {
-  margin: 0;
-}
-.ownership-transfer select {
-  border: 1px solid var(--line);
-  border-radius: 0.65rem;
-  padding: 0.75rem;
-  background: #101817;
-  color: var(--ink);
-}
 .membership-requests {
   display: grid;
   gap: 0.6rem;
