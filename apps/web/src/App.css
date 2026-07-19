@@ -2,6 +2,134 @@
   min-height: 100vh;
 }
 
+.creation-choice-page,
+.focused-create-page {
+  padding: clamp(2rem, 6vw, 5rem) clamp(1rem, 7vw, 7rem);
+}
+
+.creation-choice-page > section,
+.focused-create-page > section {
+  width: min(100%, 1120px);
+  margin: 0 auto;
+}
+
+.creation-choice-page h1,
+.focused-create-page h1 {
+  margin: 0.35rem 0;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 4rem);
+}
+
+.creation-choice-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+  margin-top: 2rem;
+}
+
+.creation-choice-grid > a {
+  min-height: 300px;
+  padding: clamp(1.5rem, 4vw, 3rem);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  color: inherit;
+  background: linear-gradient(145deg, rgb(38 61 56 / 94%), rgb(19 32 30 / 98%));
+  text-decoration: none;
+  transition:
+    border-color 160ms ease,
+    transform 160ms ease;
+}
+
+.creation-choice-grid > a:hover {
+  border-color: var(--gold);
+  transform: translateY(-3px);
+}
+
+.creation-choice-grid svg,
+.creation-heading > svg,
+.map-upload-placeholder svg {
+  color: var(--gold);
+}
+
+.creation-choice-grid > a > svg {
+  width: 38px;
+  height: 38px;
+}
+
+.creation-choice-grid h2 {
+  margin-top: 3rem;
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+}
+
+.creation-choice-grid span {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 2rem;
+  color: var(--gold);
+  font-weight: 700;
+}
+
+.creation-choice-grid span svg {
+  width: 18px;
+  height: 18px;
+}
+
+.creation-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 2rem;
+  margin: 2rem 0;
+}
+
+.creation-heading > svg {
+  width: 58px;
+  height: 58px;
+}
+
+.focused-create-form,
+.campaign-create-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+  padding: clamp(1.25rem, 4vw, 2.5rem);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: rgb(20 32 30 / 92%);
+}
+
+.focused-create-form label,
+.campaign-create-form label {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.wide-field,
+.map-upload-placeholder,
+.creation-actions,
+.campaign-create-form > button {
+  grid-column: 1 / -1;
+}
+
+.map-upload-placeholder {
+  display: grid;
+  place-items: center;
+  min-height: 180px;
+  padding: 2rem;
+  border: 1px dashed rgb(212 164 92 / 50%);
+  border-radius: 14px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.creation-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
 .global-app-nav {
   position: sticky;
   z-index: 100;
@@ -62,14 +190,20 @@
   background: rgb(14 25 23 / 94%);
   backdrop-filter: blur(12px);
 }
-.campaign-section-tabs a {
+.campaign-section-tabs a,
+.campaign-section-tabs button {
   padding: 0.55rem 0.85rem;
+  border: 0;
   border-radius: 0.55rem;
   color: var(--muted);
+  background: transparent;
   text-decoration: none;
   font-weight: 700;
+  white-space: nowrap;
 }
-.campaign-section-tabs a:hover {
+.campaign-section-tabs a:hover,
+.campaign-section-tabs button:hover,
+.campaign-section-tabs button.active {
   background: var(--surface-raised);
   color: var(--text);
 }
@@ -3779,5 +3913,22 @@ button:disabled {
 
   .feature-grid {
     grid-template-columns: 1fr;
+  }
+
+  .creation-choice-grid,
+  .focused-create-form,
+  .campaign-create-form {
+    grid-template-columns: 1fr;
+  }
+
+  .wide-field,
+  .map-upload-placeholder,
+  .creation-actions,
+  .campaign-create-form > button {
+    grid-column: auto;
+  }
+
+  .creation-choice-grid > a {
+    min-height: 230px;
   }
 }

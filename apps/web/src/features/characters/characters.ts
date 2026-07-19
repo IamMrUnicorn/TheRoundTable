@@ -35,8 +35,10 @@ export async function getCharacter(characterId: number) {
 
 export async function createCharacter(input: {
   ancestry: string
+  appearance?: string
   campaignId: number | null
   className: string
+  level?: number
   name: string
   ownerId: string
 }) {
@@ -44,8 +46,10 @@ export async function createCharacter(input: {
     .from('characters')
     .insert({
       ancestry: input.ancestry.trim(),
+      appearance: input.appearance?.trim() ?? '',
       campaign_id: input.campaignId,
       class_name: input.className.trim(),
+      level: input.level ?? 1,
       name: input.name.trim(),
       owner_id: input.ownerId,
     })

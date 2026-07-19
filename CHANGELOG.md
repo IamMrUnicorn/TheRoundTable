@@ -8,6 +8,10 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 
 ### Added
 
+- Added a mockup-driven information architecture with focused campaign creation, a manual-versus-guided character entry screen, and a three-step character wizard.
+- Added role-aware campaign workspaces: players receive Overview, NPC Library, Map & Past Locations, and Session History, while Game Masters also receive Session Planner, Scheduler, and Player Management.
+- Added in-place campaign tab switching so users no longer need to scroll through every feature card to locate a tool.
+- Added starting-level and appearance persistence to newly created manual and guided characters.
 - Added targeted, expiring reaction prompts with GM-selected characters, custom interrupt text, 5–300 second countdowns, and player accept/decline controls.
 - Added a restricted reaction-response RPC that hides prompts from unrelated players, rejects forged or expired answers, permits only the targeted owner to respond once, and records the result as a structured session event.
 - Added one-second cross-browser prompt refresh, visible expiry/result history, indexed storage, explicit grants, and multi-user authorization tests.

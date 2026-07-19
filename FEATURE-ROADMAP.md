@@ -27,6 +27,7 @@ This is the source-of-truth checklist for the entire application. Completed work
 
 ## 2. Dashboard and personal organization
 
+- [x] Mockup-aligned launch flow with focused campaign and character creation routes.
 - [x] Persistent navigation for Characters, Parties, Calendar, role-aware Current Session, and Profile.
 - [x] Focused character and campaign-calendar hubs outside the dashboard feature stack.
 - [x] Contextual next-step guidance and a visible end-to-end campaign-to-play checklist.
@@ -43,6 +44,7 @@ This is the source-of-truth checklist for the entire application. Completed work
 ## 3. Campaign administration
 
 - [x] Create campaigns and join with invite codes.
+- [x] Dedicated campaign-creation page with name, edition choice, opening lore, and map-library handoff.
 - [x] Owner, Game Master, player, and observer role model.
 - [ ] Campaign name, description, image, status, and archive settings. *(Settings complete except image.)*
 - [ ] Ruleset/edition, campaign timezone, cadence, and expected duration. *(Scheduling fields stored; settings UI pending.)*
@@ -72,7 +74,7 @@ This is the source-of-truth checklist for the entire application. Completed work
 
 ## 5. Campaign home and shared information
 
-- [x] Sticky section tabs that jump directly to campaign overview, story, logistics, party, sessions, and administration.
+- [x] Role-aware campaign tabs that switch views in place for overview, NPCs, world/locations, planning, history, scheduling, and player management.
 - [x] Party roster and assigned characters.
 - [x] Next session, attendance, and availability summary.
 - [x] Announcements and pinned resources.
@@ -98,6 +100,8 @@ This is the source-of-truth checklist for the entire application. Completed work
 
 ## 7. Character system
 
+- [x] Separate manual and guided character-creation entry paths.
+- [x] Focused three-step guided flow for identity, level, ancestry/class, and campaign assignment.
 ### Character workspace and responsive sheet
 
 - [ ] Four-tab character workspace: Quick View, Details, Abilities & Spells, and Memory.

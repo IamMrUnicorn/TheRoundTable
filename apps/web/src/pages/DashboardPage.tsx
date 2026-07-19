@@ -191,7 +191,7 @@ export function DashboardPage() {
           <div className="heading-actions">
             <button
               className="secondary-button"
-              onClick={() => setPanel('character')}
+              onClick={() => navigate('/characters/new')}
             >
               <UserRound aria-hidden="true" size={18} /> New character
             </button>
@@ -201,7 +201,7 @@ export function DashboardPage() {
             >
               <KeyRound aria-hidden="true" size={18} /> Join campaign
             </button>
-            <button onClick={() => setPanel('create')}>
+            <button onClick={() => navigate('/campaigns/new')}>
               <Plus aria-hidden="true" size={18} /> Create campaign
             </button>
           </div>
@@ -248,7 +248,7 @@ export function DashboardPage() {
               Open calendar <ArrowRight />
             </Link>
           ) : (
-            <button onClick={() => setPanel('create')}>
+            <button onClick={() => navigate('/campaigns/new')}>
               Create a campaign <ArrowRight />
             </button>
           )}

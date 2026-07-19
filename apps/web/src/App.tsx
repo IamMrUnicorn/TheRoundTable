@@ -12,6 +12,8 @@ import { SignInPage } from './pages/SignInPage'
 import { CharactersPage } from './pages/CharactersPage'
 import { CalendarHubPage } from './pages/CalendarHubPage'
 import { SessionPage } from './pages/SessionPage'
+import { CharacterCreatePage } from './pages/CharacterCreatePage'
+import { CampaignCreatePage } from './pages/CampaignCreatePage'
 import { AppNav } from './components/AppNav'
 import { BrandLogo } from './components/BrandLogo'
 import './App.css'
@@ -80,6 +82,22 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <CharactersPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/characters/new"
+          element={
+            <ProtectedRoute>
+              <CharacterCreatePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/campaigns/new"
+          element={
+            <ProtectedRoute>
+              <CampaignCreatePage />
             </ProtectedRoute>
           }
         />

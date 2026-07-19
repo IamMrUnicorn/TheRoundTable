@@ -65,6 +65,7 @@ export function CampaignPage() {
   })
   const [invitation, setInvitation] = useState({ email: '', role: 'player' })
   const [newOwnerId, setNewOwnerId] = useState('')
+  const [campaignTab, setCampaignTab] = useState('overview')
   const campaign = useQuery({
     queryKey: ['campaign', campaignId],
     queryFn: () => getCampaign(campaignId),
@@ -276,17 +277,61 @@ export function CampaignPage() {
                   className="campaign-section-tabs"
                   aria-label="Campaign sections"
                 >
-                  <a href="#overview">Overview</a>
-                  <a href="#story">Story</a>
-                  <a href="#logistics">Logistics</a>
-                  <a href="#party">Party</a>
-                  <a href="#sessions">Sessions</a>
-                  {isOwner && <a href="#administration">Admin</a>}
+                  <button
+                    className={campaignTab === 'overview' ? 'active' : ''}
+                    onClick={() => setCampaignTab('overview')}
+                  >
+                    Overview
+                  </button>
+                  <button
+                    className={campaignTab === 'npcs' ? 'active' : ''}
+                    onClick={() => setCampaignTab('npcs')}
+                  >
+                    NPC library
+                  </button>
+                  <button
+                    className={campaignTab === 'world' ? 'active' : ''}
+                    onClick={() => setCampaignTab('world')}
+                  >
+                    {isManager ? 'Locations & maps' : 'Map & past locations'}
+                  </button>
+                  {isManager && (
+                    <button
+                      className={campaignTab === 'planner' ? 'active' : ''}
+                      onClick={() => setCampaignTab('planner')}
+                    >
+                      Session planner
+                    </button>
+                  )}
+                  <button
+                    className={campaignTab === 'history' ? 'active' : ''}
+                    onClick={() => setCampaignTab('history')}
+                  >
+                    Session history
+                  </button>
+                  {isManager && (
+                    <>
+                      <button
+                        onClick={() =>
+                          navigate(`/campaigns/${campaignId}/schedule`)
+                        }
+                      >
+                        Scheduler
+                      </button>
+                      <button
+                        className={campaignTab === 'players' ? 'active' : ''}
+                        onClick={() => setCampaignTab('players')}
+                      >
+                        Player management
+                      </button>
+                    </>
+                  )}
                 </nav>
 
                 <section
                   id="overview"
                   className="announcements-section campaign-tab-target"
+                  hidden={campaignTab !== 'overview'}
                 >
                   <div className="section-heading">
                     <div>
@@ -375,7 +420,11 @@ export function CampaignPage() {
                   </div>
                 </section>
 
-                <div id="story" className="campaign-tab-target">
+                <div
+                  id="story"
+                  className="campaign-tab-target"
+                  hidden={campaignTab !== 'world'}
+                >
                   <CampaignKnowledgePanel
                     campaignId={campaignId}
                     isManager={isManager}
@@ -383,13 +432,19 @@ export function CampaignPage() {
                   />
                 </div>
 
-                <CampaignStoryPanel
-                  campaignId={campaignId}
-                  isManager={isManager}
-                  userId={identity!.id}
-                />
+                <div hidden={campaignTab !== 'world'}>
+                  <CampaignStoryPanel
+                    campaignId={campaignId}
+                    isManager={isManager}
+                    userId={identity!.id}
+                  />
+                </div>
 
-                <div id="logistics" className="campaign-tab-target">
+                <div
+                  id="logistics"
+                  className="campaign-tab-target"
+                  hidden={campaignTab !== 'planner'}
+                >
                   <CampaignLogisticsPanel
                     campaignId={campaignId}
                     isManager={isManager}
@@ -400,16 +455,23 @@ export function CampaignPage() {
                   />
                 </div>
 
-                <CampaignReferencesPanel
-                  campaignId={campaignId}
-                  isManager={isManager}
-                  userId={identity!.id}
-                />
+                <div hidden={campaignTab !== 'npcs'}>
+                  <CampaignReferencesPanel
+                    campaignId={campaignId}
+                    isManager={isManager}
+                    userId={identity!.id}
+                  />
+                </div>
 
-                <CampaignActivityPanel campaignId={campaignId} />
+                <div hidden={campaignTab !== 'history'}>
+                  <CampaignActivityPanel campaignId={campaignId} />
+                </div>
 
                 {isManager && (
-                  <section className="workspace-panel invitation-admin">
+                  <section
+                    className="workspace-panel invitation-admin"
+                    hidden={campaignTab !== 'players'}
+                  >
                     <div className="section-heading">
                       <div>
                         <p className="eyebrow">Grow the party</p>
@@ -486,7 +548,12 @@ export function CampaignPage() {
                   </section>
                 )}
 
-                <div className="workspace-grid">
+                <div
+                  className="workspace-grid"
+                  hidden={
+                    campaignTab !== 'overview' && campaignTab !== 'players'
+                  }
+                >
                   <section
                     id="party"
                     className="workspace-panel campaign-tab-target"
@@ -967,7 +1034,10 @@ export function CampaignPage() {
                   )}
                 </div>
 
-                <section className="session-history-section">
+                <section
+                  className="session-history-section"
+                  hidden={campaignTab !== 'history'}
+                >
                   <div className="section-heading">
                     <div>
                       <p className="eyebrow">The story so far</p>
