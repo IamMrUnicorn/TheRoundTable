@@ -7,6 +7,7 @@ import {
   getSessionInitiative,
   setCharacterInitiative,
   setEncounterTurn,
+  updateTurnResources,
 } from './initiative'
 
 type InitiativeCharacter = {
@@ -14,6 +15,7 @@ type InitiativeCharacter = {
   id: number
   name: string
   owner_id: string
+  speed: number
 }
 
 export function InitiativePanel({
@@ -85,6 +87,16 @@ export function InitiativePanel({
     mutationFn: () => clearInitiative(sessionId),
     onSuccess: refresh,
   })
+  const resources = useMutation({
+    mutationFn: ({
+      entryId,
+      updates,
+    }: {
+      entryId: number
+      updates: Parameters<typeof updateTurnResources>[1]
+    }) => updateTurnResources(entryId, updates),
+    onSuccess: refresh,
+  })
   const entries = initiative.data?.entries ?? []
 
   return (
@@ -123,14 +135,63 @@ export function InitiativePanel({
           const active =
             initiative.data?.encounter?.active_character_id ===
             entry.character_id
+          const canControl = isManager || character?.owner_id === actorId
           return (
             <article className={active ? 'active-turn' : ''} key={entry.id}>
-              <strong>{index + 1}</strong>
-              <span>
+              <strong className="initiative-position">{index + 1}</strong>
+              <span className="initiative-name">
                 <b>{character?.name ?? 'Unknown character'}</b>
                 {active && <small>Active turn</small>}
               </span>
-              <em>{entry.initiative}</em>
+              <em className="initiative-score">{entry.initiative}</em>
+              <div className="turn-resource-controls">
+                {(
+                  [
+                    'action_used',
+                    'bonus_action_used',
+                    'reaction_used',
+                    'object_interaction_used',
+                  ] as const
+                ).map((resource) => {
+                  const label = resource.replace('_used', '').replace('_', ' ')
+                  const unavailable = !active && resource !== 'reaction_used'
+                  return (
+                    <button
+                      type="button"
+                      key={resource}
+                      className={entry[resource] ? 'spent' : ''}
+                      disabled={
+                        !canControl || unavailable || resources.isPending
+                      }
+                      onClick={() =>
+                        resources.mutate({
+                          entryId: entry.id,
+                          updates: { [resource]: !entry[resource] },
+                        })
+                      }
+                    >
+                      {label}: {entry[resource] ? 'used' : 'ready'}
+                    </button>
+                  )
+                })}
+                <label>
+                  Movement
+                  <input
+                    type="number"
+                    min={0}
+                    max={10000}
+                    disabled={!canControl || !active || resources.isPending}
+                    value={entry.movement_used}
+                    onChange={(event) =>
+                      resources.mutate({
+                        entryId: entry.id,
+                        updates: { movement_used: Number(event.target.value) },
+                      })
+                    }
+                  />
+                  <span>/ {character?.speed ?? 30} ft</span>
+                </label>
+              </div>
             </article>
           )
         })}

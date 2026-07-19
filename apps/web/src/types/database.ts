@@ -66,6 +66,8 @@ export type Database = {
       }
       availability_rules: {
         Row: {
+          action_used: boolean
+          bonus_action_used: boolean
           campaign_id: number
           created_at: string
           end_minute: number
@@ -1360,32 +1362,47 @@ export type Database = {
       }
       session_initiative_entries: {
         Row: {
+          action_used: boolean
+          bonus_action_used: boolean
           campaign_id: number
           character_id: number
           created_at: string
           created_by: string
           id: number
           initiative: number
+          movement_used: number
+          object_interaction_used: boolean
+          reaction_used: boolean
           session_id: number
           updated_at: string
         }
         Insert: {
+          action_used?: boolean
+          bonus_action_used?: boolean
           campaign_id: number
           character_id: number
           created_at?: string
           created_by: string
           id?: never
           initiative: number
+          movement_used?: number
+          object_interaction_used?: boolean
+          reaction_used?: boolean
           session_id: number
           updated_at?: string
         }
         Update: {
+          action_used?: boolean
+          bonus_action_used?: boolean
           campaign_id?: number
           character_id?: number
           created_at?: string
           created_by?: string
           id?: never
           initiative?: number
+          movement_used?: number
+          object_interaction_used?: boolean
+          reaction_used?: boolean
           session_id?: number
           updated_at?: string
         }

@@ -49,6 +49,7 @@ export function SessionEventPanel({
     max_hp: number
     name: string
     owner_id: string
+    speed: number
     temporary_hp: number
   }[]
   isManager: boolean

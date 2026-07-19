@@ -151,7 +151,7 @@ This is the source-of-truth checklist for the entire application. Completed work
 - [ ] Persistent structured event log, chat, speech, mentions, and filters. *(Append-only structured capture, GM-only visibility, character-memory projection, realtime delivery, search, and type/participant filters complete; chat and mentions remain.)*
 - [ ] Dice formulas, private rolls, checks, saves, attacks, damage, and initiative. *(Safe formulas, advantage/disadvantage, private GM rolls, manual results, and immutable log recording complete; character shortcuts, criticals, damage application, and initiative remain.)*
 - [ ] Encounters, initiative ordering, rounds, turns, and active-turn controls. *(Persistent character initiative, ordered turns, round advancement, active-turn highlighting, and GM clearing complete; monsters and multi-encounter workflows pending.)*
-- [ ] Action, bonus action, movement, object interaction, and reaction tracking.
+- [x] Persistent action, bonus action, movement, object interaction, and reaction tracking with owner/GM controls and turn resets.
 - [ ] Player action proposals and Game Master approve/deny/edit/clarify flow.
 - [ ] Reaction prompts with accept/decline and expiration.
 - [ ] HP, temporary HP, healing, damage, death saves, concentration, and conditions. *(HP/temp-HP, damage, healing, death-save counters, conditions, and concentration state/history complete; duration/source automation and concentration checks remain.)*

@@ -45,12 +45,43 @@ export async function setEncounterTurn(input: {
   roundNumber: number
   sessionId: number
 }) {
+  if (input.activeCharacterId !== null) {
+    const { error: resetError } = await supabase
+      .from('session_initiative_entries')
+      .update({
+        action_used: false,
+        bonus_action_used: false,
+        movement_used: 0,
+        object_interaction_used: false,
+        reaction_used: false,
+      })
+      .eq('session_id', input.sessionId)
+      .eq('character_id', input.activeCharacterId)
+    if (resetError) throw resetError
+  }
   const { error } = await supabase.from('session_encounters').upsert({
     active_character_id: input.activeCharacterId,
     campaign_id: input.campaignId,
     round_number: input.roundNumber,
     session_id: input.sessionId,
   })
+  if (error) throw error
+}
+
+export async function updateTurnResources(
+  entryId: number,
+  updates: {
+    action_used?: boolean
+    bonus_action_used?: boolean
+    movement_used?: number
+    object_interaction_used?: boolean
+    reaction_used?: boolean
+  },
+) {
+  const { error } = await supabase
+    .from('session_initiative_entries')
+    .update(updates)
+    .eq('id', entryId)
   if (error) throw error
 }
 

@@ -507,12 +507,28 @@ const { data: initiativeRows, response: initiativeResponse } = await request('/r
 })
 assert.equal(initiativeResponse.status, 201)
 assert.equal(initiativeRows[0].initiative, 17)
+assert.equal(initiativeRows[0].action_used, false)
+const { data: spentActionRows, response: spentActionResponse } = await request(`/rest/v1/session_initiative_entries?id=eq.${initiativeRows[0].id}`, {
+  token: owner.token,
+  method: 'PATCH',
+  body: { action_used: true, movement_used: 20 },
+})
+assert.equal(spentActionResponse.status, 200)
+assert.equal(spentActionRows[0].action_used, true)
+assert.equal(spentActionRows[0].movement_used, 20)
 const { response: forgedInitiativeResponse } = await request('/rest/v1/session_initiative_entries', {
   token: invitee.token,
   method: 'POST',
   body: { session_id: sessionId, campaign_id: campaignId, character_id: characterId, initiative: 99, created_by: invitee.id },
 })
 assert.equal(forgedInitiativeResponse.status, 403)
+const { data: forgedResourceRows, response: forgedResourceResponse } = await request(`/rest/v1/session_initiative_entries?id=eq.${initiativeRows[0].id}`, {
+  token: invitee.token,
+  method: 'PATCH',
+  body: { bonus_action_used: true },
+})
+assert.equal(forgedResourceResponse.status, 200)
+assert.deepEqual(forgedResourceRows, [])
 const { response: encounterResponse } = await request('/rest/v1/session_encounters', {
   token: outsider.token,
   method: 'POST',
