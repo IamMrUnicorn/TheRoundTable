@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import { CombatHealthPanel } from '../combat/CombatHealthPanel'
 import { CombatStatusPanel } from '../combat/CombatStatusPanel'
+import { InitiativePanel } from '../combat/InitiativePanel'
 import { DiceRollerPanel } from '../dice/DiceRollerPanel'
 import { updateSession } from '../scheduling/scheduling'
 import { createSessionEvent, listSessionEvents } from './session-events'
@@ -43,6 +44,7 @@ export function SessionEventPanel({
     current_hp: number
     death_save_failures: number
     death_save_successes: number
+    dexterity: number
     id: number
     max_hp: number
     name: string
@@ -284,6 +286,13 @@ export function SessionEventPanel({
       )}
       {activeView === 'combat' && (
         <div className="play-workspace-view">
+          <InitiativePanel
+            actorId={actorId}
+            campaignId={campaignId}
+            characters={characters}
+            isManager={isManager}
+            sessionId={sessionId}
+          />
           <CombatHealthPanel
             actorId={actorId}
             campaignId={campaignId}

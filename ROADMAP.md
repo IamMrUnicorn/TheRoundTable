@@ -73,7 +73,7 @@ This roadmap translates the play-screen sketch and the proven V5 foundations int
 
 - [ ] Resizable/collapsible left notebook panel.
 - [ ] Central stage with switchable scene, map, camera, and expanded log modes.
-- [ ] Party/initiative rail on the right. *(Compact always-visible party HP rail complete; initiative and right-side desktop positioning pending.)*
+- [ ] Party/initiative rail on the right. *(Compact always-visible party HP rail plus persistent initiative order/active turn complete; right-side desktop positioning pending.)*
 - [ ] Bottom action bar.
 - [ ] Slide-over character sheet.
 - [ ] Modal/drawer system for spells, inventory, monsters, and actions.
@@ -106,10 +106,10 @@ This roadmap translates the play-screen sketch and the proven V5 foundations int
 ### Initiative and turns
 
 - [ ] Start/end encounters within a session.
-- [ ] Add party characters, monsters, NPCs, and custom combatants.
-- [ ] Initiative rolls, manual ordering, ties, and reorder controls.
-- [ ] Active-turn indicator, round counter, and next-turn preview.
-- [ ] Game Master advance/rewind/skip controls.
+- [ ] Add party characters, monsters, NPCs, and custom combatants. *(Party characters complete; non-character combatants pending.)*
+- [ ] Initiative rolls, manual ordering, ties, and reorder controls. *(Dexterity-aware rolls, manual values, and deterministic tie ordering complete; drag/reorder pending.)*
+- [ ] Active-turn indicator, round counter, and next-turn preview. *(Active turn and round counter complete; explicit next-turn preview pending.)*
+- [ ] Game Master advance/rewind/skip controls. *(Forward advancement and clear/reset complete; rewind/skip pending.)*
 - [ ] Track action, bonus action, movement, object interaction, and reaction availability.
 - [ ] Reset action economy correctly at turn boundaries.
 - [ ] Delay, ready, dodge, disengage, dash, help, hide, and hold-action flows.

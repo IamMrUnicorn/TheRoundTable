@@ -8,6 +8,9 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 
 ### Added
 
+- Added persistent session initiative with Dexterity-aware d20 rolls, manual initiative entry, shared descending turn order, active-turn highlighting, automatic round advancement, and manager reset controls.
+- Added owner-aware initiative authorization: players can submit or revise only their own characters while Game Masters can manage the entire party and active encounter state.
+- Added indexed encounter/initiative tables, explicit Data API grants, updated timestamps, hosted deployment, and multi-user RLS tests covering shared visibility and forged-roll rejection.
 - Reorganized the live play screen into focused Actions & Dice, Party & Combat, and Session Log workspaces instead of one long vertical tool stack.
 - Added an always-visible compact party rail with character links, current/maximum/temporary HP, and health meters.
 - Added per-browser workspace persistence, accessible pressed-state tabs, lightweight view transitions, and a single-column mobile workspace layout.

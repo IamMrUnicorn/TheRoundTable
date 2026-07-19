@@ -1331,6 +1331,66 @@ export type Database = {
         }
         Relationships: []
       }
+      session_encounters: {
+        Row: {
+          active_character_id: number | null
+          campaign_id: number
+          created_at: string
+          round_number: number
+          session_id: number
+          updated_at: string
+        }
+        Insert: {
+          active_character_id?: number | null
+          campaign_id: number
+          created_at?: string
+          round_number?: number
+          session_id: number
+          updated_at?: string
+        }
+        Update: {
+          active_character_id?: number | null
+          campaign_id?: number
+          created_at?: string
+          round_number?: number
+          session_id?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      session_initiative_entries: {
+        Row: {
+          campaign_id: number
+          character_id: number
+          created_at: string
+          created_by: string
+          id: number
+          initiative: number
+          session_id: number
+          updated_at: string
+        }
+        Insert: {
+          campaign_id: number
+          character_id: number
+          created_at?: string
+          created_by: string
+          id?: never
+          initiative: number
+          session_id: number
+          updated_at?: string
+        }
+        Update: {
+          campaign_id?: number
+          character_id?: number
+          created_at?: string
+          created_by?: string
+          id?: never
+          initiative?: number
+          session_id?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       session_attendance: {
         Row: {
           note: string

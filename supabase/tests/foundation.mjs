@@ -500,6 +500,27 @@ const { response: pauseSessionResponse } = await request(`/rest/v1/sessions?id=e
 assert.equal(pauseSessionResponse.status, 200)
 const { response: resumeSessionResponse } = await request(`/rest/v1/sessions?id=eq.${sessionId}`, { token: outsider.token, method: 'PATCH', body: { status: 'active' } })
 assert.equal(resumeSessionResponse.status, 200)
+const { data: initiativeRows, response: initiativeResponse } = await request('/rest/v1/session_initiative_entries', {
+  token: owner.token,
+  method: 'POST',
+  body: { session_id: sessionId, campaign_id: campaignId, character_id: characterId, initiative: 17, created_by: owner.id },
+})
+assert.equal(initiativeResponse.status, 201)
+assert.equal(initiativeRows[0].initiative, 17)
+const { response: forgedInitiativeResponse } = await request('/rest/v1/session_initiative_entries', {
+  token: invitee.token,
+  method: 'POST',
+  body: { session_id: sessionId, campaign_id: campaignId, character_id: characterId, initiative: 99, created_by: invitee.id },
+})
+assert.equal(forgedInitiativeResponse.status, 403)
+const { response: encounterResponse } = await request('/rest/v1/session_encounters', {
+  token: outsider.token,
+  method: 'POST',
+  body: { session_id: sessionId, campaign_id: campaignId, active_character_id: characterId, round_number: 1 },
+})
+assert.equal(encounterResponse.status, 201)
+const { data: visibleInitiative } = await request(`/rest/v1/session_initiative_entries?session_id=eq.${sessionId}&select=character_id,initiative`, { token: invitee.token })
+assert.deepEqual(visibleInitiative, [{ character_id: characterId, initiative: 17 }])
 const secondStart = new Date(start.getTime() + 7 * 86_400_000)
 const secondEnd = new Date(secondStart.getTime() + 3 * 60 * 60 * 1000)
 const { response: duplicateActiveSessionResponse } = await request('/rest/v1/sessions', {

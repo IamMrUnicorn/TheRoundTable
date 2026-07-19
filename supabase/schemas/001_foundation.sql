@@ -269,6 +269,27 @@ create table public.session_attendance (
   primary key (session_id, user_id)
 );
 
+create table public.session_encounters (
+  session_id bigint primary key references public.sessions (id) on delete cascade,
+  campaign_id bigint not null references public.campaigns (id) on delete cascade,
+  round_number integer not null default 1 check (round_number between 1 and 999999),
+  active_character_id bigint references public.characters (id) on delete set null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table public.session_initiative_entries (
+  id bigint generated always as identity primary key,
+  session_id bigint not null references public.sessions (id) on delete cascade,
+  campaign_id bigint not null references public.campaigns (id) on delete cascade,
+  character_id bigint not null references public.characters (id) on delete cascade,
+  initiative integer not null check (initiative between -100 and 200),
+  created_by uuid not null references public.profiles (id) on delete restrict,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique (session_id, character_id)
+);
+
 create table public.session_events (
   id bigint generated always as identity primary key,
   session_id bigint not null references public.sessions (id) on delete cascade,
@@ -444,6 +465,10 @@ create index availability_exceptions_user_id_idx on public.availability_exceptio
 create index sessions_campaign_starts_at_idx on public.sessions (campaign_id, starts_at);
 create unique index sessions_one_active_per_campaign_idx on public.sessions (campaign_id) where status in ('active', 'paused');
 create index sessions_created_by_idx on public.sessions (created_by);
+create index session_encounters_campaign_id_idx on public.session_encounters (campaign_id);
+create index session_encounters_active_character_id_idx on public.session_encounters (active_character_id);
+create index session_initiative_entries_campaign_id_idx on public.session_initiative_entries (campaign_id);
+create index session_initiative_entries_character_id_idx on public.session_initiative_entries (character_id);
 create index session_attendance_user_id_idx on public.session_attendance (user_id);
 create index session_events_session_timeline_idx on public.session_events (session_id, occurred_at desc, sequence_number desc);
 create index session_events_character_idx on public.session_events (character_id, occurred_at desc) where character_id is not null;
@@ -601,6 +626,8 @@ create trigger availability_rules_set_updated_at before update on public.availab
 create trigger availability_exceptions_set_updated_at before update on public.availability_exceptions for each row execute function private.set_updated_at();
 create trigger sessions_set_updated_at before update on public.sessions for each row execute function private.set_updated_at();
 create trigger session_attendance_set_updated_at before update on public.session_attendance for each row execute function private.set_updated_at();
+create trigger session_encounters_set_updated_at before update on public.session_encounters for each row execute function private.set_updated_at();
+create trigger session_initiative_entries_set_updated_at before update on public.session_initiative_entries for each row execute function private.set_updated_at();
 create trigger campaign_announcements_set_updated_at before update on public.campaign_announcements for each row execute function private.set_updated_at();
 create trigger campaign_documents_set_updated_at before update on public.campaign_documents for each row execute function private.set_updated_at();
 create trigger campaign_world_states_set_updated_at before update on public.campaign_world_states for each row execute function private.set_updated_at();
@@ -1166,6 +1193,8 @@ alter table public.availability_rules enable row level security;
 alter table public.availability_exceptions enable row level security;
 alter table public.sessions enable row level security;
 alter table public.session_attendance enable row level security;
+alter table public.session_encounters enable row level security;
+alter table public.session_initiative_entries enable row level security;
 alter table public.session_events enable row level security;
 alter table public.campaign_announcements enable row level security;
 alter table public.notifications enable row level security;
@@ -1410,6 +1439,16 @@ create policy attendance_insert_own on public.session_attendance for insert to a
 create policy attendance_update_own on public.session_attendance for update to authenticated using (user_id = (select auth.uid())) with check (user_id = (select auth.uid()));
 create policy attendance_delete_own_or_manager on public.session_attendance for delete to authenticated using (user_id = (select auth.uid()) or exists (select 1 from public.sessions where id = session_id and (select private.is_campaign_manager(campaign_id))));
 
+create policy session_encounters_select_members on public.session_encounters for select to authenticated using ((select private.is_campaign_member(campaign_id)));
+create policy session_encounters_insert_managers on public.session_encounters for insert to authenticated with check ((select private.is_campaign_manager(campaign_id)) and exists (select 1 from public.sessions where id = session_id and sessions.campaign_id = session_encounters.campaign_id));
+create policy session_encounters_update_managers on public.session_encounters for update to authenticated using ((select private.is_campaign_manager(campaign_id))) with check ((select private.is_campaign_manager(campaign_id)));
+create policy session_encounters_delete_managers on public.session_encounters for delete to authenticated using ((select private.is_campaign_manager(campaign_id)));
+
+create policy initiative_entries_select_members on public.session_initiative_entries for select to authenticated using ((select private.is_campaign_member(campaign_id)));
+create policy initiative_entries_insert_allowed on public.session_initiative_entries for insert to authenticated with check (created_by = (select auth.uid()) and exists (select 1 from public.sessions where id = session_id and sessions.campaign_id = session_initiative_entries.campaign_id) and exists (select 1 from public.characters where id = character_id and characters.campaign_id = session_initiative_entries.campaign_id and (characters.owner_id = (select auth.uid()) or (select private.is_campaign_manager(session_initiative_entries.campaign_id)))));
+create policy initiative_entries_update_allowed on public.session_initiative_entries for update to authenticated using ((select private.is_campaign_manager(campaign_id)) or exists (select 1 from public.characters where id = character_id and owner_id = (select auth.uid()))) with check ((select private.is_campaign_manager(campaign_id)) or exists (select 1 from public.characters where id = character_id and owner_id = (select auth.uid())));
+create policy initiative_entries_delete_allowed on public.session_initiative_entries for delete to authenticated using ((select private.is_campaign_manager(campaign_id)) or exists (select 1 from public.characters where id = character_id and owner_id = (select auth.uid())));
+
 create policy session_events_select_allowed on public.session_events for select to authenticated
 using ((select private.is_campaign_member(campaign_id)) and (visibility = 'party' or (select private.is_campaign_manager(campaign_id))));
 create policy session_events_insert_allowed on public.session_events for insert to authenticated
@@ -1553,6 +1592,7 @@ grant select, insert, update, delete on table public.character_spellcasting_prof
 grant select, insert, update, delete on table public.character_memories to authenticated;
 grant select, insert, update, delete on table public.character_inventory_items to authenticated;
 grant select, insert, update, delete on table public.availability_rules, public.availability_exceptions, public.sessions, public.session_attendance to authenticated;
+grant select, insert, update, delete on table public.session_encounters, public.session_initiative_entries to authenticated;
 grant select, insert on table public.session_events to authenticated;
 grant select, insert, update, delete on table public.campaign_announcements to authenticated;
 grant select, update, delete on table public.notifications to authenticated;
@@ -1574,6 +1614,7 @@ grant usage, select on sequence public.character_memories_id_seq to authenticate
 grant usage, select on sequence public.character_inventory_items_id_seq to authenticated;
 grant usage, select on sequence public.availability_rules_id_seq, public.availability_exceptions_id_seq, public.sessions_id_seq to authenticated;
 grant usage, select on sequence public.session_events_id_seq to authenticated;
+grant usage, select on sequence public.session_initiative_entries_id_seq to authenticated;
 grant usage, select on sequence public.campaign_announcements_id_seq to authenticated;
 
 do $$
