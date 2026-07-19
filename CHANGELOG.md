@@ -62,6 +62,8 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 - Added Game Master start/end controls and database enforcement preventing more than one active session per campaign.
 - Added a bounded polyhedral formula engine supporting multiple dice pools, signed modifiers, advantage, disadvantage, and cryptographically sourced browser rolls.
 - Added public and private Game Master rolls, optional character attribution, manual physical-dice results, detailed roll breakdowns, structured metadata, and immutable session-log recording.
+- Added live party health cards with current/max/temporary HP meters and owner-or-Game-Master controls for damage, healing, and temporary HP.
+- Added an atomic health workflow that absorbs damage through temporary HP, caps healing at maximum HP, locks concurrent character updates, and records every accepted change in both session history and Character Memory.
 - Added an atomic invitation-response database workflow that validates the authenticated email, prevents expired or reused invitations, and creates campaign membership on acceptance.
 - Added least-privilege grants, Row Level Security, supporting indexes, and three-user integration coverage for the complete invitation lifecycle.
 - Added player-owned characters with optional campaign assignment.

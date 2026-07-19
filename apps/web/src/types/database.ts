@@ -1515,6 +1515,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      apply_character_health_change: {
+        Args: {
+          amount: number
+          change_kind: string
+          character_id: number
+          session_id: number
+        }
+        Returns: Json
+      }
       join_campaign: { Args: { campaign_code: string }; Returns: number }
       respond_campaign_invitation: {
         Args: { invitation_token: string; should_accept: boolean }

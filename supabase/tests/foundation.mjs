@@ -150,6 +150,8 @@ const { data: updatedCharacter, response: updatedCharacterResponse } =
       skill_proficiencies: ['athletics', 'perception'],
       skill_expertise: ['perception'],
       speed: 35,
+      current_hp: 20,
+      max_hp: 30,
       temporary_hp: 7,
       hit_die_size: 10,
       hit_dice_total: 5,
@@ -502,6 +504,33 @@ const { response: duplicateActiveSessionResponse } = await request('/rest/v1/ses
   body: { campaign_id: campaignId, created_by: outsider.id, title: 'Conflicting active session', starts_at: secondStart.toISOString(), ends_at: secondEnd.toISOString(), status: 'active' },
 })
 assert.equal(duplicateActiveSessionResponse.status, 409)
+const { data: damagedHealth, response: damageHealthResponse } = await request('/rest/v1/rpc/apply_character_health_change', {
+  token: owner.token,
+  method: 'POST',
+  body: { session_id: sessionId, character_id: characterId, change_kind: 'damage', amount: 10 },
+})
+assert.equal(damageHealthResponse.status, 200)
+assert.equal(damagedHealth.current_hp, 17)
+assert.equal(damagedHealth.temporary_hp, 0)
+const { data: healedHealth, response: healingHealthResponse } = await request('/rest/v1/rpc/apply_character_health_change', {
+  token: outsider.token,
+  method: 'POST',
+  body: { session_id: sessionId, character_id: characterId, change_kind: 'healing', amount: 5 },
+})
+assert.equal(healingHealthResponse.status, 200)
+assert.equal(healedHealth.current_hp, 22)
+const { response: forbiddenHealthResponse } = await request('/rest/v1/rpc/apply_character_health_change', {
+  token: invitee.token,
+  method: 'POST',
+  body: { session_id: sessionId, character_id: characterId, change_kind: 'damage', amount: 1 },
+})
+assert.equal(forbiddenHealthResponse.status, 403)
+const { data: healthEvents } = await request(`/rest/v1/session_events?session_id=eq.${sessionId}&kind=in.(damage,healing)&select=kind,metadata&order=created_at.asc`, { token: owner.token })
+assert.equal(healthEvents.length, 2)
+assert.equal(healthEvents[0].kind, 'damage')
+assert.equal(healthEvents[0].metadata.absorbed_by_temporary_hp, 7)
+assert.equal(healthEvents[1].kind, 'healing')
+assert.equal(healthEvents[1].metadata.current_hp, 22)
 
 const { response: attendanceResponse } = await request('/rest/v1/session_attendance', {
   token: owner.token,

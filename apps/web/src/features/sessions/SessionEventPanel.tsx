@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { type FormEvent, useEffect, useState } from 'react'
 
 import { supabase } from '../../lib/supabase'
+import { CombatHealthPanel } from '../combat/CombatHealthPanel'
 import { DiceRollerPanel } from '../dice/DiceRollerPanel'
 import { updateSession } from '../scheduling/scheduling'
 import { createSessionEvent, listSessionEvents } from './session-events'
@@ -32,7 +33,15 @@ export function SessionEventPanel({
 }: {
   actorId: string
   campaignId: number
-  characters: { id: number; name: string; owner_id: string }[]
+  characters: {
+    conditions: string[]
+    current_hp: number
+    id: number
+    max_hp: number
+    name: string
+    owner_id: string
+    temporary_hp: number
+  }[]
   isManager: boolean
   sessionId: number
   sessionStatus: string
@@ -170,6 +179,14 @@ export function SessionEventPanel({
         characters={characters}
         isManager={isManager}
         sessionId={sessionId}
+      />
+      <CombatHealthPanel
+        actorId={actorId}
+        campaignId={campaignId}
+        characters={characters}
+        isManager={isManager}
+        sessionId={sessionId}
+        sessionStatus={sessionStatus}
       />
       <form
         className="session-event-form"
