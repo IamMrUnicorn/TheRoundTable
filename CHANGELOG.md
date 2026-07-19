@@ -8,6 +8,9 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 
 ### Added
 
+- Reorganized the live play screen into focused Actions & Dice, Party & Combat, and Session Log workspaces instead of one long vertical tool stack.
+- Added an always-visible compact party rail with character links, current/maximum/temporary HP, and health meters.
+- Added per-browser workspace persistence, accessible pressed-state tabs, lightweight view transitions, and a single-column mobile workspace layout.
 - Added Supabase Realtime Presence to waiting rooms and active play screens with join/leave synchronization, connected-member ordering, connection-health feedback, and safe channel cleanup on navigation.
 - Added a responsive session clock that counts down before the scheduled start and displays elapsed play time afterward, including paused-state context.
 - Added refresh/reconnect recovery through persistent session routing, five-second lifecycle refresh, and automatic presence re-tracking after channel subscription.

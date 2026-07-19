@@ -60,7 +60,7 @@ This roadmap translates the play-screen sketch and the proven V5 foundations int
 
 ### Session lifecycle and presence
 
-- [ ] Live session route and persistent play-screen shell.
+- [x] Live session route and persistent play-screen shell with focused Actions, Combat, and Log workspaces.
 - [x] Role-aware waiting room before the Game Master starts play, with an 18-hour entry window, dedicated DM preparation route, and automatic transition to the live play screen.
 - [x] Join/leave/reconnect presence indicators plus persisted ready/not-ready state.
 - [x] Game Master start, pause, resume, and end-session controls.
@@ -73,11 +73,11 @@ This roadmap translates the play-screen sketch and the proven V5 foundations int
 
 - [ ] Resizable/collapsible left notebook panel.
 - [ ] Central stage with switchable scene, map, camera, and expanded log modes.
-- [ ] Party/initiative rail on the right.
+- [ ] Party/initiative rail on the right. *(Compact always-visible party HP rail complete; initiative and right-side desktop positioning pending.)*
 - [ ] Bottom action bar.
 - [ ] Slide-over character sheet.
 - [ ] Modal/drawer system for spells, inventory, monsters, and actions.
-- [ ] Persist each user’s panel sizes and visibility preferences.
+- [ ] Persist each user’s panel sizes and visibility preferences. *(Selected live workspace persists per browser; panel sizes/visibility pending.)*
 - [ ] Focus mode for maps, logs, sheets, or notes.
 - [ ] Player layout and Game Master layout derived from shared primitives.
 

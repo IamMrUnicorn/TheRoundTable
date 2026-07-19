@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { type FormEvent, useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 
 import { supabase } from '../../lib/supabase'
 import { CombatHealthPanel } from '../combat/CombatHealthPanel'
@@ -23,6 +24,8 @@ const eventKinds = [
   'rest',
   'note',
 ] as const
+
+type WorkspaceView = 'actions' | 'combat' | 'log'
 
 export function SessionEventPanel({
   actorId,
@@ -67,6 +70,10 @@ export function SessionEventPanel({
   const [filterCharacter, setFilterCharacter] = useState('all')
   const [search, setSearch] = useState('')
   const [connection, setConnection] = useState('connecting')
+  const [activeView, setActiveView] = useState<WorkspaceView>(() => {
+    const saved = window.localStorage.getItem('round-table:play-workspace')
+    return saved === 'combat' || saved === 'log' ? saved : 'actions'
+  })
   const availableCharacters = isManager
     ? characters
     : characters.filter((character) => character.owner_id === actorId)
@@ -113,6 +120,9 @@ export function SessionEventPanel({
     },
   })
   useEffect(() => {
+    window.localStorage.setItem('round-table:play-workspace', activeView)
+  }, [activeView])
+  useEffect(() => {
     const channel = supabase
       .channel(`session-events:${sessionId}`)
       .on(
@@ -150,7 +160,13 @@ export function SessionEventPanel({
       <div className="section-heading">
         <div>
           <p className="eyebrow">Live record</p>
-          <h2>Session event log</h2>
+          <h2>
+            {activeView === 'actions'
+              ? 'Action workspace'
+              : activeView === 'combat'
+                ? 'Party and combat'
+                : 'Session event log'}
+          </h2>
         </div>
         <div className="session-log-status">
           <span className={`connection-status ${connection}`}>
@@ -208,157 +224,222 @@ export function SessionEventPanel({
           )}
         </div>
       </div>
-      <DiceRollerPanel
-        actorId={actorId}
-        campaignId={campaignId}
-        characters={characters}
-        isManager={isManager}
-        sessionId={sessionId}
-      />
-      <CombatHealthPanel
-        actorId={actorId}
-        campaignId={campaignId}
-        characters={characters}
-        isManager={isManager}
-        sessionId={sessionId}
-        sessionStatus={sessionStatus}
-      />
-      <CombatStatusPanel
-        actorId={actorId}
-        campaignId={campaignId}
-        characters={characters}
-        isManager={isManager}
-        sessionId={sessionId}
-        sessionStatus={sessionStatus}
-      />
-      <form
-        className="session-event-form"
-        onSubmit={(event: FormEvent) => {
-          event.preventDefault()
-          create.mutate()
-        }}
-      >
-        <select
-          value={kind}
-          onChange={(event) => setKind(event.target.value as typeof kind)}
-        >
-          {eventKinds.map((value) => (
-            <option key={value}>{value}</option>
-          ))}
-        </select>
-        <select
-          value={characterId}
-          onChange={(event) => setCharacterId(event.target.value)}
-        >
-          <option value="">No linked character</option>
-          {availableCharacters.map((character) => (
-            <option key={character.id} value={character.id}>
-              {character.name}
-            </option>
-          ))}
-        </select>
-        <select
-          value={visibility}
-          onChange={(event) => setVisibility(event.target.value)}
-        >
-          <option value="party">Party visible</option>
-          {isManager && <option value="gm_only">GM only</option>}
-        </select>
-        <input
-          required
-          maxLength={160}
-          placeholder="Concise event summary"
-          value={title}
-          onChange={(event) => setTitle(event.target.value)}
-        />
-        <input
-          maxLength={160}
-          placeholder="In-world time"
-          value={inWorldTime}
-          onChange={(event) => setInWorldTime(event.target.value)}
-        />
-        <input
-          maxLength={160}
-          placeholder="Location"
-          value={location}
-          onChange={(event) => setLocation(event.target.value)}
-        />
-        <textarea
-          rows={3}
-          maxLength={10000}
-          placeholder="Details, outcome, dialogue, or context"
-          value={body}
-          onChange={(event) => setBody(event.target.value)}
-        />
-        <button disabled={create.isPending || !title.trim()}>
-          {create.isPending ? 'Recording…' : 'Record event'}
-        </button>
-      </form>
-      {create.isError && (
-        <p className="form-error">The event could not be recorded.</p>
-      )}
-      {events.isLoading && (
-        <p className="muted-copy">Opening the session record…</p>
-      )}
-      {events.data?.length === 0 && (
-        <p className="muted-copy">Nothing has happened yet.</p>
-      )}
-      <div className="session-event-filters">
-        <input
-          aria-label="Search session events"
-          placeholder="Search the log…"
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-        />
-        <select
-          aria-label="Filter event type"
-          value={filterKind}
-          onChange={(event) => setFilterKind(event.target.value)}
-        >
-          <option value="all">All event types</option>
-          {eventKinds.map((value) => (
-            <option key={value}>{value}</option>
-          ))}
-        </select>
-        <select
-          aria-label="Filter event character"
-          value={filterCharacter}
-          onChange={(event) => setFilterCharacter(event.target.value)}
-        >
-          <option value="all">All participants</option>
-          <option value="none">No character</option>
-          {characters.map((character) => (
-            <option key={character.id} value={character.id}>
-              {character.name}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div className="session-event-list">
-        {shownEvents?.length === 0 && events.data && events.data.length > 0 && (
-          <p className="muted-copy">No events match these filters.</p>
-        )}
-        {shownEvents?.map((event) => (
-          <article key={event.id}>
-            <div>
-              <span>
-                {event.kind} · {event.visibility}
-              </span>
-              <h3>{event.title}</h3>
-              {event.body && <p>{event.body}</p>}
-            </div>
-            <footer>
-              <span>{new Date(event.occurred_at).toLocaleTimeString()}</span>
-              <span>By {event.actor?.display_name ?? 'Unknown'}</span>
-              {event.character?.name && <span>For {event.character.name}</span>}
-              {event.in_world_time && (
-                <span>In-world: {event.in_world_time}</span>
-              )}
-              {event.location && <span>At {event.location}</span>}
-            </footer>
-          </article>
+      <nav className="play-workspace-tabs" aria-label="Live session tools">
+        {(['actions', 'combat', 'log'] as WorkspaceView[]).map((view) => (
+          <button
+            type="button"
+            key={view}
+            className={activeView === view ? 'active' : ''}
+            aria-pressed={activeView === view}
+            onClick={() => setActiveView(view)}
+          >
+            {view === 'actions'
+              ? 'Actions & dice'
+              : view === 'combat'
+                ? 'Party & combat'
+                : `Session log (${events.data?.length ?? 0})`}
+          </button>
         ))}
-      </div>
+      </nav>
+      <aside className="live-party-rail" aria-label="Party status">
+        {characters.map((character) => (
+          <Link key={character.id} to={`/characters/${character.id}`}>
+            <span className="member-avatar">
+              {character.name.slice(0, 1).toUpperCase()}
+            </span>
+            <span>
+              <strong>{character.name}</strong>
+              <small>
+                {character.current_hp}/{character.max_hp} HP
+                {character.temporary_hp > 0 &&
+                  ` · ${character.temporary_hp} temp`}
+              </small>
+            </span>
+            <progress
+              aria-label={`${character.name} hit points`}
+              max={character.max_hp || 1}
+              value={character.current_hp}
+            />
+          </Link>
+        ))}
+      </aside>
+      {activeView === 'actions' && (
+        <div className="play-workspace-view">
+          <DiceRollerPanel
+            actorId={actorId}
+            campaignId={campaignId}
+            characters={characters}
+            isManager={isManager}
+            sessionId={sessionId}
+          />
+          <div className="play-view-placeholder">
+            <p className="eyebrow">Action workspace</p>
+            <h3>Character actions are coming next.</h3>
+            <p>
+              Attacks, spells, inventory, and custom actions will live here
+              without crowding the session log.
+            </p>
+          </div>
+        </div>
+      )}
+      {activeView === 'combat' && (
+        <div className="play-workspace-view">
+          <CombatHealthPanel
+            actorId={actorId}
+            campaignId={campaignId}
+            characters={characters}
+            isManager={isManager}
+            sessionId={sessionId}
+            sessionStatus={sessionStatus}
+          />
+          <CombatStatusPanel
+            actorId={actorId}
+            campaignId={campaignId}
+            characters={characters}
+            isManager={isManager}
+            sessionId={sessionId}
+            sessionStatus={sessionStatus}
+          />
+        </div>
+      )}
+      {activeView === 'log' && (
+        <div className="play-workspace-view">
+          <form
+            className="session-event-form"
+            onSubmit={(event: FormEvent) => {
+              event.preventDefault()
+              create.mutate()
+            }}
+          >
+            <select
+              value={kind}
+              onChange={(event) => setKind(event.target.value as typeof kind)}
+            >
+              {eventKinds.map((value) => (
+                <option key={value}>{value}</option>
+              ))}
+            </select>
+            <select
+              value={characterId}
+              onChange={(event) => setCharacterId(event.target.value)}
+            >
+              <option value="">No linked character</option>
+              {availableCharacters.map((character) => (
+                <option key={character.id} value={character.id}>
+                  {character.name}
+                </option>
+              ))}
+            </select>
+            <select
+              value={visibility}
+              onChange={(event) => setVisibility(event.target.value)}
+            >
+              <option value="party">Party visible</option>
+              {isManager && <option value="gm_only">GM only</option>}
+            </select>
+            <input
+              required
+              maxLength={160}
+              placeholder="Concise event summary"
+              value={title}
+              onChange={(event) => setTitle(event.target.value)}
+            />
+            <input
+              maxLength={160}
+              placeholder="In-world time"
+              value={inWorldTime}
+              onChange={(event) => setInWorldTime(event.target.value)}
+            />
+            <input
+              maxLength={160}
+              placeholder="Location"
+              value={location}
+              onChange={(event) => setLocation(event.target.value)}
+            />
+            <textarea
+              rows={3}
+              maxLength={10000}
+              placeholder="Details, outcome, dialogue, or context"
+              value={body}
+              onChange={(event) => setBody(event.target.value)}
+            />
+            <button disabled={create.isPending || !title.trim()}>
+              {create.isPending ? 'Recording…' : 'Record event'}
+            </button>
+          </form>
+          {create.isError && (
+            <p className="form-error">The event could not be recorded.</p>
+          )}
+          {events.isLoading && (
+            <p className="muted-copy">Opening the session record…</p>
+          )}
+          {events.data?.length === 0 && (
+            <p className="muted-copy">Nothing has happened yet.</p>
+          )}
+          <div className="session-event-filters">
+            <input
+              aria-label="Search session events"
+              placeholder="Search the log…"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+            />
+            <select
+              aria-label="Filter event type"
+              value={filterKind}
+              onChange={(event) => setFilterKind(event.target.value)}
+            >
+              <option value="all">All event types</option>
+              {eventKinds.map((value) => (
+                <option key={value}>{value}</option>
+              ))}
+            </select>
+            <select
+              aria-label="Filter event character"
+              value={filterCharacter}
+              onChange={(event) => setFilterCharacter(event.target.value)}
+            >
+              <option value="all">All participants</option>
+              <option value="none">No character</option>
+              {characters.map((character) => (
+                <option key={character.id} value={character.id}>
+                  {character.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="session-event-list">
+            {shownEvents?.length === 0 &&
+              events.data &&
+              events.data.length > 0 && (
+                <p className="muted-copy">No events match these filters.</p>
+              )}
+            {shownEvents?.map((event) => (
+              <article key={event.id}>
+                <div>
+                  <span>
+                    {event.kind} · {event.visibility}
+                  </span>
+                  <h3>{event.title}</h3>
+                  {event.body && <p>{event.body}</p>}
+                </div>
+                <footer>
+                  <span>
+                    {new Date(event.occurred_at).toLocaleTimeString()}
+                  </span>
+                  <span>By {event.actor?.display_name ?? 'Unknown'}</span>
+                  {event.character?.name && (
+                    <span>For {event.character.name}</span>
+                  )}
+                  {event.in_world_time && (
+                    <span>In-world: {event.in_world_time}</span>
+                  )}
+                  {event.location && <span>At {event.location}</span>}
+                </footer>
+              </article>
+            ))}
+          </div>
+        </div>
+      )}
     </section>
   )
 }

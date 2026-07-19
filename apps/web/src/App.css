@@ -258,6 +258,9 @@
   .session-presence-bar {
     grid-template-columns: 1fr;
   }
+  .play-workspace-tabs {
+    grid-template-columns: 1fr;
+  }
 }
 
 button,
@@ -1559,6 +1562,77 @@ button:disabled {
 }
 .session-event-panel {
   grid-column: 1 / -1;
+}
+.play-workspace-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.45rem;
+  padding: 0.4rem;
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+  background: #101816;
+}
+.play-workspace-tabs button {
+  min-height: 2.4rem;
+  background: transparent;
+  color: var(--muted);
+}
+.play-workspace-tabs button.active {
+  background: var(--gold);
+  color: #20170c;
+}
+.live-party-rail {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: 0.55rem;
+}
+.live-party-rail > a {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.55rem;
+  border: 1px solid var(--line);
+  border-radius: 0.7rem;
+  padding: 0.65rem;
+  background: #151f1d;
+  color: var(--ink);
+  text-decoration: none;
+}
+.live-party-rail > a:hover {
+  border-color: var(--gold);
+}
+.live-party-rail small {
+  display: block;
+  margin-top: 0.15rem;
+  color: var(--muted);
+}
+.live-party-rail progress {
+  grid-column: 1 / -1;
+  width: 100%;
+  height: 0.35rem;
+  accent-color: #b74752;
+}
+.play-workspace-view {
+  display: grid;
+  gap: 0.8rem;
+  animation: workspace-view-in 140ms ease-out;
+}
+.play-view-placeholder {
+  border: 1px dashed var(--line);
+  border-radius: 0.8rem;
+  padding: 1.2rem;
+  color: var(--muted);
+}
+.play-view-placeholder h3 {
+  margin: 0;
+  color: var(--ink);
+}
+@keyframes workspace-view-in {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
 }
 .session-event-form {
   display: grid;
