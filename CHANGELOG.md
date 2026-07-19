@@ -8,6 +8,9 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 
 ### Added
 
+- Added targeted, expiring reaction prompts with GM-selected characters, custom interrupt text, 5–300 second countdowns, and player accept/decline controls.
+- Added a restricted reaction-response RPC that hides prompts from unrelated players, rejects forged or expired answers, permits only the targeted owner to respond once, and records the result as a structured session event.
+- Added one-second cross-browser prompt refresh, visible expiry/result history, indexed storage, explicit grants, and multi-user authorization tests.
 - Added automatic, exactly-once projection of approved action proposals into the immutable structured session event log, including action kind, approval mode, proposal identity, reviewer, details, and GM ruling.
 - Added Game Master editing of pending action type, title, and details before approval, with responsive inline edit controls.
 - Added trigger-level integration tests proving pending actions never log early, approved actions log once, and subsequent proposal edits cannot duplicate session history.

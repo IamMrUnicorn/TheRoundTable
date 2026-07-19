@@ -313,6 +313,21 @@ create table public.session_action_proposals (
   updated_at timestamptz not null default now()
 );
 
+create table public.session_reaction_prompts (
+  id bigint generated always as identity primary key,
+  session_id bigint not null references public.sessions (id) on delete cascade,
+  campaign_id bigint not null references public.campaigns (id) on delete cascade,
+  character_id bigint not null references public.characters (id) on delete cascade,
+  target_user_id uuid not null references public.profiles (id) on delete cascade,
+  created_by uuid not null references public.profiles (id) on delete restrict,
+  prompt text not null check (char_length(prompt) between 1 and 1000),
+  status text not null default 'pending' check (status in ('pending', 'accepted', 'declined')),
+  expires_at timestamptz not null,
+  responded_at timestamptz,
+  created_at timestamptz not null default now(),
+  check (expires_at > created_at)
+);
+
 create table public.session_events (
   id bigint generated always as identity primary key,
   session_id bigint not null references public.sessions (id) on delete cascade,
@@ -497,6 +512,11 @@ create index session_action_proposals_campaign_id_idx on public.session_action_p
 create index session_action_proposals_character_id_idx on public.session_action_proposals (character_id) where character_id is not null;
 create index session_action_proposals_created_by_idx on public.session_action_proposals (created_by);
 create index session_action_proposals_reviewed_by_idx on public.session_action_proposals (reviewed_by) where reviewed_by is not null;
+create index session_reaction_prompts_session_created_idx on public.session_reaction_prompts (session_id, created_at desc);
+create index session_reaction_prompts_target_pending_idx on public.session_reaction_prompts (target_user_id, expires_at) where status = 'pending';
+create index session_reaction_prompts_campaign_id_idx on public.session_reaction_prompts (campaign_id);
+create index session_reaction_prompts_character_id_idx on public.session_reaction_prompts (character_id);
+create index session_reaction_prompts_created_by_idx on public.session_reaction_prompts (created_by);
 create index session_attendance_user_id_idx on public.session_attendance (user_id);
 create index session_events_session_timeline_idx on public.session_events (session_id, occurred_at desc, sequence_number desc);
 create index session_events_character_idx on public.session_events (character_id, occurred_at desc) where character_id is not null;
@@ -683,6 +703,27 @@ $$;
 create trigger action_proposals_record_approved_event
 after insert or update of status on public.session_action_proposals
 for each row execute function private.record_approved_action_proposal();
+
+create function private.respond_reaction_prompt(requested_prompt_id bigint, should_accept boolean)
+returns public.session_reaction_prompts
+language plpgsql security definer set search_path = '' as $$
+declare target public.session_reaction_prompts;
+begin
+  if (select auth.uid()) is null then raise exception 'Authentication is required.' using errcode = '42501'; end if;
+  select * into target from public.session_reaction_prompts where id = requested_prompt_id for update;
+  if target.id is null or target.target_user_id <> (select auth.uid()) then raise exception 'Reaction prompt is unavailable.' using errcode = '42501'; end if;
+  if target.status <> 'pending' or target.expires_at <= now() then raise exception 'Reaction prompt has expired or was already answered.' using errcode = 'P0001'; end if;
+  update public.session_reaction_prompts set status = case when should_accept then 'accepted' else 'declined' end, responded_at = now() where id = target.id returning * into target;
+  insert into public.session_events (session_id, campaign_id, actor_id, character_id, kind, visibility, title, body, metadata)
+  values (target.session_id, target.campaign_id, target.target_user_id, target.character_id, 'action', 'party', case when should_accept then 'Reaction accepted' else 'Reaction declined' end, target.prompt, jsonb_build_object('reaction_prompt_id', target.id, 'accepted', should_accept));
+  return target;
+end; $$;
+create function public.respond_reaction_prompt(prompt_id bigint, should_accept boolean)
+returns public.session_reaction_prompts language sql security invoker set search_path = '' as $$ select private.respond_reaction_prompt(prompt_id, should_accept); $$;
+revoke execute on function private.respond_reaction_prompt(bigint, boolean) from public, anon;
+revoke execute on function public.respond_reaction_prompt(bigint, boolean) from public, anon;
+grant execute on function private.respond_reaction_prompt(bigint, boolean) to authenticated;
+grant execute on function public.respond_reaction_prompt(bigint, boolean) to authenticated;
 
 create trigger availability_rules_set_updated_at before update on public.availability_rules for each row execute function private.set_updated_at();
 create trigger availability_exceptions_set_updated_at before update on public.availability_exceptions for each row execute function private.set_updated_at();
@@ -1260,6 +1301,7 @@ alter table public.session_attendance enable row level security;
 alter table public.session_encounters enable row level security;
 alter table public.session_initiative_entries enable row level security;
 alter table public.session_action_proposals enable row level security;
+alter table public.session_reaction_prompts enable row level security;
 alter table public.session_events enable row level security;
 alter table public.campaign_announcements enable row level security;
 alter table public.notifications enable row level security;
@@ -1517,6 +1559,8 @@ create policy initiative_entries_delete_allowed on public.session_initiative_ent
 create policy action_proposals_select_members on public.session_action_proposals for select to authenticated using ((select private.is_campaign_member(campaign_id)));
 create policy action_proposals_insert_own on public.session_action_proposals for insert to authenticated with check (created_by = (select auth.uid()) and reviewed_by is null and reviewed_at is null and ((approval_mode = 'soft' and status = 'approved') or (approval_mode = 'hard' and status = 'pending')) and exists (select 1 from public.sessions where id = session_id and sessions.campaign_id = session_action_proposals.campaign_id and sessions.status in ('active', 'paused')) and (character_id is null or exists (select 1 from public.characters where id = character_id and characters.campaign_id = session_action_proposals.campaign_id and characters.owner_id = (select auth.uid()))));
 create policy action_proposals_update_managers on public.session_action_proposals for update to authenticated using ((select private.is_campaign_manager(campaign_id))) with check ((select private.is_campaign_manager(campaign_id)));
+create policy reaction_prompts_select_allowed on public.session_reaction_prompts for select to authenticated using (target_user_id = (select auth.uid()) or (select private.is_campaign_manager(campaign_id)));
+create policy reaction_prompts_insert_managers on public.session_reaction_prompts for insert to authenticated with check (created_by = (select auth.uid()) and (select private.is_campaign_manager(campaign_id)) and status = 'pending' and responded_at is null and exists (select 1 from public.sessions where id = session_id and sessions.campaign_id = session_reaction_prompts.campaign_id and sessions.status = 'active') and exists (select 1 from public.characters where id = character_id and characters.campaign_id = session_reaction_prompts.campaign_id and characters.owner_id = target_user_id));
 
 create policy session_events_select_allowed on public.session_events for select to authenticated
 using ((select private.is_campaign_member(campaign_id)) and (visibility = 'party' or (select private.is_campaign_manager(campaign_id))));
@@ -1663,6 +1707,7 @@ grant select, insert, update, delete on table public.character_inventory_items t
 grant select, insert, update, delete on table public.availability_rules, public.availability_exceptions, public.sessions, public.session_attendance to authenticated;
 grant select, insert, update, delete on table public.session_encounters, public.session_initiative_entries to authenticated;
 grant select, insert, update on table public.session_action_proposals to authenticated;
+grant select, insert on table public.session_reaction_prompts to authenticated;
 grant select, insert on table public.session_events to authenticated;
 grant select, insert, update, delete on table public.campaign_announcements to authenticated;
 grant select, update, delete on table public.notifications to authenticated;
@@ -1686,6 +1731,7 @@ grant usage, select on sequence public.availability_rules_id_seq, public.availab
 grant usage, select on sequence public.session_events_id_seq to authenticated;
 grant usage, select on sequence public.session_initiative_entries_id_seq to authenticated;
 grant usage, select on sequence public.session_action_proposals_id_seq to authenticated;
+grant usage, select on sequence public.session_reaction_prompts_id_seq to authenticated;
 grant usage, select on sequence public.campaign_announcements_id_seq to authenticated;
 
 do $$

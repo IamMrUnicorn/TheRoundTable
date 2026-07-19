@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 
 import { supabase } from '../../lib/supabase'
 import { ActionProposalPanel } from '../actions/ActionProposalPanel'
+import { ReactionPromptPanel } from '../actions/ReactionPromptPanel'
 import { CombatHealthPanel } from '../combat/CombatHealthPanel'
 import { CombatStatusPanel } from '../combat/CombatStatusPanel'
 import { InitiativePanel } from '../combat/InitiativePanel'
@@ -277,6 +278,13 @@ export function SessionEventPanel({
             sessionId={sessionId}
           />
           <ActionProposalPanel
+            actorId={actorId}
+            campaignId={campaignId}
+            characters={characters}
+            isManager={isManager}
+            sessionId={sessionId}
+          />
+          <ReactionPromptPanel
             actorId={actorId}
             campaignId={campaignId}
             characters={characters}

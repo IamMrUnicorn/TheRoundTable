@@ -1414,6 +1414,48 @@ export type Database = {
         }
         Relationships: []
       }
+      session_reaction_prompts: {
+        Row: {
+          campaign_id: number
+          character_id: number
+          created_at: string
+          created_by: string
+          expires_at: string
+          id: number
+          prompt: string
+          responded_at: string | null
+          session_id: number
+          status: string
+          target_user_id: string
+        }
+        Insert: {
+          campaign_id: number
+          character_id: number
+          created_at?: string
+          created_by: string
+          expires_at: string
+          id?: never
+          prompt: string
+          responded_at?: string | null
+          session_id: number
+          status?: string
+          target_user_id: string
+        }
+        Update: {
+          campaign_id?: number
+          character_id?: number
+          created_at?: string
+          created_by?: string
+          expires_at?: string
+          id?: never
+          prompt?: string
+          responded_at?: string | null
+          session_id?: number
+          status?: string
+          target_user_id?: string
+        }
+        Relationships: []
+      }
       session_initiative_entries: {
         Row: {
           action_used: boolean
@@ -1674,6 +1716,10 @@ export type Database = {
       respond_campaign_invitation: {
         Args: { invitation_token: string; should_accept: boolean }
         Returns: number
+      }
+      respond_reaction_prompt: {
+        Args: { prompt_id: number; should_accept: boolean }
+        Returns: Database['public']['Tables']['session_reaction_prompts']['Row']
       }
       transfer_campaign_ownership: {
         Args: { campaign_id: number; new_owner_id: string }

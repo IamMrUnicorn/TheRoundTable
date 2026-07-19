@@ -559,6 +559,18 @@ assert.deepEqual(approvedActionEvents, [{ title: 'Swing from the chandelier', bo
 await request(`/rest/v1/session_action_proposals?id=eq.${hardActionRows[0].id}`, { token: owner.token, method: 'PATCH', body: { reviewer_note: 'Edited without status transition.' } })
 const { data: deduplicatedActionEvents } = await request(`/rest/v1/session_events?metadata->>action_proposal_id=eq.${hardActionRows[0].id}&select=id`, { token: owner.token })
 assert.equal(deduplicatedActionEvents.length, 1)
+const reactionExpiresAt = new Date(Date.now() + 60_000).toISOString()
+const { data: reactionRows, response: reactionResponse } = await request('/rest/v1/session_reaction_prompts', { token: outsider.token, method: 'POST', body: { session_id: sessionId, campaign_id: campaignId, character_id: characterId, target_user_id: owner.id, created_by: outsider.id, prompt: 'Use Shield against the incoming attack?', expires_at: reactionExpiresAt } })
+assert.equal(reactionResponse.status, 201)
+const { data: hiddenReactionRows } = await request(`/rest/v1/session_reaction_prompts?id=eq.${reactionRows[0].id}&select=id`, { token: invitee.token })
+assert.deepEqual(hiddenReactionRows, [])
+const { response: forgedReactionResponse } = await request('/rest/v1/rpc/respond_reaction_prompt', { token: invitee.token, method: 'POST', body: { prompt_id: reactionRows[0].id, should_accept: true } })
+assert.equal(forgedReactionResponse.status, 403)
+const { data: acceptedReaction, response: acceptedReactionResponse } = await request('/rest/v1/rpc/respond_reaction_prompt', { token: owner.token, method: 'POST', body: { prompt_id: reactionRows[0].id, should_accept: true } })
+assert.equal(acceptedReactionResponse.status, 200)
+assert.equal(acceptedReaction.status, 'accepted')
+const { data: reactionEvents } = await request(`/rest/v1/session_events?metadata->>reaction_prompt_id=eq.${reactionRows[0].id}&select=title,body`, { token: owner.token })
+assert.deepEqual(reactionEvents, [{ title: 'Reaction accepted', body: 'Use Shield against the incoming attack?' }])
 const { response: encounterResponse } = await request('/rest/v1/session_encounters', {
   token: outsider.token,
   method: 'POST',

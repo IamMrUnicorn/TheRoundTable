@@ -154,7 +154,7 @@ This is the source-of-truth checklist for the entire application. Completed work
 - [ ] Encounters, initiative ordering, rounds, turns, and active-turn controls. *(Persistent character initiative, ordered turns, round advancement, active-turn highlighting, and GM clearing complete; monsters and multi-encounter workflows pending.)*
 - [x] Persistent action, bonus action, movement, object interaction, and reaction tracking with owner/GM controls and turn resets.
 - [x] Player action proposals and Game Master approve/deny/edit/clarify flow with exactly-once projection into the structured session log.
-- [ ] Reaction prompts with accept/decline and expiration.
+- [x] Targeted reaction prompts with accept/decline, countdown expiration, restricted visibility, and structured event history.
 - [ ] HP, temporary HP, healing, damage, death saves, concentration, and conditions. *(HP/temp-HP, damage, healing, death-save counters, conditions, and concentration state/history complete; duration/source automation and concentration checks remain.)*
 - [ ] Character, spell, inventory, monster, and action overlays.
 - [ ] Complete Phase 3 theater-of-the-mind milestone described in `ROADMAP.md`.
