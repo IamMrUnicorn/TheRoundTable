@@ -146,7 +146,7 @@ This is the source-of-truth checklist for the entire application. Completed work
 ## 10. Live session and play screen
 
 - [x] Waiting room, readiness roster, start/pause/resume/end lifecycle, and one active or paused session per campaign.
-- [ ] Realtime presence, connection state, refresh recovery, and session timer. *(Persisted readiness and five-second lobby/session refresh, realtime event delivery, and visible connection state complete; join/leave presence, recovery UX, and timer remain.)*
+- [x] Realtime join/leave presence, connection state, refresh recovery, persisted readiness, and a starts-in/elapsed session timer.
 - [ ] Modular/resizable notebook, central stage, party rail, action bar, drawers, and overlays.
 - [ ] Persistent structured event log, chat, speech, mentions, and filters. *(Append-only structured capture, GM-only visibility, character-memory projection, realtime delivery, search, and type/participant filters complete; chat and mentions remain.)*
 - [ ] Dice formulas, private rolls, checks, saves, attacks, damage, and initiative. *(Safe formulas, advantage/disadvantage, private GM rolls, manual results, and immutable log recording complete; character shortcuts, criticals, damage application, and initiative remain.)*

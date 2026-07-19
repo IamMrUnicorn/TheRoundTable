@@ -170,6 +170,64 @@
   text-align: center;
   font-weight: 800;
 }
+.session-presence-bar {
+  display: grid;
+  max-width: 92rem;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1rem;
+  margin: 0 auto 1rem;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 0.8rem;
+  background: var(--surface);
+  text-align: left;
+}
+.session-lobby-card .session-presence-bar {
+  margin-block: 1rem;
+}
+.presence-connection,
+.session-clock,
+.presence-members,
+.presence-members span {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+.presence-connection,
+.session-clock {
+  color: var(--muted);
+  white-space: nowrap;
+}
+.presence-connection svg,
+.session-clock svg {
+  width: 1rem;
+}
+.presence-connection.live {
+  color: #8fd289;
+}
+.presence-members {
+  gap: 0.55rem;
+  overflow-x: auto;
+}
+.presence-members span {
+  flex: 0 0 auto;
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+.presence-members span.online {
+  color: var(--text);
+}
+.presence-members svg {
+  width: 0.55rem;
+  color: #68736f;
+}
+.presence-members span.online svg {
+  color: #64b85b;
+}
+.session-clock strong {
+  font-variant-numeric: tabular-nums;
+}
 
 @media (max-width: 760px) {
   .global-app-nav {
@@ -196,6 +254,9 @@
   .session-route-heading {
     align-items: flex-start;
     flex-direction: column;
+  }
+  .session-presence-bar {
+    grid-template-columns: 1fr;
   }
 }
 

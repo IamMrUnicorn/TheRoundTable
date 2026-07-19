@@ -8,6 +8,9 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 
 ### Added
 
+- Added Supabase Realtime Presence to waiting rooms and active play screens with join/leave synchronization, connected-member ordering, connection-health feedback, and safe channel cleanup on navigation.
+- Added a responsive session clock that counts down before the scheduled start and displays elapsed play time afterward, including paused-state context.
+- Added refresh/reconnect recovery through persistent session routing, five-second lifecycle refresh, and automatic presence re-tracking after channel subscription.
 - Added persisted per-player session readiness with a complete lobby roster, self-service ready/not-ready controls, five-second cross-browser refresh, and RLS protection against changing another member's state.
 - Added Game Master pause and resume controls, a visible paused-session banner, and current-session discovery that treats paused play as an ongoing session.
 - Extended the one-current-session database constraint across both active and paused sessions and added integration coverage for lifecycle transitions and readiness authorization.

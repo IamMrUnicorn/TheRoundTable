@@ -12,6 +12,7 @@ import {
   updateSession,
 } from '../features/scheduling/scheduling'
 import { SessionEventPanel } from '../features/sessions/SessionEventPanel'
+import { SessionPresenceBar } from '../features/sessions/SessionPresenceBar'
 
 export function SessionPage() {
   const params = useParams()
@@ -85,6 +86,14 @@ export function SessionPage() {
     membership?.role === 'game_master'
   const isActive = ['active', 'paused'].includes(session.data.status)
   const begins = new Date(session.data.starts_at)
+  const presenceMembers = campaign.data.campaign_members
+    .filter((member) => member.status === 'active')
+    .map((member) => ({
+      displayName: member.profiles?.display_name ?? 'Party member',
+      userId: member.user_id,
+    }))
+  const displayName =
+    membership?.profiles?.display_name ?? identity?.email ?? 'Party member'
 
   if (isActive)
     return (
@@ -98,6 +107,14 @@ export function SessionPage() {
             Campaign home
           </Link>
         </section>
+        <SessionPresenceBar
+          displayName={displayName}
+          members={presenceMembers}
+          sessionId={sessionId}
+          startsAt={session.data.starts_at}
+          status={session.data.status}
+          userId={identity!.id}
+        />
         {session.data.status === 'paused' && (
           <div className="session-paused-banner">
             Session paused by the Game Master
@@ -129,6 +146,14 @@ export function SessionPage() {
           </span>
           <span>{session.data.status}</span>
         </div>
+        <SessionPresenceBar
+          displayName={displayName}
+          members={presenceMembers}
+          sessionId={sessionId}
+          startsAt={session.data.starts_at}
+          status={session.data.status}
+          userId={identity!.id}
+        />
         {session.data.agenda && (
           <div className="lobby-agenda">
             <strong>Session agenda</strong>
