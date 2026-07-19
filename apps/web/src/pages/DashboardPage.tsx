@@ -2,7 +2,6 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   ArrowRight,
   CalendarClock,
-  Dices,
   KeyRound,
   Plus,
   Shield,
@@ -12,6 +11,7 @@ import {
 } from 'lucide-react'
 import { type FormEvent, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { BrandLogo } from '../components/BrandLogo'
 
 import {
   createCampaign,
@@ -146,7 +146,7 @@ export function DashboardPage() {
     <main className="dashboard-page">
       <header className="app-header">
         <Link to="/" className="brand-mark">
-          <Dices aria-hidden="true" />
+          <BrandLogo />
           <span>The Round Table</span>
         </Link>
         <div className="heading-actions">

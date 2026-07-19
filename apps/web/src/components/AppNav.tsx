@@ -1,10 +1,11 @@
 import { useQuery } from '@tanstack/react-query'
-import { CalendarDays, Dices, Shield, UserRound, Users } from 'lucide-react'
+import { CalendarDays, Shield, UserRound, Users } from 'lucide-react'
 import { Link, NavLink } from 'react-router-dom'
 
 import { useAuth } from '../features/auth/auth-context'
 import { listCampaigns } from '../features/campaigns/campaigns'
 import { listUpcomingSessions } from '../features/scheduling/scheduling'
+import { BrandLogo } from './BrandLogo'
 
 const eighteenHours = 18 * 60 * 60 * 1000
 
@@ -65,7 +66,7 @@ export function AppNav() {
         className="brand-mark"
         aria-label="The Round Table home"
       >
-        <Dices aria-hidden="true" />
+        <BrandLogo />
         <span>The Round Table</span>
       </Link>
       <nav aria-label="Primary navigation">

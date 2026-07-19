@@ -8,6 +8,7 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 
 ### Added
 
+- Added the supplied black-and-gold owl artwork as The Round Table's shared navigation, sign-in, loading, Apple touch, and browser-tab branding, with transparent optimized size variants and the browser title `TheRoundTable`.
 - Added persistent session initiative with Dexterity-aware d20 rolls, manual initiative entry, shared descending turn order, active-turn highlighting, automatic round advancement, and manager reset controls.
 - Added owner-aware initiative authorization: players can submit or revise only their own characters while Game Masters can manage the entire party and active encounter state.
 - Added indexed encounter/initiative tables, explicit Data API grants, updated timestamps, hosted deployment, and multi-user RLS tests covering shared visibility and forged-roll rejection.

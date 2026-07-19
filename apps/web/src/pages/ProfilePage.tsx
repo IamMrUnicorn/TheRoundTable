@@ -1,7 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ArrowLeft, Dices } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import { type FormEvent, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { BrandLogo } from '../components/BrandLogo'
 
 import { useAuth } from '../features/auth/auth-context'
 import { getOwnProfile, updateOwnProfile } from '../features/profiles/profiles'
@@ -34,7 +35,7 @@ export function ProfilePage() {
     <main className="dashboard-page">
       <header className="app-header">
         <Link to="/" className="brand-mark">
-          <Dices />
+          <BrandLogo />
           <span>The Round Table</span>
         </Link>
         <Link className="text-link" to="/">

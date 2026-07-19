@@ -1,7 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ArrowLeft, Dices, Heart, Shield, Sparkles } from 'lucide-react'
+import { ArrowLeft, Heart, Shield, Sparkles } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link, Navigate, useParams } from 'react-router-dom'
+import { BrandLogo } from '../components/BrandLogo'
 
 import { useAuth } from '../features/auth/auth-context'
 import { CharacterFeaturesPanel } from '../features/characters/CharacterFeaturesPanel'
@@ -303,7 +304,7 @@ export function CharacterPage() {
     <main className="dashboard-page">
       <header className="app-header">
         <Link to="/" className="brand-mark">
-          <Dices />
+          <BrandLogo />
           <span>The Round Table</span>
         </Link>
         <Link className="text-link" to="/">

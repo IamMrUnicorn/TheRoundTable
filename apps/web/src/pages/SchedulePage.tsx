@@ -1,7 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ArrowLeft, CalendarDays, Dices, Plus, Trash2 } from 'lucide-react'
+import { ArrowLeft, CalendarDays, Plus, Trash2 } from 'lucide-react'
 import { type FormEvent, useState } from 'react'
 import { Link, Navigate, useParams } from 'react-router-dom'
+import { BrandLogo } from '../components/BrandLogo'
 
 import { useAuth } from '../features/auth/auth-context'
 import { getCampaign } from '../features/campaigns/campaigns'
@@ -212,7 +213,7 @@ export function SchedulePage() {
     <main className="dashboard-page">
       <header className="app-header">
         <Link to="/" className="brand-mark">
-          <Dices />
+          <BrandLogo />
           <span>The Round Table</span>
         </Link>
         <Link className="text-link" to={`/campaigns/${campaignId}`}>

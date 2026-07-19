@@ -1,7 +1,8 @@
 import { type FormEvent, useState } from 'react'
-import { ArrowRight, Dices, Mail } from 'lucide-react'
+import { ArrowRight, Mail } from 'lucide-react'
 
 import { supabase } from '../lib/supabase'
+import { BrandLogo } from '../components/BrandLogo'
 
 export function SignInPage() {
   const [email, setEmail] = useState('')
@@ -36,7 +37,7 @@ export function SignInPage() {
     <main className="auth-page">
       <section className="auth-story" aria-labelledby="welcome-title">
         <div className="brand-mark">
-          <Dices aria-hidden="true" />
+          <BrandLogo />
           <span>The Round Table</span>
         </div>
         <div>

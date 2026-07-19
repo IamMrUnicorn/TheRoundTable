@@ -13,6 +13,7 @@ import { CharactersPage } from './pages/CharactersPage'
 import { CalendarHubPage } from './pages/CalendarHubPage'
 import { SessionPage } from './pages/SessionPage'
 import { AppNav } from './components/AppNav'
+import { BrandLogo } from './components/BrandLogo'
 import './App.css'
 
 const queryClient = new QueryClient({
@@ -30,7 +31,9 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   if (isLoading) {
     return (
       <main className="loading-screen" aria-live="polite">
-        <div className="loading-mark">RT</div>
+        <div className="loading-mark">
+          <BrandLogo />
+        </div>
         <p>Preparing your seat at the table…</p>
       </main>
     )

@@ -4,13 +4,13 @@ import {
   CalendarDays,
   Clock3,
   Copy,
-  Dices,
   History,
   Shield,
   Users,
 } from 'lucide-react'
 import { type FormEvent, useEffect, useState } from 'react'
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
+import { BrandLogo } from '../components/BrandLogo'
 
 import { useAuth } from '../features/auth/auth-context'
 import { CampaignActivityPanel } from '../features/activity/CampaignActivityPanel'
@@ -204,7 +204,7 @@ export function CampaignPage() {
     <main className="dashboard-page">
       <header className="app-header">
         <Link to="/" className="brand-mark">
-          <Dices aria-hidden="true" />
+          <BrandLogo />
           <span>The Round Table</span>
         </Link>
         <Link className="text-link" to="/">
