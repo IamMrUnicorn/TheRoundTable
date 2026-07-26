@@ -72,10 +72,10 @@ This roadmap translates the play-screen sketch and the proven V5 foundations int
 
 ### Modular play-screen layout
 
-- [ ] Resizable/collapsible left notebook panel.
-- [ ] Central stage with switchable scene, map, camera, and expanded log modes.
-- [ ] Party/initiative rail on the right. *(Compact always-visible party HP rail plus persistent initiative order/active turn complete; right-side desktop positioning pending.)*
-- [ ] Bottom action bar.
+- [ ] Resizable/collapsible left notebook panel. *(The notebook now occupies its intended desktop region with the shared whiteboard explicitly reserved as WIP; resizing and real notebook pages remain.)*
+- [ ] Central stage with switchable scene, map, camera, and expanded log modes. *(Working action, combat, and log modes now occupy the central stage; maps, camera, and focus expansion remain.)*
+- [x] Party/initiative rail on the right. *(The desktop rail now shows character identity, level, ancestry, class, AC, speed, HP, temporary HP, conditions, concentration, and direct sheet access.)*
+- [ ] Bottom action bar. *(Working dice, resolved attacks, proposals, reactions, and action economy are grouped in the central action workspace; the compact sketch-style bar and drawers remain.)*
 - [ ] Slide-over character sheet.
 - [ ] Modal/drawer system for spells, inventory, monsters, and actions.
 - [ ] Persist each user’s panel sizes and visibility preferences. *(Selected live workspace persists per browser; panel sizes/visibility pending.)*

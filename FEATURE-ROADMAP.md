@@ -157,7 +157,7 @@ This is the source-of-truth checklist for the entire application. Completed work
 
 - [x] Waiting room, readiness roster, start/pause/resume/end lifecycle, and one active or paused session per campaign.
 - [x] Realtime join/leave presence, connection state, refresh recovery, persisted readiness, and a starts-in/elapsed session timer.
-- [ ] Modular/resizable notebook, central stage, party rail, action bar, drawers, and overlays. *(Focused live-tool workspaces and persistent compact party rail complete; notebook/stage/action bar/drawers/resizing pending.)*
+- [ ] Modular/resizable notebook, central stage, party rail, action bar, drawers, and overlays. *(The sketch-driven desktop shell, Dexterity/initiative strip, WIP notebook and media regions, central tool stage, and character-rich party rail are complete; resizing, compact action bar, drawers, and overlays remain.)*
 - [ ] Persistent structured event log, chat, speech, mentions, and filters. *(Append-only structured capture, GM-only visibility, character-memory projection, realtime delivery, search, and type/participant filters complete; chat and mentions remain.)*
 - [x] Dice formulas, private rolls, checks, saves, attacks, damage, and initiative. *(Includes character-aware proficiency/expertise shortcuts, advantage/disadvantage with modifiers, critical damage dice, authoritative target HP updates, private GM rolls, manual results, and immutable logs.)*
 - [x] Encounters, initiative ordering, rounds, turns, and active-turn controls.

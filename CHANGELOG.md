@@ -28,6 +28,11 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 
 ### Added
 
+- Began the sketch-driven live-play transformation with a responsive tabletop shell that assigns dedicated regions to the turn strip, notebook, central action/combat/log workspace, party rail, and media player.
+- Added a persistent realtime turn-order strip that ranks campaign characters by Dexterity before combat, switches to rolled initiative after an encounter begins, and highlights the authoritative active turn and round for every connected player.
+- Expanded live party cards with level, ancestry, class, armor class, speed, current/maximum/temporary HP, conditions, concentration, health meters, and direct full-sheet navigation.
+- Added clearly labeled WIP notebook/whiteboard and synchronized-media regions so their intended placement can be evaluated without presenting unfinished controls as functional.
+- Added desktop, intermediate, and mobile table layouts that preserve every existing live-play tool while moving the working cards into their intended areas.
 - Added character-aware ability-check, saving-throw, and skill shortcuts to live play, including automatic ability modifiers, level-based proficiency bonuses, expertise, natural-roll metadata, and editable generated formulas.
 - Added advantage and disadvantage support for d20 formulas with modifiers while preserving both candidate rolls, the kept natural result, and the final modified total.
 - Added a resolved-attack workspace for owned characters and Game Masters with target selection, attack bonuses, normal/advantage/disadvantage modes, damage formulas, automatic natural-1 misses, natural-20 hits, and doubled critical damage dice.
