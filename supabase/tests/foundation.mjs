@@ -586,11 +586,45 @@ assert.deepEqual(reactionEvents, [{ title: 'Reaction accepted', body: 'Use Shiel
 const { response: encounterResponse } = await request('/rest/v1/session_encounters', {
   token: outsider.token,
   method: 'POST',
-  body: { session_id: sessionId, campaign_id: campaignId, active_character_id: characterId, round_number: 1 },
+  body: { session_id: sessionId, campaign_id: campaignId, name: 'The flooded archive', active_character_id: characterId, active_entry_id: initiativeRows[0].id, round_number: 1 },
 })
 assert.equal(encounterResponse.status, 201)
-const { data: visibleInitiative } = await request(`/rest/v1/session_initiative_entries?session_id=eq.${sessionId}&select=character_id,initiative`, { token: invitee.token })
-assert.deepEqual(visibleInitiative, [{ character_id: characterId, initiative: 17 }])
+const { data: publicCombatantRows, response: publicCombatantResponse } = await request('/rest/v1/session_initiative_entries', {
+  token: owner.token,
+  method: 'POST',
+  body: { session_id: sessionId, campaign_id: campaignId, character_id: null, combatant_name: 'Drowned sentinel', combatant_kind: 'monster', initiative: 13, armor_class: 15, current_hp: 22, max_hp: 22, temporary_hp: 0, created_by: owner.id },
+})
+assert.equal(publicCombatantResponse.status, 201)
+const { response: hiddenCombatantResponse } = await request('/rest/v1/session_initiative_entries', {
+  token: owner.token,
+  method: 'POST',
+  body: { session_id: sessionId, campaign_id: campaignId, character_id: null, combatant_name: 'Unseen stalker', combatant_kind: 'monster', initiative: 19, armor_class: 14, current_hp: 30, max_hp: 30, temporary_hp: 0, is_hidden: true, created_by: owner.id },
+})
+assert.equal(hiddenCombatantResponse.status, 201)
+const { data: visibleInitiative } = await request(`/rest/v1/session_initiative_entries?session_id=eq.${sessionId}&select=character_id,combatant_name,initiative&order=initiative.desc`, { token: invitee.token })
+assert.deepEqual(visibleInitiative, [
+  { character_id: characterId, combatant_name: '', initiative: 17 },
+  { character_id: null, combatant_name: 'Drowned sentinel', initiative: 13 },
+])
+const { response: forbiddenCustomCombatantResponse } = await request('/rest/v1/session_initiative_entries', {
+  token: invitee.token,
+  method: 'POST',
+  body: { session_id: sessionId, campaign_id: campaignId, character_id: null, combatant_name: 'Forged dragon', combatant_kind: 'monster', initiative: 200, armor_class: 99, current_hp: 999, max_hp: 999, temporary_hp: 0, created_by: invitee.id },
+})
+assert.equal(forbiddenCustomCombatantResponse.status, 403)
+const { data: forbiddenCombatantUpdate, response: forbiddenCombatantUpdateResponse } = await request(`/rest/v1/session_initiative_entries?id=eq.${publicCombatantRows[0].id}`, {
+  token: invitee.token,
+  method: 'PATCH',
+  body: { current_hp: 0, is_hidden: true },
+})
+assert.equal(forbiddenCombatantUpdateResponse.status, 200)
+assert.deepEqual(forbiddenCombatantUpdate, [])
+const { response: advanceEncounterResponse } = await request(`/rest/v1/session_encounters?session_id=eq.${sessionId}`, {
+  token: outsider.token,
+  method: 'PATCH',
+  body: { active_character_id: null, active_entry_id: publicCombatantRows[0].id, round_number: 2 },
+})
+assert.equal(advanceEncounterResponse.status, 200)
 const secondStart = new Date(start.getTime() + 7 * 86_400_000)
 const secondEnd = new Date(secondStart.getTime() + 3 * 60 * 60 * 1000)
 const { response: duplicateActiveSessionResponse } = await request('/rest/v1/sessions', {

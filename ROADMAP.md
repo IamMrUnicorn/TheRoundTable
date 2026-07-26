@@ -106,11 +106,11 @@ This roadmap translates the play-screen sketch and the proven V5 foundations int
 
 ### Initiative and turns
 
-- [ ] Start/end encounters within a session.
-- [ ] Add party characters, monsters, NPCs, and custom combatants. *(Party characters complete; non-character combatants pending.)*
+- [x] Start/end named encounters within a session with lifecycle events retained in the session log.
+- [x] Add party characters, monsters, NPCs, and custom combatants.
 - [ ] Initiative rolls, manual ordering, ties, and reorder controls. *(Dexterity-aware rolls, manual values, and deterministic tie ordering complete; drag/reorder pending.)*
-- [ ] Active-turn indicator, round counter, and next-turn preview. *(Active turn and round counter complete; explicit next-turn preview pending.)*
-- [ ] Game Master advance/rewind/skip controls. *(Forward advancement and clear/reset complete; rewind/skip pending.)*
+- [x] Active-turn indicator, round counter, and next-turn preview.
+- [x] Game Master advance, rewind, and direct turn-jump controls.
 - [x] Track action, bonus action, movement, object interaction, and reaction availability.
 - [x] Reset action economy correctly at turn boundaries.
 - [ ] Delay, ready, dodge, disengage, dash, help, hide, and hold-action flows.
@@ -132,7 +132,7 @@ This roadmap translates the play-screen sketch and the proven V5 foundations int
 - [ ] Conditions with source and optional duration. *(Atomic add/remove controls and history complete; structured source and duration remain.)*
 - [ ] Concentration tracking and checks. *(Concentration source tracking and start/end history complete; automatic damage checks remain.)*
 - [ ] Armor class, speed, senses, and status display in party cards.
-- [ ] Hidden/unknown values for creatures where appropriate.
+- [x] Hidden Game Master combatants and player-safe hidden-turn indicators.
 - [ ] Defeated, unconscious, stabilized, dead, and removed states.
 
 **Phase 3 exit:** a party can run a complete theater-of-the-mind combat encounter with turns, rolls, actions, reactions, approvals, HP, and conditions.

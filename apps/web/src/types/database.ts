@@ -1412,26 +1412,41 @@ export type Database = {
       session_encounters: {
         Row: {
           active_character_id: number | null
+          active_entry_id: number | null
           campaign_id: number
           created_at: string
+          ended_at: string | null
+          name: string
           round_number: number
           session_id: number
+          started_at: string
+          status: string
           updated_at: string
         }
         Insert: {
           active_character_id?: number | null
+          active_entry_id?: number | null
           campaign_id: number
           created_at?: string
+          ended_at?: string | null
+          name?: string
           round_number?: number
           session_id: number
+          started_at?: string
+          status?: string
           updated_at?: string
         }
         Update: {
           active_character_id?: number | null
+          active_entry_id?: number | null
           campaign_id?: number
           created_at?: string
+          ended_at?: string | null
+          name?: string
           round_number?: number
           session_id?: number
+          started_at?: string
+          status?: string
           updated_at?: string
         }
         Relationships: []
@@ -1535,47 +1550,68 @@ export type Database = {
       session_initiative_entries: {
         Row: {
           action_used: boolean
+          armor_class: number | null
           bonus_action_used: boolean
           campaign_id: number
-          character_id: number
+          character_id: number | null
+          combatant_kind: string
+          combatant_name: string
           created_at: string
           created_by: string
+          current_hp: number | null
           id: number
           initiative: number
+          is_hidden: boolean
+          max_hp: number | null
           movement_used: number
           object_interaction_used: boolean
           reaction_used: boolean
           session_id: number
+          temporary_hp: number | null
           updated_at: string
         }
         Insert: {
           action_used?: boolean
+          armor_class?: number | null
           bonus_action_used?: boolean
           campaign_id: number
-          character_id: number
+          character_id?: number | null
+          combatant_kind?: string
+          combatant_name?: string
           created_at?: string
           created_by: string
+          current_hp?: number | null
           id?: never
           initiative: number
+          is_hidden?: boolean
+          max_hp?: number | null
           movement_used?: number
           object_interaction_used?: boolean
           reaction_used?: boolean
           session_id: number
+          temporary_hp?: number | null
           updated_at?: string
         }
         Update: {
           action_used?: boolean
+          armor_class?: number | null
           bonus_action_used?: boolean
           campaign_id?: number
-          character_id?: number
+          character_id?: number | null
+          combatant_kind?: string
+          combatant_name?: string
           created_at?: string
           created_by?: string
+          current_hp?: number | null
           id?: never
           initiative?: number
+          is_hidden?: boolean
+          max_hp?: number | null
           movement_used?: number
           object_interaction_used?: boolean
           reaction_used?: boolean
           session_id?: number
+          temporary_hp?: number | null
           updated_at?: string
         }
         Relationships: []

@@ -2764,6 +2764,36 @@ button:disabled {
 .initiative-panel p {
   margin: 0;
 }
+.encounter-launcher {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+}
+.encounter-launcher form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+.encounter-launcher input,
+.custom-combatant-form input,
+.custom-combatant-form select,
+.custom-combatant-vitals input {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  padding: 0.55rem;
+  background: #101816;
+  color: var(--ink);
+}
+.next-turn-preview {
+  color: var(--muted);
+}
+.hidden-turn-notice {
+  padding: 0.65rem 0.8rem;
+  border: 1px dashed rgb(212 164 92 / 35%);
+  border-radius: 0.55rem;
+  color: var(--muted);
+  background: rgb(212 164 92 / 5%);
+}
 .initiative-entry-list {
   display: grid;
   gap: 0.4rem;
@@ -2783,8 +2813,14 @@ button:disabled {
   width: 1.8rem;
   height: 1.8rem;
   place-items: center;
+  border: 1px solid transparent;
   border-radius: 50%;
   background: rgb(255 255 255 / 7%);
+  color: var(--ink);
+  font-weight: 800;
+}
+.initiative-position:not(:disabled):hover {
+  border-color: var(--gold);
 }
 .initiative-name {
   flex: 1;
@@ -2869,6 +2905,57 @@ button:disabled {
 .initiative-roll-list button {
   min-height: 2.2rem;
   padding: 0.4rem 0.6rem;
+}
+.custom-combatant-vitals {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+.custom-combatant-vitals label {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.custom-combatant-vitals input {
+  width: 4.5rem;
+  padding: 0.35rem;
+}
+.custom-combatant-vitals .icon-button {
+  min-height: 2rem;
+  padding: 0.35rem 0.5rem;
+}
+.custom-combatant-form {
+  display: grid;
+  grid-template-columns:
+    minmax(11rem, 1.3fr) repeat(5, minmax(5.5rem, 0.65fr))
+    auto;
+  align-items: end;
+  gap: 0.55rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid var(--line);
+}
+.custom-combatant-form h4 {
+  margin: 0.2rem 0 0;
+}
+.custom-combatant-form .checkbox-label {
+  display: flex;
+  min-height: 2.65rem;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+.custom-combatant-form .checkbox-label input {
+  width: auto;
+}
+@media (max-width: 1000px) {
+  .encounter-launcher,
+  .custom-combatant-form {
+    grid-template-columns: 1fr;
+  }
 }
 .combat-health-panel > header,
 .combat-health-panel article > header,

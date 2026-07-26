@@ -28,6 +28,10 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 
 ### Added
 
+- Added named live-encounter lifecycle controls so Game Masters can start and end encounters, retain round totals, and automatically record durable start/end summaries in the session event log.
+- Added monsters, NPCs, and custom initiative combatants with initiative, armor class, hit points, kind, party-visible or GM-hidden state, direct removal, and responsive creation controls.
+- Added next-turn previews, previous/next navigation, direct Game Master turn jumps, correct round wrap/rewind behavior, hidden-turn messaging for players, and realtime initiative/encounter refresh with polling fallback.
+- Extended initiative constraints and Row Level Security so players can still manage only their own character turns while custom and hidden combatants remain manager-controlled; added multi-user tests for visibility, creation, and turn advancement.
 - Added a secure campaign atlas to the Locations & Maps workspace with private PNG, JPEG, and WebP uploads, 20 MB limits, image dimensions, reusable previews, full-screen viewing, descriptions, and optional links to campaign locations.
 - Added party-shared and GM-only map visibility with database and Storage Row Level Security, short-lived signed image URLs, manager-only upload/delete controls, and automatic cleanup when metadata creation fails.
 - Added local/hosted bucket configuration, map metadata indexes and constraints, generated client types, responsive atlas layouts, empty/error states, and multi-user integration coverage proving players cannot upload maps or retrieve GM-only image files.

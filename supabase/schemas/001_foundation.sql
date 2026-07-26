@@ -273,18 +273,31 @@ create table public.session_attendance (
 create table public.session_encounters (
   session_id bigint primary key references public.sessions (id) on delete cascade,
   campaign_id bigint not null references public.campaigns (id) on delete cascade,
+  name text not null default 'Encounter' check (char_length(name) between 1 and 120),
+  status text not null default 'active' check (status in ('active', 'ended')),
   round_number integer not null default 1 check (round_number between 1 and 999999),
   active_character_id bigint references public.characters (id) on delete set null,
+  active_entry_id bigint,
+  started_at timestamptz not null default now(),
+  ended_at timestamptz,
   created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
+  updated_at timestamptz not null default now(),
+  check ((status = 'active' and ended_at is null) or (status = 'ended' and ended_at is not null))
 );
 
 create table public.session_initiative_entries (
   id bigint generated always as identity primary key,
   session_id bigint not null references public.sessions (id) on delete cascade,
   campaign_id bigint not null references public.campaigns (id) on delete cascade,
-  character_id bigint not null references public.characters (id) on delete cascade,
+  character_id bigint references public.characters (id) on delete cascade,
+  combatant_name text not null default '' check (char_length(combatant_name) <= 120),
+  combatant_kind text not null default 'character' check (combatant_kind in ('character', 'monster', 'npc', 'custom')),
   initiative integer not null check (initiative between -100 and 200),
+  armor_class integer check (armor_class between 0 and 99),
+  current_hp integer check (current_hp between 0 and 999999),
+  max_hp integer check (max_hp between 1 and 999999),
+  temporary_hp integer check (temporary_hp between 0 and 999999),
+  is_hidden boolean not null default false,
   action_used boolean not null default false,
   bonus_action_used boolean not null default false,
   reaction_used boolean not null default false,
@@ -293,8 +306,23 @@ create table public.session_initiative_entries (
   created_by uuid not null references public.profiles (id) on delete restrict,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  unique (session_id, character_id)
+  unique (session_id, character_id),
+  unique (session_id, id),
+  check (
+    (character_id is not null and combatant_kind = 'character' and combatant_name = '')
+    or (character_id is null and combatant_kind <> 'character' and char_length(combatant_name) between 1 and 120)
+  ),
+  check (
+    (max_hp is null and current_hp is null and temporary_hp is null)
+    or (max_hp is not null and current_hp is not null and temporary_hp is not null and current_hp <= max_hp)
+  )
 );
+
+alter table public.session_encounters
+  add constraint session_encounters_active_entry_fkey
+  foreign key (session_id, active_entry_id)
+  references public.session_initiative_entries (session_id, id)
+  on delete set null (active_entry_id);
 
 create table public.session_action_proposals (
   id bigint generated always as identity primary key,
@@ -523,6 +551,7 @@ create unique index sessions_one_active_per_campaign_idx on public.sessions (cam
 create index sessions_created_by_idx on public.sessions (created_by);
 create index session_encounters_campaign_id_idx on public.session_encounters (campaign_id);
 create index session_encounters_active_character_id_idx on public.session_encounters (active_character_id);
+create index session_encounters_active_entry_id_idx on public.session_encounters (active_entry_id) where active_entry_id is not null;
 create index session_initiative_entries_campaign_id_idx on public.session_initiative_entries (campaign_id);
 create index session_initiative_entries_character_id_idx on public.session_initiative_entries (character_id);
 create index session_action_proposals_session_created_idx on public.session_action_proposals (session_id, created_at desc);
@@ -1531,9 +1560,38 @@ create policy session_encounters_insert_managers on public.session_encounters fo
 create policy session_encounters_update_managers on public.session_encounters for update to authenticated using ((select private.is_campaign_manager(campaign_id))) with check ((select private.is_campaign_manager(campaign_id)));
 create policy session_encounters_delete_managers on public.session_encounters for delete to authenticated using ((select private.is_campaign_manager(campaign_id)));
 
-create policy initiative_entries_select_members on public.session_initiative_entries for select to authenticated using ((select private.is_campaign_member(campaign_id)));
-create policy initiative_entries_insert_allowed on public.session_initiative_entries for insert to authenticated with check (created_by = (select auth.uid()) and exists (select 1 from public.sessions where id = session_id and sessions.campaign_id = session_initiative_entries.campaign_id) and exists (select 1 from public.characters where id = character_id and characters.campaign_id = session_initiative_entries.campaign_id and (characters.owner_id = (select auth.uid()) or (select private.is_campaign_manager(session_initiative_entries.campaign_id)))));
-create policy initiative_entries_update_allowed on public.session_initiative_entries for update to authenticated using ((select private.is_campaign_manager(campaign_id)) or exists (select 1 from public.characters where id = character_id and owner_id = (select auth.uid()))) with check ((select private.is_campaign_manager(campaign_id)) or exists (select 1 from public.characters where id = character_id and owner_id = (select auth.uid())));
+create policy initiative_entries_select_members on public.session_initiative_entries for select to authenticated
+using ((select private.is_campaign_member(campaign_id)) and (not is_hidden or (select private.is_campaign_manager(campaign_id))));
+create policy initiative_entries_insert_allowed on public.session_initiative_entries for insert to authenticated
+with check (
+  created_by = (select auth.uid())
+  and exists (select 1 from public.sessions where id = session_id and sessions.campaign_id = session_initiative_entries.campaign_id)
+  and (
+    (
+      character_id is not null and combatant_kind = 'character' and combatant_name = '' and not is_hidden
+      and armor_class is null and max_hp is null and current_hp is null and temporary_hp is null
+      and exists (
+        select 1 from public.characters
+        where id = character_id and characters.campaign_id = session_initiative_entries.campaign_id
+          and (characters.owner_id = (select auth.uid()) or (select private.is_campaign_manager(session_initiative_entries.campaign_id)))
+      )
+    )
+    or (
+      character_id is null and combatant_kind <> 'character'
+      and (select private.is_campaign_manager(session_initiative_entries.campaign_id))
+    )
+  )
+);
+create policy initiative_entries_update_allowed on public.session_initiative_entries for update to authenticated
+using ((select private.is_campaign_manager(campaign_id)) or exists (select 1 from public.characters where id = character_id and owner_id = (select auth.uid())))
+with check (
+  (select private.is_campaign_manager(campaign_id))
+  or (
+    character_id is not null and combatant_kind = 'character' and combatant_name = '' and not is_hidden
+    and armor_class is null and max_hp is null and current_hp is null and temporary_hp is null
+    and exists (select 1 from public.characters where id = character_id and owner_id = (select auth.uid()))
+  )
+);
 create policy initiative_entries_delete_allowed on public.session_initiative_entries for delete to authenticated using ((select private.is_campaign_manager(campaign_id)) or exists (select 1 from public.characters where id = character_id and owner_id = (select auth.uid())));
 
 create policy action_proposals_select_members on public.session_action_proposals for select to authenticated using ((select private.is_campaign_member(campaign_id)));
