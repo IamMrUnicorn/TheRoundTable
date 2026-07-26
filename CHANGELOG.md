@@ -28,6 +28,12 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 
 ### Added
 
+- Added structured character weapons to inventory with attack ability, proficiency, damage dice, damage type, range/reach, and optional attack/damage overrides while retaining quantity, equipment, weight, value, and memory history.
+- Added automatic equipped-weapon attacks in live play: selecting a weapon now derives its attack bonus from the character's ability and level proficiency, derives its damage modifier, and fills the existing authoritative attack resolver.
+- Added a persistent responsive bottom action bar with exploration shortcuts and combat-aware action, bonus action, reaction, object interaction, movement, active combatant, and round state.
+- Reduced encounter setup friction by automatically rolling initiative for every current party character when the Game Master starts an encounter while preserving manual rerolls and overrides.
+- Added a ready-to-test equipped silvered shortsword to newly generated sample campaigns.
+- Added database constraints and multi-user integration coverage for structured weapons, party-readable equipment, ownership-restricted updates, and invalid weapon rejection.
 - Began the sketch-driven live-play transformation with a responsive tabletop shell that assigns dedicated regions to the turn strip, notebook, central action/combat/log workspace, party rail, and media player.
 - Added a persistent realtime turn-order strip that ranks campaign characters by Dexterity before combat, switches to rolled initiative after an encounter begins, and highlights the authoritative active turn and round for every connected player.
 - Expanded live party cards with level, ancestry, class, armor class, speed, current/maximum/temporary HP, conditions, concentration, health meters, and direct full-sheet navigation.

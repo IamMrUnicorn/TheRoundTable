@@ -212,9 +212,19 @@ create table public.character_inventory_items (
   location text not null default 'Carried' check (char_length(location) between 1 and 120),
   is_equipped boolean not null default false,
   is_attuned boolean not null default false,
+  is_weapon boolean not null default false,
+  attack_ability text not null default 'strength'
+    check (attack_ability in ('strength', 'dexterity', 'constitution', 'intelligence', 'wisdom', 'charisma')),
+  is_proficient boolean not null default true,
+  attack_bonus_override smallint check (attack_bonus_override is null or attack_bonus_override between -100 and 100),
+  damage_formula text not null default '' check (char_length(damage_formula) <= 120),
+  damage_bonus_override smallint check (damage_bonus_override is null or damage_bonus_override between -100 and 100),
+  damage_type text not null default '' check (char_length(damage_type) <= 80),
+  weapon_range text not null default '' check (char_length(weapon_range) <= 80),
   notes text not null default '' check (char_length(notes) <= 5000),
   created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
+  updated_at timestamptz not null default now(),
+  check (not is_weapon or char_length(damage_formula) between 2 and 120)
 );
 
 create table public.availability_rules (

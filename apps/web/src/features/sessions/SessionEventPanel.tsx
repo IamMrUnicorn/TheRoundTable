@@ -9,6 +9,7 @@ import { ReactionPromptPanel } from '../actions/ReactionPromptPanel'
 import { CombatHealthPanel } from '../combat/CombatHealthPanel'
 import { CombatStatusPanel } from '../combat/CombatStatusPanel'
 import { InitiativePanel } from '../combat/InitiativePanel'
+import { TurnActionBar } from '../combat/TurnActionBar'
 import { TurnOrderStrip } from '../combat/TurnOrderStrip'
 import { DiceRollerPanel } from '../dice/DiceRollerPanel'
 import { updateSession } from '../scheduling/scheduling'
@@ -530,6 +531,13 @@ export function SessionEventPanel({
             </div>
           </div>
         </aside>
+        <TurnActionBar
+          actorId={actorId}
+          characters={characters}
+          isManager={isManager}
+          onOpenTool={setActiveView}
+          sessionId={sessionId}
+        />
       </div>
     </section>
   )

@@ -90,31 +90,35 @@ export async function createSampleCampaign(ownerId: string) {
   const withCampaign = { campaign_id: campaign.id }
 
   const results = await Promise.all([
-    supabase.from('characters').insert({
-      ...withCampaign,
-      ancestry: 'Owlin',
-      appearance:
-        'A charcoal-feathered scholar wearing a weathered green cloak and a brass astrolabe.',
-      armor_class: 14,
-      background: 'Sage',
-      biography:
-        'Left the Starlit Archive after discovering a map burned into an impossible constellation.',
-      charisma: 11,
-      class_name: 'Wizard',
-      constitution: 14,
-      current_hp: 31,
-      dexterity: 16,
-      intelligence: 18,
-      languages: ['Common', 'Elvish', 'Celestial'],
-      level: 5,
-      max_hp: 38,
-      name: 'Sable Quill',
-      owner_id: ownerId,
-      saving_throw_proficiencies: ['intelligence', 'wisdom'],
-      skill_proficiencies: ['arcana', 'history', 'investigation'],
-      strength: 8,
-      wisdom: 15,
-    }),
+    supabase
+      .from('characters')
+      .insert({
+        ...withCampaign,
+        ancestry: 'Owlin',
+        appearance:
+          'A charcoal-feathered scholar wearing a weathered green cloak and a brass astrolabe.',
+        armor_class: 14,
+        background: 'Sage',
+        biography:
+          'Left the Starlit Archive after discovering a map burned into an impossible constellation.',
+        charisma: 11,
+        class_name: 'Wizard',
+        constitution: 14,
+        current_hp: 31,
+        dexterity: 16,
+        intelligence: 18,
+        languages: ['Common', 'Elvish', 'Celestial'],
+        level: 5,
+        max_hp: 38,
+        name: 'Sable Quill',
+        owner_id: ownerId,
+        saving_throw_proficiencies: ['intelligence', 'wisdom'],
+        skill_proficiencies: ['arcana', 'history', 'investigation'],
+        strength: 8,
+        wisdom: 15,
+      })
+      .select('id')
+      .single(),
     supabase.from('campaign_announcements').insert([
       {
         ...withCampaign,
@@ -282,6 +286,29 @@ export async function createSampleCampaign(ownerId: string) {
   if (failed?.error) {
     await supabase.from('campaigns').delete().eq('id', campaign.id)
     throw failed.error
+  }
+
+  const sampleCharacter = results[0].data as { id: number } | null
+  if (sampleCharacter) {
+    const { error } = await supabase.from('character_inventory_items').insert({
+      attack_ability: 'dexterity',
+      category: 'equipment',
+      character_id: sampleCharacter.id,
+      damage_formula: '1d6',
+      damage_type: 'piercing',
+      description: 'A balanced silvered blade carried for close encounters.',
+      is_equipped: true,
+      is_proficient: true,
+      is_weapon: true,
+      location: 'Belt',
+      name: 'Silvered shortsword',
+      quantity: 1,
+      weapon_range: '5 ft',
+    })
+    if (error) {
+      await supabase.from('campaigns').delete().eq('id', campaign.id)
+      throw error
+    }
   }
 
   const sessions = results.at(-1)?.data as

@@ -171,7 +171,7 @@ This is the source-of-truth checklist for the entire application. Completed work
 ## 11. Inventory, equipment, spells, and reusable actions
 
 - [ ] Inventory quantity, weight, value, currency, charges, containers, and carrying capacity.
-- [ ] Equip/unequip, armor, weapons, tools, consumables, magic items, and attunement.
+- [ ] Equip/unequip, armor, weapons, tools, consumables, magic items, and attunement. *(General equip/unequip and structured weapons with ability, proficiency, damage, type, and range are complete; item-specific armor/tools/consumables/magic-item behavior and attunement controls remain.)*
 - [ ] Use, give, transfer, drop, and GM-grant item workflows.
 - [ ] Known/prepared spells, slots, rituals, cantrips, concentration, components, and upcasting.
 - [ ] Spell attack/save calculations and target selection.

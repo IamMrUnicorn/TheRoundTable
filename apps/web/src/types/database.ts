@@ -900,13 +900,20 @@ export type Database = {
       }
       character_inventory_items: {
         Row: {
+          attack_ability: string
+          attack_bonus_override: number | null
           category: string
           character_id: number
           created_at: string
+          damage_bonus_override: number | null
+          damage_formula: string
+          damage_type: string
           description: string
           id: number
           is_attuned: boolean
           is_equipped: boolean
+          is_proficient: boolean
+          is_weapon: boolean
           location: string
           name: string
           notes: string
@@ -914,15 +921,23 @@ export type Database = {
           updated_at: string
           value: string
           weight: number | null
+          weapon_range: string
         }
         Insert: {
+          attack_ability?: string
+          attack_bonus_override?: number | null
           category?: string
           character_id: number
           created_at?: string
+          damage_bonus_override?: number | null
+          damage_formula?: string
+          damage_type?: string
           description?: string
           id?: never
           is_attuned?: boolean
           is_equipped?: boolean
+          is_proficient?: boolean
+          is_weapon?: boolean
           location?: string
           name: string
           notes?: string
@@ -930,15 +945,23 @@ export type Database = {
           updated_at?: string
           value?: string
           weight?: number | null
+          weapon_range?: string
         }
         Update: {
+          attack_ability?: string
+          attack_bonus_override?: number | null
           category?: string
           character_id?: number
           created_at?: string
+          damage_bonus_override?: number | null
+          damage_formula?: string
+          damage_type?: string
           description?: string
           id?: never
           is_attuned?: boolean
           is_equipped?: boolean
+          is_proficient?: boolean
+          is_weapon?: boolean
           location?: string
           name?: string
           notes?: string
@@ -946,6 +969,7 @@ export type Database = {
           updated_at?: string
           value?: string
           weight?: number | null
+          weapon_range?: string
         }
         Relationships: [
           {

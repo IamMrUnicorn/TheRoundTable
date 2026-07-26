@@ -432,6 +432,28 @@ assert.equal(inventoryMemories[0].title, 'Gained Moonstone Key')
 assert.equal(inventoryMemories[0].metadata.action, 'gained')
 assert.equal(inventoryMemories[1].title, 'Updated Moonstone Key')
 assert.equal(inventoryMemories[1].metadata.action, 'updated')
+const { data: weaponRows, response: weaponResponse } = await request('/rest/v1/character_inventory_items', {
+  token: owner.token,
+  method: 'POST',
+  body: { character_id: characterId, name: 'Moonblade', quantity: 1, category: 'equipment', location: 'Main hand', is_equipped: true, is_weapon: true, attack_ability: 'dexterity', is_proficient: true, damage_formula: '1d8', damage_type: 'slashing', weapon_range: '5 ft' },
+})
+assert.equal(weaponResponse.status, 201)
+assert.equal(weaponRows[0].damage_formula, '1d8')
+const weaponId = weaponRows[0].id
+const { data: visibleWeapon } = await request(`/rest/v1/character_inventory_items?id=eq.${weaponId}&select=name,is_equipped,is_weapon,damage_formula`, { token: outsider.token })
+assert.deepEqual(visibleWeapon, [{ name: 'Moonblade', is_equipped: true, is_weapon: true, damage_formula: '1d8' }])
+const { data: forgedWeaponUpdate } = await request(`/rest/v1/character_inventory_items?id=eq.${weaponId}`, {
+  token: outsider.token,
+  method: 'PATCH',
+  body: { damage_formula: '100d100' },
+})
+assert.deepEqual(forgedWeaponUpdate, [])
+const { response: invalidWeaponResponse } = await request('/rest/v1/character_inventory_items', {
+  token: owner.token,
+  method: 'POST',
+  body: { character_id: characterId, name: 'Invalid weapon', is_weapon: true, damage_formula: '' },
+})
+assert.equal(invalidWeaponResponse.status, 400)
 
 const { data: forbiddenCampaignUpdate, response: forbiddenCampaignUpdateResponse } =
   await request(`/rest/v1/campaigns?id=eq.${campaignId}`, {

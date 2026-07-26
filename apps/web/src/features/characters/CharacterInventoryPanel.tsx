@@ -40,6 +40,12 @@ export function CharacterInventoryPanel({
   const [location, setLocation] = useState('Carried')
   const [weight, setWeight] = useState('')
   const [value, setValue] = useState('')
+  const [isWeapon, setIsWeapon] = useState(false)
+  const [attackAbility, setAttackAbility] = useState('strength')
+  const [isProficient, setIsProficient] = useState(true)
+  const [damageFormula, setDamageFormula] = useState('1d6')
+  const [damageType, setDamageType] = useState('')
+  const [weaponRange, setWeaponRange] = useState('5 ft')
   const refresh = async () => {
     await Promise.all([
       client.invalidateQueries({ queryKey }),
@@ -56,9 +62,15 @@ export function CharacterInventoryPanel({
         description: description.trim(),
         quantity,
         category,
+        attack_ability: attackAbility,
+        damage_formula: isWeapon ? damageFormula.trim() : '',
+        damage_type: isWeapon ? damageType.trim() : '',
+        is_proficient: isProficient,
+        is_weapon: isWeapon,
         location: location.trim(),
         weight: weight ? Number(weight) : null,
         value: value.trim(),
+        weapon_range: isWeapon ? weaponRange.trim() : '',
       }),
     onSuccess: async () => {
       setName('')
@@ -66,6 +78,7 @@ export function CharacterInventoryPanel({
       setQuantity(1)
       setWeight('')
       setValue('')
+      setIsWeapon(false)
       await refresh()
     },
   })
@@ -161,8 +174,75 @@ export function CharacterInventoryPanel({
             value={description}
             onChange={(event) => setDescription(event.target.value)}
           />
+          <label className="inventory-weapon-toggle">
+            <input
+              type="checkbox"
+              checked={isWeapon}
+              onChange={(event) => setIsWeapon(event.target.checked)}
+            />
+            This item is a weapon
+          </label>
+          {isWeapon && (
+            <div className="weapon-stat-fields">
+              <label>
+                Attack ability
+                <select
+                  value={attackAbility}
+                  onChange={(event) => setAttackAbility(event.target.value)}
+                >
+                  <option value="strength">Strength</option>
+                  <option value="dexterity">Dexterity</option>
+                  <option value="constitution">Constitution</option>
+                  <option value="intelligence">Intelligence</option>
+                  <option value="wisdom">Wisdom</option>
+                  <option value="charisma">Charisma</option>
+                </select>
+              </label>
+              <label>
+                Damage dice
+                <input
+                  required
+                  maxLength={120}
+                  placeholder="1d8"
+                  value={damageFormula}
+                  onChange={(event) => setDamageFormula(event.target.value)}
+                />
+              </label>
+              <label>
+                Damage type
+                <input
+                  maxLength={80}
+                  placeholder="slashing"
+                  value={damageType}
+                  onChange={(event) => setDamageType(event.target.value)}
+                />
+              </label>
+              <label>
+                Range / reach
+                <input
+                  maxLength={80}
+                  placeholder="5 ft or 80/320 ft"
+                  value={weaponRange}
+                  onChange={(event) => setWeaponRange(event.target.value)}
+                />
+              </label>
+              <label className="inventory-weapon-toggle">
+                <input
+                  type="checkbox"
+                  checked={isProficient}
+                  onChange={(event) => setIsProficient(event.target.checked)}
+                />
+                Character is proficient
+              </label>
+            </div>
+          )}
           <button
-            disabled={create.isPending || !name.trim() || !location.trim()}
+            disabled={
+              create.isPending ||
+              !name.trim() ||
+              !location.trim() ||
+              (isWeapon && !damageFormula.trim())
+            }
           >
             {create.isPending ? 'Adding…' : 'Add item'}
           </button>
@@ -189,6 +269,14 @@ export function CharacterInventoryPanel({
                 {item.value && ` · ${item.value}`}
               </p>
               {item.description && <p>{item.description}</p>}
+              {item.is_weapon && (
+                <p className="inventory-weapon-summary">
+                  {item.damage_formula} {item.damage_type || 'damage'} ·{' '}
+                  {item.attack_ability}
+                  {item.is_proficient ? ' · proficient' : ''}
+                  {item.weapon_range && ` · ${item.weapon_range}`}
+                </p>
+              )}
             </div>
             {canEdit && (
               <div className="inventory-item-controls">

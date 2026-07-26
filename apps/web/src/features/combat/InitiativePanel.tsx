@@ -100,13 +100,28 @@ export function InitiativePanel({
   }, [client, sessionId])
 
   const begin = useMutation({
-    mutationFn: () =>
-      startEncounter({
+    mutationFn: async () => {
+      await startEncounter({
         actorId,
         campaignId,
         name: encounterName,
         sessionId,
-      }),
+      })
+      await Promise.all(
+        characters.map((character) =>
+          setCharacterInitiative({
+            campaignId,
+            characterId: character.id,
+            initiative:
+              Math.floor(Math.random() * 20) +
+              1 +
+              Math.floor((character.dexterity - 10) / 2),
+            sessionId,
+            userId: actorId,
+          }),
+        ),
+      )
+    },
     onSuccess: refresh,
   })
   const finish = useMutation({
@@ -256,6 +271,8 @@ export function InitiativePanel({
             {encounter
               ? `Completed after ${encounter.round_number} round${encounter.round_number === 1 ? '' : 's'}. The final order remains in the session record until a new encounter begins.`
               : 'Start an encounter before collecting initiative.'}
+            {!encounter &&
+              ' Starting an encounter automatically rolls the current party; every value can still be overridden.'}
           </p>
         </div>
         {isManager ? (

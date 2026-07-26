@@ -3,10 +3,34 @@ import { Crosshair, Swords } from 'lucide-react'
 import { type FormEvent, useState } from 'react'
 
 import { getSessionInitiative } from '../combat/initiative'
-import { criticalDamageFormula, type DiceMode, rollFormula } from '../dice/dice'
+import { listEquippedWeapons } from '../characters/inventory'
+import {
+  type AbilityName,
+  type DiceMode,
+  abilityModifier,
+  criticalDamageFormula,
+  proficiencyBonus,
+  rollFormula,
+} from '../dice/dice'
 import { resolveSessionAttack } from './attack-resolution'
 
-type AttackCharacter = { id: number; name: string; owner_id: string }
+type AttackCharacter = {
+  charisma: number
+  constitution: number
+  dexterity: number
+  id: number
+  intelligence: number
+  level: number
+  name: string
+  owner_id: string
+  strength: number
+  wisdom: number
+}
+
+const signedFormula = (formula: string, modifier: number) =>
+  modifier === 0
+    ? formula
+    : `${formula} ${modifier < 0 ? '-' : '+'} ${Math.abs(modifier)}`
 
 export function AttackResolutionPanel({
   actorId,
@@ -28,6 +52,15 @@ export function AttackResolutionPanel({
   const availableCharacters = isManager
     ? characters
     : characters.filter((character) => character.owner_id === actorId)
+  const weapons = useQuery({
+    queryKey: [
+      'equipped-weapons',
+      availableCharacters.map((character) => character.id),
+    ],
+    queryFn: () =>
+      listEquippedWeapons(availableCharacters.map((character) => character.id)),
+    enabled: availableCharacters.length > 0,
+  })
   const targets =
     initiative.data?.entries.filter(
       (entry) =>
@@ -37,11 +70,33 @@ export function AttackResolutionPanel({
     ) ?? []
   const [attackerId, setAttackerId] = useState('')
   const [targetId, setTargetId] = useState('')
+  const [weaponId, setWeaponId] = useState('')
   const [attackName, setAttackName] = useState('Weapon attack')
   const [attackBonus, setAttackBonus] = useState('5')
   const [damageFormula, setDamageFormula] = useState('1d8 + 3')
   const [mode, setMode] = useState<DiceMode>('normal')
   const [summary, setSummary] = useState('')
+  const chooseWeapon = (value: string) => {
+    setWeaponId(value)
+    const weapon = weapons.data?.find((item) => item.id === Number(value))
+    const character = availableCharacters.find(
+      (item) => item.id === Number(attackerId),
+    )
+    if (!weapon || !character || weapon.character_id !== character.id) return
+    const ability = weapon.attack_ability as AbilityName
+    const baseModifier = abilityModifier(character[ability])
+    const derivedAttackBonus =
+      baseModifier +
+      (weapon.is_proficient ? proficiencyBonus(character.level) : 0)
+    setAttackName(weapon.name)
+    setAttackBonus(String(weapon.attack_bonus_override ?? derivedAttackBonus))
+    setDamageFormula(
+      signedFormula(
+        weapon.damage_formula,
+        weapon.damage_bonus_override ?? baseModifier,
+      ),
+    )
+  }
   const resolve = useMutation({
     mutationFn: async () => {
       const attackRoll = rollFormula('1d20', mode)
@@ -108,7 +163,10 @@ export function AttackResolutionPanel({
         <select
           required
           value={attackerId}
-          onChange={(event) => setAttackerId(event.target.value)}
+          onChange={(event) => {
+            setAttackerId(event.target.value)
+            setWeaponId('')
+          }}
         >
           <option value="">Attacking character</option>
           {availableCharacters.map((character) => (
@@ -116,6 +174,22 @@ export function AttackResolutionPanel({
               {character.name}
             </option>
           ))}
+        </select>
+        <select
+          aria-label="Equipped weapon"
+          disabled={!attackerId}
+          value={weaponId}
+          onChange={(event) => chooseWeapon(event.target.value)}
+        >
+          <option value="">Custom / unarmed attack</option>
+          {weapons.data
+            ?.filter((weapon) => weapon.character_id === Number(attackerId))
+            .map((weapon) => (
+              <option key={weapon.id} value={weapon.id}>
+                {weapon.name} · {weapon.damage_formula}{' '}
+                {weapon.damage_type || 'damage'}
+              </option>
+            ))}
         </select>
         <select
           required
@@ -174,6 +248,15 @@ export function AttackResolutionPanel({
           before resolving attacks.
         </p>
       )}
+      {attackerId &&
+        weapons.data?.filter(
+          (weapon) => weapon.character_id === Number(attackerId),
+        ).length === 0 && (
+          <p className="muted-copy">
+            No equipped weapon is configured for this character. Use the custom
+            fields here, or add and equip a weapon from their inventory.
+          </p>
+        )}
       {summary && (
         <p className="attack-result" role="status">
           {summary}

@@ -12,6 +12,20 @@ export async function listCharacterInventory(characterId: number) {
   return data
 }
 
+export async function listEquippedWeapons(characterIds: number[]) {
+  if (characterIds.length === 0) return []
+  const { data, error } = await supabase
+    .from('character_inventory_items')
+    .select('*')
+    .in('character_id', characterIds)
+    .eq('is_weapon', true)
+    .eq('is_equipped', true)
+    .gt('quantity', 0)
+    .order('name')
+  if (error) throw error
+  return data
+}
+
 export async function createCharacterInventoryItem(
   input: TablesInsert<'character_inventory_items'>,
 ) {
