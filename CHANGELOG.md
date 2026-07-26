@@ -28,6 +28,11 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 
 ### Added
 
+- Added character-aware ability-check, saving-throw, and skill shortcuts to live play, including automatic ability modifiers, level-based proficiency bonuses, expertise, natural-roll metadata, and editable generated formulas.
+- Added advantage and disadvantage support for d20 formulas with modifiers while preserving both candidate rolls, the kept natural result, and the final modified total.
+- Added a resolved-attack workspace for owned characters and Game Masters with target selection, attack bonuses, normal/advantage/disadvantage modes, damage formulas, automatic natural-1 misses, natural-20 hits, and doubled critical damage dice.
+- Added an authoritative attack RPC that locks encounter targets, validates session/character/target ownership, resolves AC, absorbs temporary HP, updates current HP, identifies defeated combatants, and writes the immutable action log atomically.
+- Added multi-user integration coverage for critical hits, natural-1 misses, persisted monster HP, structured attack-event metadata, and rejection of forged attacks using another player's character.
 - Added structured character-condition instances with source attribution, optional 1–999 round durations, party-readable status details, and automatic expiration when an encounter advances.
 - Added authoritative conscious, unconscious, stabilized, and dead states with automatic unconsciousness at zero HP, recovery after healing, three-success stabilization, three-failure death, and explicit GM stabilize/death/revive controls.
 - Added concentration-save DC calculation to atomic damage resolution, visible Constitution-save prompts, pass/fail logging, and automatic concentration removal after a failed check.

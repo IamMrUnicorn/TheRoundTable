@@ -1908,6 +1908,18 @@ export type Database = {
         Args: { prompt_id: number; should_accept: boolean }
         Returns: Database['public']['Tables']['session_reaction_prompts']['Row']
       }
+      resolve_session_attack: {
+        Args: {
+          attack_name: string
+          attack_total: number
+          attacker_character_id: number
+          damage: number
+          natural_roll: number
+          session_id: number
+          target_entry_id: number
+        }
+        Returns: Json
+      }
     }
     Enums: {
       [_ in never]: never

@@ -619,6 +619,34 @@ const { data: forbiddenCombatantUpdate, response: forbiddenCombatantUpdateRespon
 })
 assert.equal(forbiddenCombatantUpdateResponse.status, 200)
 assert.deepEqual(forbiddenCombatantUpdate, [])
+const { data: criticalAttack, response: criticalAttackResponse } = await request('/rest/v1/rpc/resolve_session_attack', {
+  token: owner.token,
+  method: 'POST',
+  body: { session_id: sessionId, attacker_character_id: characterId, target_entry_id: publicCombatantRows[0].id, attack_name: 'Longsword', natural_roll: 20, attack_total: 25, damage: 10 },
+})
+assert.equal(criticalAttackResponse.status, 200)
+assert.equal(criticalAttack.hit, true)
+assert.equal(criticalAttack.critical, true)
+assert.equal(criticalAttack.target_hp, 12)
+const { data: missedAttack, response: missedAttackResponse } = await request('/rest/v1/rpc/resolve_session_attack', {
+  token: owner.token,
+  method: 'POST',
+  body: { session_id: sessionId, attacker_character_id: characterId, target_entry_id: publicCombatantRows[0].id, attack_name: 'Longsword', natural_roll: 1, attack_total: 99, damage: 99 },
+})
+assert.equal(missedAttackResponse.status, 200)
+assert.equal(missedAttack.hit, false)
+assert.equal(missedAttack.target_hp, 12)
+const { response: forgedAttackResponse } = await request('/rest/v1/rpc/resolve_session_attack', {
+  token: invitee.token,
+  method: 'POST',
+  body: { session_id: sessionId, attacker_character_id: characterId, target_entry_id: publicCombatantRows[0].id, attack_name: 'Forged attack', natural_roll: 20, attack_total: 20, damage: 1000 },
+})
+assert.equal(forgedAttackResponse.status, 403)
+const { data: attackEvents } = await request(`/rest/v1/session_events?metadata->>resolution=eq.attack&select=title,metadata&order=created_at.asc`, { token: owner.token })
+assert.equal(attackEvents.length, 2)
+assert.equal(attackEvents[0].metadata.critical, true)
+assert.equal(attackEvents[0].metadata.current_hp, 12)
+assert.equal(attackEvents[1].metadata.hit, false)
 const { response: advanceEncounterResponse } = await request(`/rest/v1/session_encounters?session_id=eq.${sessionId}`, {
   token: outsider.token,
   method: 'PATCH',

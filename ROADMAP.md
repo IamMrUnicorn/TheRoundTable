@@ -99,8 +99,8 @@ This roadmap translates the play-screen sketch and the proven V5 foundations int
 
 - [x] Standard polyhedral dice roller.
 - [x] Formula rolls such as `1d20 + 5` and damage pools.
-- [ ] Advantage, disadvantage, critical hits, and private Game Master rolls. *(Advantage, disadvantage, and private GM rolls complete; critical-hit interpretation remains.)*
-- [ ] Character ability checks, saving throws, skills, attacks, and initiative shortcuts.
+- [x] Advantage, disadvantage, critical hits, and private Game Master rolls.
+- [x] Character ability checks, saving throws, skills, attacks, and initiative shortcuts.
 - [x] Roll results recorded in the session event log.
 - [x] Optional physical-dice/manual result entry.
 

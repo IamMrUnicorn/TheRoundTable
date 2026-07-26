@@ -159,7 +159,7 @@ This is the source-of-truth checklist for the entire application. Completed work
 - [x] Realtime join/leave presence, connection state, refresh recovery, persisted readiness, and a starts-in/elapsed session timer.
 - [ ] Modular/resizable notebook, central stage, party rail, action bar, drawers, and overlays. *(Focused live-tool workspaces and persistent compact party rail complete; notebook/stage/action bar/drawers/resizing pending.)*
 - [ ] Persistent structured event log, chat, speech, mentions, and filters. *(Append-only structured capture, GM-only visibility, character-memory projection, realtime delivery, search, and type/participant filters complete; chat and mentions remain.)*
-- [ ] Dice formulas, private rolls, checks, saves, attacks, damage, and initiative. *(Safe formulas, advantage/disadvantage, private GM rolls, manual results, and immutable log recording complete; character shortcuts, criticals, damage application, and initiative remain.)*
+- [x] Dice formulas, private rolls, checks, saves, attacks, damage, and initiative. *(Includes character-aware proficiency/expertise shortcuts, advantage/disadvantage with modifiers, critical damage dice, authoritative target HP updates, private GM rolls, manual results, and immutable logs.)*
 - [x] Encounters, initiative ordering, rounds, turns, and active-turn controls.
 - [x] Persistent action, bonus action, movement, object interaction, and reaction tracking with owner/GM controls and turn resets.
 - [x] Player action proposals and Game Master approve/deny/edit/clarify flow with exactly-once projection into the structured session log.

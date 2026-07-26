@@ -19,6 +19,52 @@ export type DiceResult = {
   d20Candidates?: [number, number]
 }
 
+export const abilityNames = [
+  'strength',
+  'dexterity',
+  'constitution',
+  'intelligence',
+  'wisdom',
+  'charisma',
+] as const
+
+export type AbilityName = (typeof abilityNames)[number]
+
+export const skillAbilities = {
+  acrobatics: 'dexterity',
+  animal_handling: 'wisdom',
+  arcana: 'intelligence',
+  athletics: 'strength',
+  deception: 'charisma',
+  history: 'intelligence',
+  insight: 'wisdom',
+  intimidation: 'charisma',
+  investigation: 'intelligence',
+  medicine: 'wisdom',
+  nature: 'intelligence',
+  perception: 'wisdom',
+  performance: 'charisma',
+  persuasion: 'charisma',
+  religion: 'intelligence',
+  sleight_of_hand: 'dexterity',
+  stealth: 'dexterity',
+  survival: 'wisdom',
+} as const satisfies Record<string, AbilityName>
+
+export type SkillName = keyof typeof skillAbilities
+
+export function abilityModifier(score: number) {
+  return Math.floor((score - 10) / 2)
+}
+
+export function proficiencyBonus(level: number) {
+  return Math.ceil(Math.max(1, level) / 4) + 1
+}
+
+export function d20Formula(modifier: number) {
+  return `1d20 ${modifier < 0 ? '-' : '+'} ${Math.abs(modifier)}`
+}
+
 const randomFraction = () => {
   const value = new Uint32Array(1)
   crypto.getRandomValues(value)
@@ -68,34 +114,32 @@ export function rollFormula(
   }
 
   if (mode !== 'normal') {
+    const diceTerms = parsed.filter((term) => term.type === 'dice')
     if (
-      parsed.length !== 1 ||
-      parsed[0].type !== 'dice' ||
-      parsed[0].count !== 1 ||
-      parsed[0].sides !== 20 ||
-      parsed[0].sign !== 1
+      diceTerms.length !== 1 ||
+      diceTerms[0].count !== 1 ||
+      diceTerms[0].sides !== 20 ||
+      diceTerms[0].sign !== 1
     )
-      throw new Error('Advantage and disadvantage require exactly 1d20.')
+      throw new Error(
+        'Advantage and disadvantage require exactly 1d20 plus optional modifiers.',
+      )
     const candidates: [number, number] = [
       Math.floor(random() * 20) + 1,
       Math.floor(random() * 20) + 1,
     ]
     const kept =
       mode === 'advantage' ? Math.max(...candidates) : Math.min(...candidates)
+    const terms: DiceTerm[] = parsed.map((term) =>
+      term.type === 'modifier'
+        ? { ...term, subtotal: term.sign * term.value }
+        : { ...term, rolls: [kept], subtotal: kept },
+    )
     return {
       formula,
       mode,
-      terms: [
-        {
-          count: 1,
-          sign: 1,
-          sides: 20,
-          type: 'dice',
-          rolls: [kept],
-          subtotal: kept,
-        },
-      ],
-      total: kept,
+      terms,
+      total: terms.reduce((sum, term) => sum + term.subtotal, 0),
       d20Candidates: candidates,
     }
   }
@@ -122,8 +166,10 @@ export function rollFormula(
 }
 
 export function describeDiceResult(result: DiceResult) {
+  const naturalRoll =
+    result.terms[0]?.type === 'dice' ? result.terms[0].rolls[0] : result.total
   const details = result.d20Candidates
-    ? `Rolled ${result.d20Candidates.join(' and ')}; kept ${result.total}.`
+    ? `Rolled ${result.d20Candidates.join(' and ')}; kept ${naturalRoll}.`
     : result.terms
         .map((term) =>
           term.type === 'dice'
@@ -132,4 +178,11 @@ export function describeDiceResult(result: DiceResult) {
         )
         .join(' ')
   return `${result.formula} = ${result.total}. ${details}`
+}
+
+export function criticalDamageFormula(input: string) {
+  return input.replace(/(\d*)d(\d+)/gi, (_, count: string, sides: string) => {
+    const diceCount = Number(count || 1)
+    return `${diceCount * 2}d${sides}`
+  })
 }

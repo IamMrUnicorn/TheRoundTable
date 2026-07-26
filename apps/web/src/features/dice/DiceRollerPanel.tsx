@@ -3,7 +3,36 @@ import { type FormEvent, useState } from 'react'
 
 import type { Json } from '../../types/database'
 import { createSessionEvent } from '../sessions/session-events'
-import { type DiceMode, describeDiceResult, rollFormula } from './dice'
+import {
+  type AbilityName,
+  type DiceMode,
+  abilityModifier,
+  abilityNames,
+  d20Formula,
+  describeDiceResult,
+  proficiencyBonus,
+  rollFormula,
+  skillAbilities,
+} from './dice'
+
+type RollCharacter = {
+  charisma: number
+  constitution: number
+  dexterity: number
+  id: number
+  intelligence: number
+  level: number
+  name: string
+  owner_id: string
+  saving_throw_proficiencies: string[]
+  skill_expertise: string[]
+  skill_proficiencies: string[]
+  strength: number
+  wisdom: number
+}
+
+const titleCase = (value: string) =>
+  value.replaceAll('_', ' ').replace(/\b\w/g, (letter) => letter.toUpperCase())
 
 export function DiceRollerPanel({
   actorId,
@@ -14,7 +43,7 @@ export function DiceRollerPanel({
 }: {
   actorId: string
   campaignId: number
-  characters: { id: number; name: string; owner_id: string }[]
+  characters: RollCharacter[]
   isManager: boolean
   sessionId: number
 }) {
@@ -29,6 +58,7 @@ export function DiceRollerPanel({
   const [visibility, setVisibility] = useState('party')
   const [manual, setManual] = useState(false)
   const [manualResult, setManualResult] = useState('')
+  const [shortcut, setShortcut] = useState('')
   const [result, setResult] = useState('')
   const [validationError, setValidationError] = useState('')
   const record = useMutation({
@@ -48,6 +78,11 @@ export function DiceRollerPanel({
         const rolled = rollFormula(formula, mode)
         total = rolled.total
         body = describeDiceResult(rolled)
+        const firstTerm = rolled.terms[0]
+        const naturalRoll =
+          firstTerm?.type === 'dice' && firstTerm.sides === 20
+            ? firstTerm.rolls[0]
+            : null
         metadata = {
           formula: rolled.formula,
           manual: false,
@@ -55,6 +90,13 @@ export function DiceRollerPanel({
           terms: rolled.terms,
           total,
           d20_candidates: rolled.d20Candidates ?? null,
+          natural_roll: naturalRoll,
+          natural_outcome:
+            naturalRoll === 20
+              ? 'natural_20'
+              : naturalRoll === 1
+                ? 'natural_1'
+                : null,
         } as Json
       }
       setResult(`${label.trim() || 'Roll'}: ${total}`)
@@ -81,6 +123,40 @@ export function DiceRollerPanel({
         error instanceof Error ? error.message : 'The roll failed.',
       ),
   })
+  const applyShortcut = (value: string) => {
+    setShortcut(value)
+    const character = availableCharacters.find(
+      (entry) => entry.id === Number(characterId),
+    )
+    if (!character || !value) return
+    const [kind, name] = value.split(':') as [
+      'ability' | 'save' | 'skill',
+      string,
+    ]
+    const ability =
+      kind === 'skill'
+        ? skillAbilities[name as keyof typeof skillAbilities]
+        : (name as AbilityName)
+    let modifier = abilityModifier(character[ability])
+    if (kind === 'save') {
+      if (character.saving_throw_proficiencies.includes(name))
+        modifier += proficiencyBonus(character.level)
+    } else if (kind === 'skill') {
+      if (character.skill_expertise.includes(name))
+        modifier += proficiencyBonus(character.level) * 2
+      else if (character.skill_proficiencies.includes(name))
+        modifier += proficiencyBonus(character.level)
+    }
+    setFormula(d20Formula(modifier))
+    setLabel(
+      kind === 'ability'
+        ? `${titleCase(name)} check`
+        : kind === 'save'
+          ? `${titleCase(name)} saving throw`
+          : `${titleCase(name)} check`,
+    )
+    setManual(false)
+  }
 
   return (
     <section className="dice-roller-panel">
@@ -134,7 +210,10 @@ export function DiceRollerPanel({
         </select>
         <select
           value={characterId}
-          onChange={(event) => setCharacterId(event.target.value)}
+          onChange={(event) => {
+            setCharacterId(event.target.value)
+            setShortcut('')
+          }}
         >
           <option value="">No linked character</option>
           {availableCharacters.map((character) => (
@@ -142,6 +221,35 @@ export function DiceRollerPanel({
               {character.name}
             </option>
           ))}
+        </select>
+        <select
+          aria-label="Character roll shortcut"
+          disabled={!characterId || manual}
+          value={shortcut}
+          onChange={(event) => applyShortcut(event.target.value)}
+        >
+          <option value="">Character roll shortcut</option>
+          <optgroup label="Ability checks">
+            {abilityNames.map((ability) => (
+              <option key={`ability:${ability}`} value={`ability:${ability}`}>
+                {titleCase(ability)}
+              </option>
+            ))}
+          </optgroup>
+          <optgroup label="Saving throws">
+            {abilityNames.map((ability) => (
+              <option key={`save:${ability}`} value={`save:${ability}`}>
+                {titleCase(ability)} save
+              </option>
+            ))}
+          </optgroup>
+          <optgroup label="Skills">
+            {Object.keys(skillAbilities).map((skill) => (
+              <option key={`skill:${skill}`} value={`skill:${skill}`}>
+                {titleCase(skill)}
+              </option>
+            ))}
+          </optgroup>
         </select>
         <select
           value={visibility}

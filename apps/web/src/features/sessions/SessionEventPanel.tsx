@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 
 import { supabase } from '../../lib/supabase'
 import { ActionProposalPanel } from '../actions/ActionProposalPanel'
+import { AttackResolutionPanel } from '../actions/AttackResolutionPanel'
 import { ReactionPromptPanel } from '../actions/ReactionPromptPanel'
 import { CombatHealthPanel } from '../combat/CombatHealthPanel'
 import { CombatStatusPanel } from '../combat/CombatStatusPanel'
@@ -41,19 +42,28 @@ export function SessionEventPanel({
   actorId: string
   campaignId: number
   characters: {
+    charisma: number
     combat_state: string
     concentration: string
     conditions: string[]
+    constitution: number
     current_hp: number
     death_save_failures: number
     death_save_successes: number
     dexterity: number
     id: number
+    intelligence: number
+    level: number
     max_hp: number
     name: string
     owner_id: string
+    saving_throw_proficiencies: string[]
     speed: number
+    skill_expertise: string[]
+    skill_proficiencies: string[]
+    strength: number
     temporary_hp: number
+    wisdom: number
   }[]
   isManager: boolean
   sessionId: number
@@ -274,6 +284,12 @@ export function SessionEventPanel({
           <DiceRollerPanel
             actorId={actorId}
             campaignId={campaignId}
+            characters={characters}
+            isManager={isManager}
+            sessionId={sessionId}
+          />
+          <AttackResolutionPanel
+            actorId={actorId}
             characters={characters}
             isManager={isManager}
             sessionId={sessionId}
