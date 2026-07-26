@@ -3047,6 +3047,46 @@ button:disabled {
 .combat-status-grid article > header {
   justify-content: space-between;
 }
+.combat-state-badge {
+  width: fit-content;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid rgb(86 175 112 / 35%);
+  border-radius: 999px;
+  color: #a7dda9;
+  background: rgb(67 160 71 / 12%);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.combat-state-badge.unconscious,
+.combat-state-badge.stabilized {
+  border-color: rgb(212 164 92 / 40%);
+  color: var(--gold);
+  background: rgb(212 164 92 / 10%);
+}
+.combat-state-badge.dead {
+  border-color: rgb(183 71 82 / 45%);
+  color: #e49aa1;
+  background: rgb(183 71 82 / 12%);
+}
+.condition-instance-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+.condition-instance-list > span {
+  padding: 0.35rem 0.5rem;
+  border: 1px solid rgb(108 92 150 / 45%);
+  border-radius: 0.45rem;
+  color: var(--muted);
+  background: rgb(108 92 150 / 10%);
+  font-size: 0.72rem;
+}
+.condition-instance-list strong {
+  color: var(--ink);
+  text-transform: capitalize;
+}
 .status-controls input,
 .status-controls select {
   min-width: 0;

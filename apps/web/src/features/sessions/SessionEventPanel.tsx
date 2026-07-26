@@ -41,6 +41,7 @@ export function SessionEventPanel({
   actorId: string
   campaignId: number
   characters: {
+    combat_state: string
     concentration: string
     conditions: string[]
     current_hp: number

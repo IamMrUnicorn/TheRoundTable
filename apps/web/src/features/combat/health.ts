@@ -1,5 +1,14 @@
 import { supabase } from '../../lib/supabase'
 
+export type HealthChangeResult = {
+  character_id: number
+  combat_state: string
+  concentration_check_dc: number | null
+  current_hp: number
+  max_hp: number
+  temporary_hp: number
+}
+
 export async function applyCharacterHealthChange(input: {
   amount: number
   changeKind: 'damage' | 'healing' | 'temporary_hp'
@@ -13,5 +22,5 @@ export async function applyCharacterHealthChange(input: {
     session_id: input.sessionId,
   })
   if (error) throw error
-  return data
+  return data as HealthChangeResult
 }

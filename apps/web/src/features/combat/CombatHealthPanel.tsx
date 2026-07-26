@@ -4,6 +4,8 @@ import { useState } from 'react'
 import { applyCharacterHealthChange } from './health'
 
 type HealthCharacter = {
+  combat_state: string
+  concentration: string
   conditions: string[]
   current_hp: number
   id: number
@@ -50,9 +52,13 @@ export function CombatHealthPanel({
       })
     },
     onMutate: () => setFeedback(''),
-    onSuccess: async (_, variables) => {
+    onSuccess: async (result, variables) => {
       setAmounts((current) => ({ ...current, [variables.characterId]: '' }))
-      setFeedback('Health and session history updated.')
+      setFeedback(
+        result.concentration_check_dc
+          ? `Health updated. Concentration check required: DC ${result.concentration_check_dc} Constitution save.`
+          : `Health updated. ${result.combat_state.replace('_', ' ')}.`,
+      )
       await Promise.all([
         client.invalidateQueries({
           queryKey: ['campaign-characters', campaignId],
@@ -104,6 +110,10 @@ export function CombatHealthPanel({
                     ` + ${character.temporary_hp} temp`}
                 </span>
               </header>
+              <span className={`combat-state-badge ${character.combat_state}`}>
+                {character.combat_state}
+                {character.concentration && ` · concentrating`}
+              </span>
               <div
                 className="health-meter"
                 aria-label={`${character.name} hit points`}

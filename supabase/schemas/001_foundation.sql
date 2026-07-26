@@ -97,6 +97,8 @@ create table public.characters (
   languages text[] not null default '{}',
   senses text[] not null default '{}',
   concentration text not null default '' check (char_length(concentration) <= 160),
+  combat_state text not null default 'conscious'
+    check (combat_state in ('conscious', 'unconscious', 'stabilized', 'dead')),
   constraint characters_saving_throw_proficiencies_check check (saving_throw_proficiencies <@ array['strength', 'dexterity', 'constitution', 'intelligence', 'wisdom', 'charisma']),
   constraint characters_skill_proficiencies_check check (skill_proficiencies <@ array['acrobatics', 'animal_handling', 'arcana', 'athletics', 'deception', 'history', 'insight', 'intimidation', 'investigation', 'medicine', 'nature', 'perception', 'performance', 'persuasion', 'religion', 'sleight_of_hand', 'stealth', 'survival']),
   constraint characters_skill_expertise_check check (skill_expertise <@ skill_proficiencies),
@@ -268,6 +270,21 @@ create table public.session_attendance (
   ready_at timestamptz,
   updated_at timestamptz not null default now(),
   primary key (session_id, user_id)
+);
+
+create table public.character_condition_instances (
+  id bigint generated always as identity primary key,
+  character_id bigint not null references public.characters (id) on delete cascade,
+  campaign_id bigint not null references public.campaigns (id) on delete cascade,
+  session_id bigint not null references public.sessions (id) on delete cascade,
+  condition text not null
+    check (condition in ('blinded', 'charmed', 'deafened', 'frightened', 'grappled', 'incapacitated', 'invisible', 'paralyzed', 'petrified', 'poisoned', 'prone', 'restrained', 'stunned', 'unconscious')),
+  source text not null default '' check (char_length(source) <= 160),
+  remaining_rounds smallint check (remaining_rounds is null or remaining_rounds between 1 and 999),
+  applied_by uuid not null references public.profiles (id) on delete restrict,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique (character_id, condition)
 );
 
 create table public.session_encounters (
@@ -550,6 +567,8 @@ create index sessions_campaign_starts_at_idx on public.sessions (campaign_id, st
 create unique index sessions_one_active_per_campaign_idx on public.sessions (campaign_id) where status in ('active', 'paused');
 create index sessions_created_by_idx on public.sessions (created_by);
 create index session_encounters_campaign_id_idx on public.session_encounters (campaign_id);
+create index character_condition_instances_campaign_id_idx on public.character_condition_instances (campaign_id);
+create index character_condition_instances_session_id_idx on public.character_condition_instances (session_id);
 create index session_encounters_active_character_id_idx on public.session_encounters (active_character_id);
 create index session_encounters_active_entry_id_idx on public.session_encounters (active_entry_id) where active_entry_id is not null;
 create index session_initiative_entries_campaign_id_idx on public.session_initiative_entries (campaign_id);
@@ -780,6 +799,7 @@ create trigger availability_exceptions_set_updated_at before update on public.av
 create trigger sessions_set_updated_at before update on public.sessions for each row execute function private.set_updated_at();
 create trigger session_attendance_set_updated_at before update on public.session_attendance for each row execute function private.set_updated_at();
 create trigger session_encounters_set_updated_at before update on public.session_encounters for each row execute function private.set_updated_at();
+create trigger character_condition_instances_set_updated_at before update on public.character_condition_instances for each row execute function private.set_updated_at();
 create trigger session_initiative_entries_set_updated_at before update on public.session_initiative_entries for each row execute function private.set_updated_at();
 create trigger session_action_proposals_set_updated_at before update on public.session_action_proposals for each row execute function private.set_updated_at();
 create trigger campaign_announcements_set_updated_at before update on public.campaign_announcements for each row execute function private.set_updated_at();
@@ -1035,7 +1055,9 @@ declare
   target_campaign_id bigint;
   previous_hp integer;
   previous_temporary_hp integer;
+  previous_combat_state text;
   absorbed integer := 0;
+  concentration_check_dc integer;
   event_title text;
   event_body text;
 begin
@@ -1069,6 +1091,7 @@ begin
 
   previous_hp := target.current_hp;
   previous_temporary_hp := target.temporary_hp;
+  previous_combat_state := target.combat_state;
   if change_kind = 'damage' then
     absorbed := least(target.temporary_hp, amount);
     target.temporary_hp := target.temporary_hp - absorbed;
@@ -1077,10 +1100,28 @@ begin
     event_body := 'HP ' || previous_hp || ' → ' || target.current_hp ||
       '; temporary HP ' || previous_temporary_hp || ' → ' || target.temporary_hp ||
       case when absorbed > 0 then ' (' || absorbed || ' absorbed).' else '.' end;
+    if target.concentration <> '' then
+      concentration_check_dc := greatest(10, floor(amount / 2.0)::integer);
+    end if;
+    if target.current_hp = 0 and target.combat_state <> 'dead' then
+      target.combat_state := 'unconscious';
+      if not ('unconscious' = any(target.conditions)) then
+        target.conditions := array_append(target.conditions, 'unconscious');
+      end if;
+    end if;
   elsif change_kind = 'healing' then
+    if target.combat_state = 'dead' then
+      raise exception 'A dead character must be revived before receiving healing.' using errcode = 'P0001';
+    end if;
     target.current_hp := least(target.max_hp, target.current_hp + amount);
     event_title := target.name || ' regained ' || (target.current_hp - previous_hp) || ' HP';
     event_body := 'HP ' || previous_hp || ' → ' || target.current_hp || ' (requested ' || amount || ').';
+    if target.current_hp > 0 then
+      target.combat_state := 'conscious';
+      target.conditions := array_remove(target.conditions, 'unconscious');
+      target.death_save_successes := 0;
+      target.death_save_failures := 0;
+    end if;
   else
     target.temporary_hp := greatest(target.temporary_hp, amount);
     event_title := target.name || ' gained temporary HP';
@@ -1088,7 +1129,12 @@ begin
   end if;
 
   update public.characters
-  set current_hp = target.current_hp, temporary_hp = target.temporary_hp
+  set current_hp = target.current_hp,
+      temporary_hp = target.temporary_hp,
+      combat_state = target.combat_state,
+      conditions = target.conditions,
+      death_save_successes = target.death_save_successes,
+      death_save_failures = target.death_save_failures
   where id = target.id;
 
   insert into public.session_events (
@@ -1102,13 +1148,17 @@ begin
       'change_kind', change_kind, 'requested_amount', amount,
       'absorbed_by_temporary_hp', absorbed, 'previous_hp', previous_hp,
       'current_hp', target.current_hp, 'previous_temporary_hp', previous_temporary_hp,
-      'temporary_hp', target.temporary_hp
+      'temporary_hp', target.temporary_hp,
+      'previous_combat_state', previous_combat_state, 'combat_state', target.combat_state,
+      'concentration_check_dc', concentration_check_dc
     )
   );
 
   return jsonb_build_object(
     'character_id', target.id, 'current_hp', target.current_hp,
-    'max_hp', target.max_hp, 'temporary_hp', target.temporary_hp
+    'max_hp', target.max_hp, 'temporary_hp', target.temporary_hp,
+    'combat_state', target.combat_state,
+    'concentration_check_dc', concentration_check_dc
   );
 end;
 $$;
@@ -1146,6 +1196,7 @@ declare
   previous_concentration text;
   previous_successes smallint;
   previous_failures smallint;
+  previous_combat_state text;
   event_title text;
   event_body text;
   allowed_conditions constant text[] := array['blinded', 'charmed', 'deafened', 'frightened', 'grappled', 'incapacitated', 'invisible', 'paralyzed', 'petrified', 'poisoned', 'prone', 'restrained', 'stunned', 'unconscious'];
@@ -1153,7 +1204,7 @@ begin
   if current_user_id is null then
     raise exception 'Authentication is required.' using errcode = '42501';
   end if;
-  if requested_operation not in ('condition_add', 'condition_remove', 'concentration_start', 'concentration_end', 'death_success', 'death_failure', 'death_reset') then
+  if requested_operation not in ('condition_add', 'condition_remove', 'concentration_start', 'concentration_end', 'concentration_check_pass', 'concentration_check_fail', 'death_success', 'death_failure', 'death_reset', 'stabilize', 'mark_dead', 'revive') then
     raise exception 'Unsupported status change.' using errcode = '22023';
   end if;
 
@@ -1178,6 +1229,7 @@ begin
   previous_concentration := target.concentration;
   previous_successes := target.death_save_successes;
   previous_failures := target.death_save_failures;
+  previous_combat_state := target.combat_state;
 
   if requested_operation in ('condition_add', 'condition_remove') then
     requested_value := lower(trim(requested_value));
@@ -1206,24 +1258,61 @@ begin
     target.concentration := '';
     event_title := target.name || ' ended concentration';
     event_body := case when previous_concentration = '' then 'No concentration was active.' else previous_concentration || ' ended.' end;
+  elsif requested_operation = 'concentration_check_pass' then
+    event_title := target.name || ' maintained concentration';
+    event_body := case when target.concentration = '' then 'No concentration was active.' else target.concentration || ' continues.' end;
+  elsif requested_operation = 'concentration_check_fail' then
+    target.concentration := '';
+    event_title := target.name || ' lost concentration';
+    event_body := case when previous_concentration = '' then 'No concentration was active.' else previous_concentration || ' ended after a failed Constitution save.' end;
   elsif requested_operation = 'death_success' then
     target.death_save_successes := least(3, target.death_save_successes + 1);
+    if target.death_save_successes = 3 then
+      target.combat_state := 'stabilized';
+    end if;
     event_title := target.name || ' marked a death-save success';
     event_body := 'Death saves: ' || target.death_save_successes || ' successes, ' || target.death_save_failures || ' failures.';
   elsif requested_operation = 'death_failure' then
     target.death_save_failures := least(3, target.death_save_failures + 1);
+    if target.death_save_failures = 3 then
+      target.combat_state := 'dead';
+    end if;
     event_title := target.name || ' marked a death-save failure';
     event_body := 'Death saves: ' || target.death_save_successes || ' successes, ' || target.death_save_failures || ' failures.';
-  else
+  elsif requested_operation = 'death_reset' then
     target.death_save_successes := 0;
     target.death_save_failures := 0;
     event_title := target.name || ' reset death saves';
     event_body := 'Death-save counters reset to zero.';
+  elsif requested_operation = 'stabilize' then
+    target.combat_state := 'stabilized';
+    target.death_save_successes := 3;
+    target.death_save_failures := 0;
+    event_title := target.name || ' stabilized';
+    event_body := 'The character is stable at ' || target.current_hp || ' HP.';
+  elsif requested_operation = 'mark_dead' then
+    target.combat_state := 'dead';
+    target.current_hp := 0;
+    target.death_save_failures := 3;
+    target.concentration := '';
+    event_title := target.name || ' died';
+    event_body := 'The character was marked dead.';
+  else
+    target.combat_state := case when target.current_hp > 0 then 'conscious' else 'unconscious' end;
+    target.death_save_successes := 0;
+    target.death_save_failures := 0;
+    if target.current_hp > 0 then
+      target.conditions := array_remove(target.conditions, 'unconscious');
+    end if;
+    event_title := target.name || ' was revived';
+    event_body := 'Combat state changed from ' || previous_combat_state || ' to ' || target.combat_state || '.';
   end if;
 
   update public.characters set
     conditions = target.conditions,
     concentration = target.concentration,
+    combat_state = target.combat_state,
+    current_hp = target.current_hp,
     death_save_successes = target.death_save_successes,
     death_save_failures = target.death_save_failures
   where id = target.id;
@@ -1236,6 +1325,7 @@ begin
       'operation', requested_operation, 'value', requested_value,
       'previous_conditions', previous_conditions, 'conditions', target.conditions,
       'previous_concentration', previous_concentration, 'concentration', target.concentration,
+      'previous_combat_state', previous_combat_state, 'combat_state', target.combat_state,
       'previous_death_successes', previous_successes, 'death_successes', target.death_save_successes,
       'previous_death_failures', previous_failures, 'death_failures', target.death_save_failures
     )
@@ -1244,6 +1334,7 @@ begin
   return jsonb_build_object(
     'character_id', target.id, 'conditions', target.conditions,
     'concentration', target.concentration,
+    'combat_state', target.combat_state,
     'death_save_successes', target.death_save_successes,
     'death_save_failures', target.death_save_failures
   );
@@ -1264,6 +1355,183 @@ as $$
   select private.apply_character_status_change(session_id, character_id, operation, value);
 $$;
 
+create function private.apply_character_condition(
+  requested_session_id bigint,
+  requested_character_id bigint,
+  requested_operation text,
+  requested_condition text,
+  requested_source text default '',
+  requested_rounds integer default null
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  current_user_id uuid := (select auth.uid());
+  target public.characters;
+  target_campaign_id bigint;
+  allowed_conditions constant text[] := array['blinded', 'charmed', 'deafened', 'frightened', 'grappled', 'incapacitated', 'invisible', 'paralyzed', 'petrified', 'poisoned', 'prone', 'restrained', 'stunned', 'unconscious'];
+begin
+  if current_user_id is null then
+    raise exception 'Authentication is required.' using errcode = '42501';
+  end if;
+  requested_operation := lower(trim(requested_operation));
+  requested_condition := lower(trim(requested_condition));
+  requested_source := trim(requested_source);
+  if requested_operation not in ('add', 'remove') then
+    raise exception 'Unsupported condition operation.' using errcode = '22023';
+  end if;
+  if not (requested_condition = any(allowed_conditions)) then
+    raise exception 'Unknown condition.' using errcode = '22023';
+  end if;
+  if char_length(requested_source) > 160 then
+    raise exception 'Condition source must be at most 160 characters.' using errcode = '22023';
+  end if;
+  if requested_rounds is not null and requested_rounds not between 1 and 999 then
+    raise exception 'Condition duration must be between 1 and 999 rounds.' using errcode = '22023';
+  end if;
+
+  select campaign_id into target_campaign_id
+  from public.sessions
+  where id = requested_session_id and status = 'active';
+  if target_campaign_id is null then
+    raise exception 'Condition changes require an active campaign session.' using errcode = 'P0001';
+  end if;
+
+  select * into target from public.characters
+  where id = requested_character_id and campaign_id = target_campaign_id
+  for update;
+  if not found then
+    raise exception 'Character is not part of this session campaign.' using errcode = 'P0001';
+  end if;
+  if target.owner_id <> current_user_id and not private.is_campaign_manager(target_campaign_id) then
+    raise exception 'You cannot change this character''s conditions.' using errcode = '42501';
+  end if;
+
+  if requested_operation = 'add' then
+    if not (requested_condition = any(target.conditions)) then
+      target.conditions := array_append(target.conditions, requested_condition);
+    end if;
+    insert into public.character_condition_instances (
+      character_id, campaign_id, session_id, condition, source, remaining_rounds, applied_by
+    ) values (
+      target.id, target_campaign_id, requested_session_id, requested_condition,
+      requested_source, requested_rounds, current_user_id
+    )
+    on conflict (character_id, condition) do update set
+      campaign_id = excluded.campaign_id,
+      session_id = excluded.session_id,
+      source = excluded.source,
+      remaining_rounds = excluded.remaining_rounds,
+      applied_by = excluded.applied_by,
+      updated_at = now();
+  else
+    target.conditions := array_remove(target.conditions, requested_condition);
+    delete from public.character_condition_instances
+    where character_id = target.id and condition = requested_condition;
+  end if;
+
+  update public.characters set conditions = target.conditions where id = target.id;
+  insert into public.session_events (
+    session_id, campaign_id, actor_id, character_id, kind, visibility, title, body, metadata
+  ) values (
+    requested_session_id, target_campaign_id, current_user_id, target.id, 'condition', 'party',
+    target.name || case when requested_operation = 'add' then ' gained ' else ' lost ' end || requested_condition,
+    case
+      when requested_operation = 'remove' then 'Condition removed.'
+      else 'Source: ' || coalesce(nullif(requested_source, ''), 'unspecified') ||
+        case when requested_rounds is null then '; duration: until removed.' else '; duration: ' || requested_rounds || ' rounds.' end
+    end,
+    jsonb_build_object(
+      'operation', 'condition_' || requested_operation,
+      'condition', requested_condition,
+      'source', requested_source,
+      'remaining_rounds', requested_rounds
+    )
+  );
+  return jsonb_build_object(
+    'character_id', target.id,
+    'conditions', target.conditions,
+    'condition', requested_condition,
+    'source', requested_source,
+    'remaining_rounds', requested_rounds
+  );
+end;
+$$;
+
+create function public.apply_character_condition(
+  session_id bigint,
+  character_id bigint,
+  operation text,
+  condition text,
+  source text default '',
+  duration_rounds integer default null
+)
+returns jsonb
+language sql
+security invoker
+set search_path = ''
+as $$
+  select private.apply_character_condition(
+    session_id, character_id, operation, condition, source, duration_rounds
+  );
+$$;
+
+create function private.tick_character_conditions()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  elapsed_rounds integer;
+  expired record;
+  current_user_id uuid := (select auth.uid());
+begin
+  elapsed_rounds := new.round_number - old.round_number;
+  if elapsed_rounds <= 0 then return new; end if;
+
+  for expired in
+    select condition_instances.*
+    from public.character_condition_instances condition_instances
+    where condition_instances.session_id = new.session_id
+      and condition_instances.remaining_rounds is not null
+      and condition_instances.remaining_rounds <= elapsed_rounds
+  loop
+    update public.characters
+    set conditions = array_remove(conditions, expired.condition)
+    where id = expired.character_id;
+    insert into public.session_events (
+      session_id, campaign_id, actor_id, character_id, kind, visibility, title, body, round_number, metadata
+    )
+    select
+      new.session_id, new.campaign_id, current_user_id, characters.id, 'condition', 'party',
+      characters.name || ' is no longer ' || expired.condition,
+      'The timed condition expired at the start of round ' || new.round_number || '.',
+      new.round_number,
+      jsonb_build_object('operation', 'condition_expired', 'condition', expired.condition, 'source', expired.source)
+    from public.characters
+    where characters.id = expired.character_id;
+    delete from public.character_condition_instances where id = expired.id;
+  end loop;
+
+  update public.character_condition_instances
+  set remaining_rounds = remaining_rounds - elapsed_rounds
+  where session_id = new.session_id
+    and remaining_rounds is not null
+    and remaining_rounds > elapsed_rounds;
+  return new;
+end;
+$$;
+
+create trigger session_encounters_tick_conditions
+after update of round_number on public.session_encounters
+for each row
+when (new.round_number > old.round_number)
+execute function private.tick_character_conditions();
+
 revoke execute on function private.set_updated_at() from public, anon, authenticated;
 revoke execute on function private.record_approved_action_proposal() from public, anon, authenticated;
 revoke execute on function private.record_character_inventory_memory() from public, anon, authenticated;
@@ -1280,6 +1548,9 @@ revoke execute on function private.apply_character_health_change(bigint, bigint,
 revoke execute on function public.apply_character_health_change(bigint, bigint, text, integer) from public, anon;
 revoke execute on function private.apply_character_status_change(bigint, bigint, text, text) from public, anon;
 revoke execute on function public.apply_character_status_change(bigint, bigint, text, text) from public, anon;
+revoke execute on function private.apply_character_condition(bigint, bigint, text, text, text, integer) from public, anon, authenticated;
+revoke execute on function public.apply_character_condition(bigint, bigint, text, text, text, integer) from public, anon;
+revoke execute on function private.tick_character_conditions() from public, anon, authenticated;
 grant usage on schema private to authenticated;
 grant execute on function private.is_campaign_member(bigint) to authenticated;
 grant execute on function private.is_campaign_owner(bigint) to authenticated;
@@ -1291,6 +1562,8 @@ grant execute on function private.apply_character_health_change(bigint, bigint, 
 grant execute on function public.apply_character_health_change(bigint, bigint, text, integer) to authenticated;
 grant execute on function private.apply_character_status_change(bigint, bigint, text, text) to authenticated;
 grant execute on function public.apply_character_status_change(bigint, bigint, text, text) to authenticated;
+grant execute on function private.apply_character_condition(bigint, bigint, text, text, text, integer) to authenticated;
+grant execute on function public.apply_character_condition(bigint, bigint, text, text, text, integer) to authenticated;
 
 alter table public.profiles enable row level security;
 alter table public.campaigns enable row level security;
@@ -1307,6 +1580,7 @@ alter table public.availability_exceptions enable row level security;
 alter table public.sessions enable row level security;
 alter table public.session_attendance enable row level security;
 alter table public.session_encounters enable row level security;
+alter table public.character_condition_instances enable row level security;
 alter table public.session_initiative_entries enable row level security;
 alter table public.session_action_proposals enable row level security;
 alter table public.session_reaction_prompts enable row level security;
@@ -1560,6 +1834,9 @@ create policy session_encounters_insert_managers on public.session_encounters fo
 create policy session_encounters_update_managers on public.session_encounters for update to authenticated using ((select private.is_campaign_manager(campaign_id))) with check ((select private.is_campaign_manager(campaign_id)));
 create policy session_encounters_delete_managers on public.session_encounters for delete to authenticated using ((select private.is_campaign_manager(campaign_id)));
 
+create policy character_condition_instances_select_members on public.character_condition_instances for select to authenticated
+using ((select private.is_campaign_member(campaign_id)));
+
 create policy initiative_entries_select_members on public.session_initiative_entries for select to authenticated
 using ((select private.is_campaign_member(campaign_id)) and (not is_hidden or (select private.is_campaign_manager(campaign_id))));
 create policy initiative_entries_insert_allowed on public.session_initiative_entries for insert to authenticated
@@ -1746,6 +2023,7 @@ revoke all on table public.profiles from anon, authenticated;
 revoke all on table public.campaigns from anon, authenticated;
 revoke all on table public.campaign_members from anon, authenticated;
 revoke all on table public.characters from anon, authenticated;
+revoke all on table public.character_condition_instances from anon, authenticated;
 revoke all on table public.availability_rules, public.availability_exceptions, public.sessions, public.session_attendance from anon, authenticated;
 revoke all on table public.session_events from anon, authenticated;
 revoke all on table public.campaign_announcements from anon, authenticated;
@@ -1761,6 +2039,7 @@ revoke all on table public.character_memories from anon, authenticated;
 revoke all on table public.character_inventory_items from anon, authenticated;
 revoke all on sequence public.campaigns_id_seq from anon, authenticated;
 revoke all on sequence public.characters_id_seq from anon, authenticated;
+revoke all on sequence public.character_condition_instances_id_seq from anon, authenticated;
 revoke all on sequence public.character_features_id_seq from anon, authenticated;
 revoke all on sequence public.character_spellcasting_profiles_id_seq, public.character_spells_id_seq from anon, authenticated;
 revoke all on sequence public.character_memories_id_seq from anon, authenticated;
@@ -1779,6 +2058,7 @@ grant select, update on table public.profiles to authenticated;
 grant select, insert, update, delete on table public.campaigns to authenticated;
 grant select, insert, update, delete on table public.campaign_members to authenticated;
 grant select, insert, update, delete on table public.characters to authenticated;
+grant select on table public.character_condition_instances to authenticated;
 grant select, insert, update, delete on table public.character_features to authenticated;
 grant select, insert, update, delete on table public.character_spellcasting_profiles, public.character_spells, public.character_spell_slots to authenticated;
 grant select, insert, update, delete on table public.character_memories to authenticated;

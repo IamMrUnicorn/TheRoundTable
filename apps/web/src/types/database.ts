@@ -778,6 +778,67 @@ export type Database = {
           },
         ]
       }
+      character_condition_instances: {
+        Row: {
+          applied_by: string
+          campaign_id: number
+          character_id: number
+          condition: string
+          created_at: string
+          id: number
+          remaining_rounds: number | null
+          session_id: number
+          source: string
+          updated_at: string
+        }
+        Insert: {
+          applied_by: string
+          campaign_id: number
+          character_id: number
+          condition: string
+          created_at?: string
+          id?: never
+          remaining_rounds?: number | null
+          session_id: number
+          source?: string
+          updated_at?: string
+        }
+        Update: {
+          applied_by?: string
+          campaign_id?: number
+          character_id?: number
+          condition?: string
+          created_at?: string
+          id?: never
+          remaining_rounds?: number | null
+          session_id?: number
+          source?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'character_condition_instances_character_id_fkey'
+            columns: ['character_id']
+            isOneToOne: false
+            referencedRelation: 'characters'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'character_condition_instances_campaign_id_fkey'
+            columns: ['campaign_id']
+            isOneToOne: false
+            referencedRelation: 'campaigns'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'character_condition_instances_session_id_fkey'
+            columns: ['session_id']
+            isOneToOne: false
+            referencedRelation: 'sessions'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       character_features: {
         Row: {
           character_id: number
@@ -1155,6 +1216,7 @@ export type Database = {
           campaign_id: number | null
           charisma: number
           class_name: string
+          combat_state: string
           concentration: string
           conditions: string[]
           constitution: number
@@ -1210,6 +1272,7 @@ export type Database = {
           campaign_id?: number | null
           charisma?: number
           class_name?: string
+          combat_state?: string
           concentration?: string
           conditions?: string[]
           constitution?: number
@@ -1265,6 +1328,7 @@ export type Database = {
           campaign_id?: number | null
           charisma?: number
           class_name?: string
+          combat_state?: string
           concentration?: string
           conditions?: string[]
           constitution?: number
@@ -1806,6 +1870,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      apply_character_condition: {
+        Args: {
+          character_id: number
+          condition: string
+          duration_rounds?: number | null
+          operation: string
+          session_id: number
+          source?: string
+        }
+        Returns: Json
+      }
       apply_character_health_change: {
         Args: {
           amount: number

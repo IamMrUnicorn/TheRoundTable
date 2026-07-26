@@ -129,11 +129,11 @@ This roadmap translates the play-screen sketch and the proven V5 foundations int
 
 - [ ] Current/max/temporary HP controls. *(Atomic current/temporary HP damage and recovery controls complete; max-HP play controls remain.)*
 - [x] Damage, healing, and death-saving throws.
-- [ ] Conditions with source and optional duration. *(Atomic add/remove controls and history complete; structured source and duration remain.)*
-- [ ] Concentration tracking and checks. *(Concentration source tracking and start/end history complete; automatic damage checks remain.)*
+- [x] Conditions with source and optional round duration, including automatic expiration as encounters advance.
+- [x] Concentration tracking, damage-derived save DCs, and pass/fail resolution.
 - [ ] Armor class, speed, senses, and status display in party cards.
 - [x] Hidden Game Master combatants and player-safe hidden-turn indicators.
-- [ ] Defeated, unconscious, stabilized, dead, and removed states.
+- [ ] Defeated, unconscious, stabilized, dead, and removed states. *(Authoritative conscious, unconscious, stabilized, and dead character states are complete; creature defeated/removed handling remains.)*
 
 **Phase 3 exit:** a party can run a complete theater-of-the-mind combat encounter with turns, rolls, actions, reactions, approvals, HP, and conditions.
 

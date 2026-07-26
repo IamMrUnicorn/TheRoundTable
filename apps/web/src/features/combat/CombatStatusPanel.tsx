@@ -1,7 +1,12 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 
-import { applyCharacterStatusChange, type StatusOperation } from './status'
+import {
+  applyCharacterCondition,
+  applyCharacterStatusChange,
+  listCharacterConditions,
+  type StatusOperation,
+} from './status'
 
 const conditions = [
   'blinded',
@@ -21,6 +26,7 @@ const conditions = [
 ] as const
 
 type StatusCharacter = {
+  combat_state: string
   concentration: string
   conditions: string[]
   death_save_failures: number
@@ -50,7 +56,35 @@ export function CombatStatusPanel({
     Record<number, string>
   >({})
   const [concentration, setConcentration] = useState<Record<number, string>>({})
+  const [conditionSources, setConditionSources] = useState<
+    Record<number, string>
+  >({})
+  const [conditionRounds, setConditionRounds] = useState<
+    Record<number, string>
+  >({})
   const [feedback, setFeedback] = useState('')
+  const conditionInstances = useQuery({
+    queryKey: ['character-condition-instances', sessionId],
+    queryFn: () => listCharacterConditions(sessionId),
+    refetchInterval: 5_000,
+  })
+  const refresh = async (characterId: number) => {
+    await Promise.all([
+      client.invalidateQueries({
+        queryKey: ['campaign-characters', campaignId],
+      }),
+      client.invalidateQueries({ queryKey: ['session-events', sessionId] }),
+      client.invalidateQueries({
+        queryKey: ['character', characterId],
+      }),
+      client.invalidateQueries({
+        queryKey: ['character-memories', characterId],
+      }),
+      client.invalidateQueries({
+        queryKey: ['character-condition-instances', sessionId],
+      }),
+    ])
+  }
   const change = useMutation({
     mutationFn: ({
       characterId,
@@ -65,22 +99,50 @@ export function CombatStatusPanel({
     onMutate: () => setFeedback(''),
     onSuccess: async (_, variables) => {
       setFeedback('Combat status and history updated.')
-      await Promise.all([
-        client.invalidateQueries({
-          queryKey: ['campaign-characters', campaignId],
-        }),
-        client.invalidateQueries({ queryKey: ['session-events', sessionId] }),
-        client.invalidateQueries({
-          queryKey: ['character', variables.characterId],
-        }),
-        client.invalidateQueries({
-          queryKey: ['character-memories', variables.characterId],
-        }),
-      ])
+      await refresh(variables.characterId)
     },
     onError: (error) =>
       setFeedback(
         error instanceof Error ? error.message : 'The status change failed.',
+      ),
+  })
+  const changeCondition = useMutation({
+    mutationFn: ({
+      characterId,
+      condition,
+      operation,
+    }: {
+      characterId: number
+      condition: string
+      operation: 'add' | 'remove'
+    }) => {
+      const rawRounds = conditionRounds[characterId]?.trim() ?? ''
+      const durationRounds =
+        operation === 'add' && rawRounds ? Number(rawRounds) : null
+      if (
+        durationRounds !== null &&
+        (!Number.isSafeInteger(durationRounds) ||
+          durationRounds < 1 ||
+          durationRounds > 999)
+      )
+        throw new Error('Duration must be 1–999 rounds, or blank.')
+      return applyCharacterCondition({
+        characterId,
+        condition,
+        durationRounds,
+        operation,
+        sessionId,
+        source: conditionSources[characterId] ?? '',
+      })
+    },
+    onMutate: () => setFeedback(''),
+    onSuccess: async (_, variables) => {
+      setFeedback('Condition and session history updated.')
+      await refresh(variables.characterId)
+    },
+    onError: (error) =>
+      setFeedback(
+        error instanceof Error ? error.message : 'The condition change failed.',
       ),
   })
 
@@ -102,16 +164,37 @@ export function CombatStatusPanel({
             <article key={character.id}>
               <header>
                 <strong>{character.name}</strong>
+                <span
+                  className={`combat-state-badge ${character.combat_state}`}
+                >
+                  {character.combat_state}
+                </span>
                 <span>
                   Death saves: {character.death_save_successes} ✓ ·{' '}
                   {character.death_save_failures} ✕
                 </span>
               </header>
-              <p>
-                {character.conditions.length
-                  ? character.conditions.join(' · ')
-                  : 'No active conditions'}
-              </p>
+              <div className="condition-instance-list">
+                {character.conditions.map((condition) => {
+                  const instance = conditionInstances.data?.find(
+                    (item) =>
+                      item.character_id === character.id &&
+                      item.condition === condition,
+                  )
+                  return (
+                    <span key={condition}>
+                      <strong>{condition}</strong>
+                      {instance?.source && ` · ${instance.source}`}
+                      {instance?.remaining_rounds !== null &&
+                        instance?.remaining_rounds !== undefined &&
+                        ` · ${instance.remaining_rounds} rounds`}
+                    </span>
+                  )
+                })}
+                {character.conditions.length === 0 && (
+                  <span>No active conditions</span>
+                )}
+              </div>
               <p>
                 {character.concentration
                   ? `Concentrating: ${character.concentration}`
@@ -132,15 +215,27 @@ export function CombatStatusPanel({
                       <option key={condition}>{condition}</option>
                     ))}
                   </select>
+                  <input
+                    maxLength={160}
+                    placeholder="Condition source"
+                    value={conditionSources[character.id] ?? ''}
+                    onChange={(event) =>
+                      setConditionSources((current) => ({
+                        ...current,
+                        [character.id]: event.target.value,
+                      }))
+                    }
+                  />
                   <button
                     type="button"
+                    disabled={changeCondition.isPending}
                     onClick={() =>
-                      change.mutate({
+                      changeCondition.mutate({
                         characterId: character.id,
+                        condition: selected,
                         operation: character.conditions.includes(selected)
-                          ? 'condition_remove'
-                          : 'condition_add',
-                        value: selected,
+                          ? 'remove'
+                          : 'add',
                       })
                     }
                   >
@@ -148,6 +243,20 @@ export function CombatStatusPanel({
                       ? 'Remove condition'
                       : 'Add condition'}
                   </button>
+                  <input
+                    aria-label={`Condition duration in rounds for ${character.name}`}
+                    min={1}
+                    max={999}
+                    type="number"
+                    placeholder="Rounds"
+                    value={conditionRounds[character.id] ?? ''}
+                    onChange={(event) =>
+                      setConditionRounds((current) => ({
+                        ...current,
+                        [character.id]: event.target.value,
+                      }))
+                    }
+                  />
                   <input
                     maxLength={160}
                     placeholder="Concentration source"
@@ -173,17 +282,41 @@ export function CombatStatusPanel({
                     Concentrate
                   </button>
                   {character.concentration && (
-                    <button
-                      type="button"
-                      onClick={() =>
-                        change.mutate({
-                          characterId: character.id,
-                          operation: 'concentration_end',
-                        })
-                      }
-                    >
-                      End concentration
-                    </button>
+                    <>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          change.mutate({
+                            characterId: character.id,
+                            operation: 'concentration_check_pass',
+                          })
+                        }
+                      >
+                        Save passed
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          change.mutate({
+                            characterId: character.id,
+                            operation: 'concentration_check_fail',
+                          })
+                        }
+                      >
+                        Save failed
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          change.mutate({
+                            characterId: character.id,
+                            operation: 'concentration_end',
+                          })
+                        }
+                      >
+                        End concentration
+                      </button>
+                    </>
                   )}
                   <button
                     type="button"
@@ -218,6 +351,44 @@ export function CombatStatusPanel({
                   >
                     Reset saves
                   </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      change.mutate({
+                        characterId: character.id,
+                        operation: 'stabilize',
+                      })
+                    }
+                  >
+                    Stabilize
+                  </button>
+                  {isManager && character.combat_state !== 'dead' && (
+                    <button
+                      className="danger-button"
+                      type="button"
+                      onClick={() =>
+                        change.mutate({
+                          characterId: character.id,
+                          operation: 'mark_dead',
+                        })
+                      }
+                    >
+                      Mark dead
+                    </button>
+                  )}
+                  {isManager && character.combat_state === 'dead' && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        change.mutate({
+                          characterId: character.id,
+                          operation: 'revive',
+                        })
+                      }
+                    >
+                      Revive
+                    </button>
+                  )}
                 </div>
               )}
             </article>

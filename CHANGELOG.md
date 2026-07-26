@@ -28,6 +28,10 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 
 ### Added
 
+- Added structured character-condition instances with source attribution, optional 1–999 round durations, party-readable status details, and automatic expiration when an encounter advances.
+- Added authoritative conscious, unconscious, stabilized, and dead states with automatic unconsciousness at zero HP, recovery after healing, three-success stabilization, three-failure death, and explicit GM stabilize/death/revive controls.
+- Added concentration-save DC calculation to atomic damage resolution, visible Constitution-save prompts, pass/fail logging, and automatic concentration removal after a failed check.
+- Added responsive combat-state badges and condition chips, source/duration inputs, immutable condition-expiration events, least-privilege condition storage, and multi-user RLS tests covering direct-write rejection and timed round behavior.
 - Added named live-encounter lifecycle controls so Game Masters can start and end encounters, retain round totals, and automatically record durable start/end summaries in the session event log.
 - Added monsters, NPCs, and custom initiative combatants with initiative, armor class, hit points, kind, party-visible or GM-hidden state, direct removal, and responsive creation controls.
 - Added next-turn previews, previous/next navigation, direct Game Master turn jumps, correct round wrap/rewind behavior, hidden-turn messaging for players, and realtime initiative/encounter refresh with polling fallback.

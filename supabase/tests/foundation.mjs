@@ -667,6 +667,22 @@ const { data: conditionStatus, response: conditionStatusResponse } = await reque
 })
 assert.equal(conditionStatusResponse.status, 200)
 assert.ok(conditionStatus.conditions.includes('stunned'))
+const { data: timedCondition, response: timedConditionResponse } = await request('/rest/v1/rpc/apply_character_condition', {
+  token: owner.token,
+  method: 'POST',
+  body: { session_id: sessionId, character_id: characterId, operation: 'add', condition: 'poisoned', source: 'Drowned sentinel venom', duration_rounds: 2 },
+})
+assert.equal(timedConditionResponse.status, 200)
+assert.equal(timedCondition.remaining_rounds, 2)
+const { data: memberConditionInstances, response: memberConditionInstancesResponse } = await request(`/rest/v1/character_condition_instances?character_id=eq.${characterId}&select=condition,source,remaining_rounds`, { token: invitee.token })
+assert.equal(memberConditionInstancesResponse.status, 200)
+assert.deepEqual(memberConditionInstances, [{ condition: 'poisoned', source: 'Drowned sentinel venom', remaining_rounds: 2 }])
+const { response: forbiddenDirectConditionResponse } = await request('/rest/v1/character_condition_instances', {
+  token: invitee.token,
+  method: 'POST',
+  body: { session_id: sessionId, campaign_id: campaignId, character_id: characterId, condition: 'paralyzed', applied_by: invitee.id },
+})
+assert.equal(forbiddenDirectConditionResponse.status, 403)
 const { data: concentrationStatus, response: concentrationStatusResponse } = await request('/rest/v1/rpc/apply_character_status_change', {
   token: outsider.token,
   method: 'POST',
@@ -674,6 +690,30 @@ const { data: concentrationStatus, response: concentrationStatusResponse } = awa
 })
 assert.equal(concentrationStatusResponse.status, 200)
 assert.equal(concentrationStatus.concentration, 'Haste')
+const { data: concentrationDamage, response: concentrationDamageResponse } = await request('/rest/v1/rpc/apply_character_health_change', {
+  token: owner.token,
+  method: 'POST',
+  body: { session_id: sessionId, character_id: characterId, change_kind: 'damage', amount: 8 },
+})
+assert.equal(concentrationDamageResponse.status, 200)
+assert.equal(concentrationDamage.concentration_check_dc, 10)
+const { data: failedConcentration } = await request('/rest/v1/rpc/apply_character_status_change', {
+  token: owner.token,
+  method: 'POST',
+  body: { session_id: sessionId, character_id: characterId, operation: 'concentration_check_fail' },
+})
+assert.equal(failedConcentration.concentration, '')
+const { response: firstDeathStatusResponse } = await request('/rest/v1/rpc/apply_character_status_change', {
+  token: owner.token,
+  method: 'POST',
+  body: { session_id: sessionId, character_id: characterId, operation: 'death_success' },
+})
+assert.equal(firstDeathStatusResponse.status, 200)
+await request('/rest/v1/rpc/apply_character_status_change', {
+  token: owner.token,
+  method: 'POST',
+  body: { session_id: sessionId, character_id: characterId, operation: 'death_success' },
+})
 const { data: deathStatus, response: deathStatusResponse } = await request('/rest/v1/rpc/apply_character_status_change', {
   token: owner.token,
   method: 'POST',
@@ -681,17 +721,52 @@ const { data: deathStatus, response: deathStatusResponse } = await request('/res
 })
 assert.equal(deathStatusResponse.status, 200)
 assert.equal(deathStatus.death_save_successes, 3)
+assert.equal(deathStatus.combat_state, 'stabilized')
 const { response: forbiddenStatusResponse } = await request('/rest/v1/rpc/apply_character_status_change', {
   token: invitee.token,
   method: 'POST',
   body: { session_id: sessionId, character_id: characterId, operation: 'condition_remove', value: 'stunned' },
 })
 assert.equal(forbiddenStatusResponse.status, 403)
+const { response: tickRoundThreeResponse } = await request(`/rest/v1/session_encounters?session_id=eq.${sessionId}`, {
+  token: outsider.token,
+  method: 'PATCH',
+  body: { round_number: 3 },
+})
+assert.equal(tickRoundThreeResponse.status, 200)
+const { data: conditionAfterOneRound } = await request(`/rest/v1/character_condition_instances?character_id=eq.${characterId}&condition=eq.poisoned&select=remaining_rounds`, { token: owner.token })
+assert.deepEqual(conditionAfterOneRound, [{ remaining_rounds: 1 }])
+const { response: tickRoundFourResponse } = await request(`/rest/v1/session_encounters?session_id=eq.${sessionId}`, {
+  token: outsider.token,
+  method: 'PATCH',
+  body: { round_number: 4 },
+})
+assert.equal(tickRoundFourResponse.status, 200)
+const { data: expiredCondition } = await request(`/rest/v1/character_condition_instances?character_id=eq.${characterId}&condition=eq.poisoned&select=id`, { token: owner.token })
+assert.deepEqual(expiredCondition, [])
+const { data: characterAfterExpiry } = await request(`/rest/v1/characters?id=eq.${characterId}&select=conditions`, { token: owner.token })
+assert.ok(!characterAfterExpiry[0].conditions.includes('poisoned'))
 const { data: statusEvents } = await request(`/rest/v1/session_events?session_id=eq.${sessionId}&kind=eq.condition&select=metadata&order=created_at.asc`, { token: owner.token })
-assert.equal(statusEvents.length, 3)
+assert.ok(statusEvents.length >= 6)
 assert.equal(statusEvents[0].metadata.operation, 'condition_add')
-assert.equal(statusEvents[1].metadata.concentration, 'Haste')
-assert.equal(statusEvents[2].metadata.death_successes, 3)
+assert.ok(statusEvents.some((event) => event.metadata.concentration === 'Haste'))
+assert.ok(statusEvents.some((event) => event.metadata.death_successes === 3))
+assert.ok(statusEvents.some((event) => event.metadata.operation === 'condition_expired'))
+const { data: unconsciousHealth, response: unconsciousHealthResponse } = await request('/rest/v1/rpc/apply_character_health_change', {
+  token: owner.token,
+  method: 'POST',
+  body: { session_id: sessionId, character_id: characterId, change_kind: 'damage', amount: 1000 },
+})
+assert.equal(unconsciousHealthResponse.status, 200)
+assert.equal(unconsciousHealth.current_hp, 0)
+assert.equal(unconsciousHealth.combat_state, 'unconscious')
+const { data: restoredHealth, response: restoredHealthResponse } = await request('/rest/v1/rpc/apply_character_health_change', {
+  token: owner.token,
+  method: 'POST',
+  body: { session_id: sessionId, character_id: characterId, change_kind: 'healing', amount: 1 },
+})
+assert.equal(restoredHealthResponse.status, 200)
+assert.equal(restoredHealth.combat_state, 'conscious')
 
 const { response: attendanceResponse } = await request('/rest/v1/session_attendance', {
   token: owner.token,

@@ -164,7 +164,7 @@ This is the source-of-truth checklist for the entire application. Completed work
 - [x] Persistent action, bonus action, movement, object interaction, and reaction tracking with owner/GM controls and turn resets.
 - [x] Player action proposals and Game Master approve/deny/edit/clarify flow with exactly-once projection into the structured session log.
 - [x] Targeted reaction prompts with accept/decline, countdown expiration, restricted visibility, and structured event history.
-- [ ] HP, temporary HP, healing, damage, death saves, concentration, and conditions. *(HP/temp-HP, damage, healing, death-save counters, conditions, and concentration state/history complete; duration/source automation and concentration checks remain.)*
+- [x] HP, temporary HP, healing, damage, death saves, concentration, and conditions.
 - [ ] Character, spell, inventory, monster, and action overlays.
 - [ ] Complete Phase 3 theater-of-the-mind milestone described in `ROADMAP.md`.
 
