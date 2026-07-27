@@ -797,10 +797,48 @@ begin
   values (target.session_id, target.campaign_id, target.target_user_id, target.character_id, 'action', 'party', case when should_accept then 'Reaction accepted' else 'Reaction declined' end, target.prompt, jsonb_build_object('reaction_prompt_id', target.id, 'accepted', should_accept));
   return target;
 end; $$;
+
+create function public.create_reaction_prompt(
+  requested_session_id bigint,
+  requested_campaign_id bigint,
+  requested_character_id bigint,
+  requested_target_user_id uuid,
+  requested_prompt text,
+  duration_seconds integer
+)
+returns public.session_reaction_prompts
+language plpgsql
+security invoker
+set search_path = ''
+as $$
+declare created_prompt public.session_reaction_prompts;
+begin
+  if duration_seconds not between 5 and 300 then
+    raise exception 'Reaction duration must be between 5 and 300 seconds.' using errcode = '22023';
+  end if;
+  insert into public.session_reaction_prompts (
+    session_id, campaign_id, character_id, target_user_id, created_by, prompt, expires_at
+  )
+  values (
+    requested_session_id,
+    requested_campaign_id,
+    requested_character_id,
+    requested_target_user_id,
+    (select auth.uid()),
+    btrim(requested_prompt),
+    statement_timestamp() + make_interval(secs => duration_seconds)
+  )
+  returning * into created_prompt;
+  return created_prompt;
+end;
+$$;
+
 create function public.respond_reaction_prompt(prompt_id bigint, should_accept boolean)
 returns public.session_reaction_prompts language sql security invoker set search_path = '' as $$ select private.respond_reaction_prompt(prompt_id, should_accept); $$;
+revoke execute on function public.create_reaction_prompt(bigint, bigint, bigint, uuid, text, integer) from public, anon;
 revoke execute on function private.respond_reaction_prompt(bigint, boolean) from public, anon;
 revoke execute on function public.respond_reaction_prompt(bigint, boolean) from public, anon;
+grant execute on function public.create_reaction_prompt(bigint, bigint, bigint, uuid, text, integer) to authenticated;
 grant execute on function private.respond_reaction_prompt(bigint, boolean) to authenticated;
 grant execute on function public.respond_reaction_prompt(bigint, boolean) to authenticated;
 

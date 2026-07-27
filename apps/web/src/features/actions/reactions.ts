@@ -12,22 +12,18 @@ export async function listReactionPrompts(sessionId: number) {
 export async function createReactionPrompt(input: {
   campaignId: number
   characterId: number
-  createdBy: string
   durationSeconds: number
   prompt: string
   sessionId: number
   targetUserId: string
 }) {
-  const { error } = await supabase.from('session_reaction_prompts').insert({
-    campaign_id: input.campaignId,
-    character_id: input.characterId,
-    created_by: input.createdBy,
-    expires_at: new Date(
-      Date.now() + input.durationSeconds * 1000,
-    ).toISOString(),
-    prompt: input.prompt.trim(),
-    session_id: input.sessionId,
-    target_user_id: input.targetUserId,
+  const { error } = await supabase.rpc('create_reaction_prompt', {
+    duration_seconds: input.durationSeconds,
+    requested_campaign_id: input.campaignId,
+    requested_character_id: input.characterId,
+    requested_prompt: input.prompt.trim(),
+    requested_session_id: input.sessionId,
+    requested_target_user_id: input.targetUserId,
   })
   if (error) throw error
 }

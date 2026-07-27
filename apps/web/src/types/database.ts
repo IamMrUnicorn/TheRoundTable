@@ -1924,6 +1924,17 @@ export type Database = {
         Returns: Json
       }
       join_campaign: { Args: { campaign_code: string }; Returns: number }
+      create_reaction_prompt: {
+        Args: {
+          duration_seconds: number
+          requested_campaign_id: number
+          requested_character_id: number
+          requested_prompt: string
+          requested_session_id: number
+          requested_target_user_id: string
+        }
+        Returns: Database['public']['Tables']['session_reaction_prompts']['Row']
+      }
       respond_campaign_invitation: {
         Args: { invitation_token: string; should_accept: boolean }
         Returns: number

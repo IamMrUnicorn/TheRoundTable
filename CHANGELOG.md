@@ -8,6 +8,8 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 
 ### Fixed
 
+- Fixed short reaction prompts failing the `expires_at > created_at` constraint when the browser and database clocks differed; prompt creation now calculates creation and expiration from the same authoritative database clock.
+- Added database validation and integration coverage for the complete five-to-300-second reaction duration range.
 - Fixed reaction prompts failing to interrupt the targeted player's browser by publishing prompt changes through Supabase Realtime and subscribing each live session to its own prompt stream.
 - Added a prominent targeted reaction dialog with countdown, accept/decline controls, reconnect polling fallback, and visible send/response errors so reactions cannot silently disappear.
 - Replaced ambiguous number-only and placeholder-only live-play controls with persistent labels across reactions, dice rolls, attacks, action proposals, initiative, combat health/status, and session-event filters and forms.
@@ -31,6 +33,7 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 
 ### Added
 
+- Added a Game Master monster combat console directly to the play-screen action palette with quick HP damage/healing, visibility, initiative/AC/HP context, and action, bonus-action, and reaction tracking.
 - Replaced the vertically stacked live action forms with a compact sketch-aligned action palette for attacks, dice/checks, other actions, and the complete session log.
 - Added a reusable accessible live-tool drawer that hosts the existing dice roller, equipped/custom attack resolver, and player action declaration/approval workflow without duplicating their state or APIs.
 - Added a persistent central recent-activity feed with the six newest shared events, character/actor attribution, timestamps, event kinds, empty state, and a direct path to the searchable complete log.

@@ -1,5 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Crosshair, Dices, MessageSquare, ScrollText } from 'lucide-react'
+import {
+  Crosshair,
+  Dices,
+  MessageSquare,
+  ScrollText,
+  Skull,
+} from 'lucide-react'
 import { type FormEvent, useEffect, useState } from 'react'
 
 import { supabase } from '../../lib/supabase'
@@ -9,6 +15,7 @@ import { ReactionPromptPanel } from '../actions/ReactionPromptPanel'
 import { CombatHealthPanel } from '../combat/CombatHealthPanel'
 import { CombatStatusPanel } from '../combat/CombatStatusPanel'
 import { InitiativePanel } from '../combat/InitiativePanel'
+import { MonsterCombatDrawer } from '../combat/MonsterCombatDrawer'
 import { TurnActionBar } from '../combat/TurnActionBar'
 import { TurnOrderStrip } from '../combat/TurnOrderStrip'
 import { type Character } from '../characters/characters'
@@ -35,7 +42,7 @@ const eventKinds = [
 ] as const
 
 type WorkspaceView = 'actions' | 'combat' | 'log'
-type ActionTool = 'attack' | 'dice' | 'proposal'
+type ActionTool = 'attack' | 'dice' | 'monsters' | 'proposal'
 
 export function SessionEventPanel({
   actorId,
@@ -349,6 +356,18 @@ export function SessionEventPanel({
                     <small>Search, filter, and record events</small>
                   </span>
                 </button>
+                {isManager && (
+                  <button
+                    type="button"
+                    onClick={() => setActionTool('monsters')}
+                  >
+                    <Skull />
+                    <span>
+                      <strong>Monsters</strong>
+                      <small>HP, visibility, and turn resources</small>
+                    </span>
+                  </button>
+                )}
               </div>
             </section>
             <ReactionPromptPanel
@@ -622,14 +641,18 @@ export function SessionEventPanel({
               ? 'Resolve an attack'
               : actionTool === 'dice'
                 ? 'Roll dice'
-                : 'Declare an action'
+                : actionTool === 'monsters'
+                  ? 'Monster combat console'
+                  : 'Declare an action'
           }
           description={
             actionTool === 'attack'
               ? 'Choose a character, equipped weapon, and encounter target.'
               : actionTool === 'dice'
                 ? 'Use character shortcuts or enter a custom dice formula.'
-                : 'Send ordinary or exceptional intent to the shared table.'
+                : actionTool === 'monsters'
+                  ? 'Control non-player combatants without leaving the shared stage.'
+                  : 'Send ordinary or exceptional intent to the shared table.'
           }
           onClose={() => setActionTool(null)}
         >
@@ -658,6 +681,9 @@ export function SessionEventPanel({
               isManager={isManager}
               sessionId={sessionId}
             />
+          )}
+          {actionTool === 'monsters' && (
+            <MonsterCombatDrawer sessionId={sessionId} />
           )}
         </PlayToolDrawer>
       )}

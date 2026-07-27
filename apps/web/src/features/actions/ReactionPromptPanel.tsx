@@ -59,7 +59,6 @@ export function ReactionPromptPanel({
       return createReactionPrompt({
         campaignId,
         characterId: character.id,
-        createdBy: actorId,
         durationSeconds: duration,
         prompt,
         sessionId,

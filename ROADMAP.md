@@ -77,7 +77,7 @@ This roadmap translates the play-screen sketch and the proven V5 foundations int
 - [x] Party/initiative rail on the right. *(The desktop rail now shows character identity, level, ancestry, class, AC, speed, HP, temporary HP, conditions, concentration, and direct sheet access.)*
 - [x] Bottom action bar. *(The persistent responsive bar exposes exploration shortcuts or the active combatant's action, bonus action, reaction, interaction, movement, and action workspace.)*
 - [x] Slide-over character sheet.
-- [ ] Modal/drawer system for spells, inventory, monsters, and actions. *(Character quick view, inventory, features, spellcasting, dice, attacks, and action declarations now use focused play-screen drawers; the dedicated monster drawer remains.)*
+- [x] Modal/drawer system for spells, inventory, monsters, and actions. *(Character quick view, inventory, features, spellcasting, dice, attacks, action declarations, and GM monster combat controls now use focused play-screen drawers.)*
 - [ ] Persist each user’s panel sizes and visibility preferences. *(Selected live workspace persists per browser; panel sizes/visibility pending.)*
 - [ ] Focus mode for maps, logs, sheets, or notes.
 - [ ] Player layout and Game Master layout derived from shared primitives.
@@ -108,6 +108,7 @@ This roadmap translates the play-screen sketch and the proven V5 foundations int
 
 - [x] Start/end named encounters within a session with lifecycle events retained in the session log.
 - [x] Add party characters, monsters, NPCs, and custom combatants.
+- [x] Quick GM monster console for HP, visibility, initiative context, and action-economy controls.
 - [ ] Initiative rolls, manual ordering, ties, and reorder controls. *(Dexterity-aware rolls, manual values, and deterministic tie ordering complete; drag/reorder pending.)*
 - [x] Active-turn indicator, round counter, and next-turn preview.
 - [x] Game Master advance, rewind, and direct turn-jump controls.

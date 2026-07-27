@@ -166,7 +166,7 @@ This is the source-of-truth checklist for the entire application. Completed work
 - [x] Targeted reaction prompts with realtime cross-screen interrupts, accept/decline, countdown expiration, restricted visibility, reconnect fallback, and structured event history.
 - [x] Persistent visible labels for live-play dice, attack, action, reaction, initiative, health, condition, and event-log controls.
 - [x] HP, temporary HP, healing, damage, death saves, concentration, and conditions.
-- [ ] Character, spell, inventory, monster, and action overlays. *(The responsive character overlay includes Quick View, inventory, features, and spells; dice, attack, and declaration tools now use a shared action drawer; the standalone monster overlay remains.)*
+- [x] Character, spell, inventory, monster, and action overlays. *(The responsive character overlay includes Quick View, inventory, features, and spells; dice, attack, declaration, and GM monster combat tools use focused play-screen drawers.)*
 - [ ] Complete Phase 3 theater-of-the-mind milestone described in `ROADMAP.md`.
 
 ## 11. Inventory, equipment, spells, and reusable actions
