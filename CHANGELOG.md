@@ -8,6 +8,9 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 
 ### Fixed
 
+- Fixed reaction prompts failing to interrupt the targeted player's browser by publishing prompt changes through Supabase Realtime and subscribing each live session to its own prompt stream.
+- Added a prominent targeted reaction dialog with countdown, accept/decline controls, reconnect polling fallback, and visible send/response errors so reactions cannot silently disappear.
+- Replaced ambiguous number-only and placeholder-only live-play controls with persistent labels across reactions, dice rolls, attacks, action proposals, initiative, combat health/status, and session-event filters and forms.
 - Fixed sample-campaign generation failures caused by omitted non-null values in mixed bulk inserts for announcements, campaign documents, and inventory.
 - Improved sample-generation errors so PostgREST messages appear in the interface instead of a generic fallback.
 - Prevented invalid numeric `max` attributes while character data is still loading.

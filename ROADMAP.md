@@ -33,7 +33,7 @@ This roadmap translates the play-screen sketch and the proven V5 foundations int
 - [ ] Regenerate/revoke campaign invite codes.
 - [ ] Member role management: owner, Game Master, player, observer.
 - [ ] Remove members and allow members to leave campaigns.
-- [ ] Transfer campaign ownership safely.
+- [x] Keep campaign ownership permanent and remove transfer controls to prevent accidental handoff.
 - [ ] Pending invitation/approval mode as an alternative to instant code joining.
 - [ ] Campaign-level rules configuration and optional system/version metadata.
 
@@ -120,7 +120,7 @@ This roadmap translates the play-screen sketch and the proven V5 foundations int
 - [x] Player action composer for attack, magic, item, movement, speech, and custom intent.
 - [x] Soft approval for ordinary actions unless denied by the Game Master.
 - [x] Hard approval for exceptional/custom actions.
-- [x] Targeted reaction prompts with accept/decline, expiration, privacy, and structured log resolution.
+- [x] Targeted reaction prompts with realtime cross-screen interrupts, accept/decline, expiration, privacy, reconnect fallback, and structured log resolution.
 - [x] Game Master queue for pending player actions.
 - [x] Approve, deny, edit, or request clarification.
 - [x] Action resolution creates exactly-once structured log events with proposal and ruling provenance.

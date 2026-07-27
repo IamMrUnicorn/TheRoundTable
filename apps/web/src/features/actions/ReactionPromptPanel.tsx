@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Clock3, ShieldAlert } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { supabase } from '../../lib/supabase'
 import {
   createReactionPrompt,
   listReactionPrompts,
@@ -30,6 +31,28 @@ export function ReactionPromptPanel({
   const [characterId, setCharacterId] = useState(''),
     [prompt, setPrompt] = useState(''),
     [duration, setDuration] = useState(30)
+  useEffect(() => {
+    const refresh = () =>
+      void client.invalidateQueries({
+        queryKey: ['reaction-prompts', sessionId],
+      })
+    const channel = supabase
+      .channel(`reaction-prompts:${sessionId}:${actorId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          filter: `session_id=eq.${sessionId}`,
+          schema: 'public',
+          table: 'session_reaction_prompts',
+        },
+        refresh,
+      )
+      .subscribe()
+    return () => {
+      void supabase.removeChannel(channel)
+    }
+  }, [actorId, client, sessionId])
   const create = useMutation({
     mutationFn: () => {
       const character = characters.find((c) => c.id === Number(characterId))!
@@ -53,6 +76,18 @@ export function ReactionPromptPanel({
       respondReactionPrompt(id, accept),
     onSuccess: () => client.invalidateQueries({ queryKey: key }),
   })
+  const targetedPrompt = prompts.data?.find(
+    (item) =>
+      item.target_user_id === actorId &&
+      item.status === 'pending' &&
+      Date.parse(item.expires_at) > Date.now(),
+  )
+  const targetedRemaining = targetedPrompt
+    ? Math.max(
+        0,
+        Math.ceil((Date.parse(targetedPrompt.expires_at) - Date.now()) / 1000),
+      )
+    : 0
   return (
     <section className="reaction-prompt-panel">
       <header>
@@ -69,38 +104,48 @@ export function ReactionPromptPanel({
             create.mutate()
           }}
         >
-          <select
-            required
-            value={characterId}
-            onChange={(e) => setCharacterId(e.target.value)}
-          >
-            <option value="">Choose character</option>
-            {characters.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
-          <input
-            required
-            maxLength={1000}
-            placeholder="Would you like to use your reaction?"
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-          />
-          <input
-            aria-label="Reaction seconds"
-            type="number"
-            min={5}
-            max={300}
-            value={duration}
-            onChange={(e) => setDuration(Number(e.target.value))}
-          />
+          <label>
+            Target character
+            <select
+              required
+              value={characterId}
+              onChange={(e) => setCharacterId(e.target.value)}
+            >
+              <option value="">Choose character</option>
+              {characters.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Reaction question
+            <input
+              required
+              maxLength={1000}
+              placeholder="Would you like to use your reaction?"
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+            />
+          </label>
+          <label>
+            Response time (seconds)
+            <input
+              type="number"
+              min={5}
+              max={300}
+              value={duration}
+              onChange={(e) => setDuration(Number(e.target.value))}
+            />
+          </label>
           <button disabled={!characterId || !prompt.trim() || create.isPending}>
-            Prompt
+            {create.isPending ? 'Sending…' : 'Send prompt'}
           </button>
         </form>
       )}
+      {create.error && <p className="form-error">{create.error.message}</p>}
+      {respond.error && <p className="form-error">{respond.error.message}</p>}
       <div className="reaction-list">
         {prompts.data?.map((item) => {
           const remaining = Math.max(
@@ -148,6 +193,50 @@ export function ReactionPromptPanel({
           )
         })}
       </div>
+      {targetedPrompt && (
+        <div className="reaction-interrupt-backdrop" role="presentation">
+          <section
+            className="reaction-interrupt-dialog"
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="reaction-interrupt-title"
+          >
+            <ShieldAlert aria-hidden="true" />
+            <p className="eyebrow">Reaction available</p>
+            <h2 id="reaction-interrupt-title">
+              {
+                characters.find(
+                  (character) => character.id === targetedPrompt.character_id,
+                )?.name
+              }
+            </h2>
+            <p>{targetedPrompt.prompt}</p>
+            <strong>
+              <Clock3 /> {targetedRemaining}s remaining
+            </strong>
+            <div>
+              <button
+                autoFocus
+                disabled={respond.isPending}
+                onClick={() =>
+                  respond.mutate({ id: targetedPrompt.id, accept: true })
+                }
+              >
+                Use reaction
+              </button>
+              <button
+                className="secondary-button"
+                disabled={respond.isPending}
+                onClick={() =>
+                  respond.mutate({ id: targetedPrompt.id, accept: false })
+                }
+              >
+                Decline
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
     </section>
   )
 }

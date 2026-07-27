@@ -163,7 +163,8 @@ This is the source-of-truth checklist for the entire application. Completed work
 - [x] Encounters, initiative ordering, rounds, turns, and active-turn controls.
 - [x] Persistent action, bonus action, movement, object interaction, and reaction tracking with owner/GM controls and turn resets.
 - [x] Player action proposals and Game Master approve/deny/edit/clarify flow with exactly-once projection into the structured session log.
-- [x] Targeted reaction prompts with accept/decline, countdown expiration, restricted visibility, and structured event history.
+- [x] Targeted reaction prompts with realtime cross-screen interrupts, accept/decline, countdown expiration, restricted visibility, reconnect fallback, and structured event history.
+- [x] Persistent visible labels for live-play dice, attack, action, reaction, initiative, health, condition, and event-log controls.
 - [x] HP, temporary HP, healing, damage, death saves, concentration, and conditions.
 - [ ] Character, spell, inventory, monster, and action overlays. *(The responsive character overlay includes Quick View, inventory, features, and spells; dice, attack, and declaration tools now use a shared action drawer; the standalone monster overlay remains.)*
 - [ ] Complete Phase 3 theater-of-the-mind milestone described in `ROADMAP.md`.

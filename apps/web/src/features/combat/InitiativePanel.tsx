@@ -282,12 +282,15 @@ export function InitiativePanel({
               begin.mutate()
             }}
           >
-            <input
-              required
-              maxLength={120}
-              value={encounterName}
-              onChange={(event) => setEncounterName(event.target.value)}
-            />
+            <label className="play-field">
+              Encounter name
+              <input
+                required
+                maxLength={120}
+                value={encounterName}
+                onChange={(event) => setEncounterName(event.target.value)}
+              />
+            </label>
             <button disabled={begin.isPending || !encounterName.trim()}>
               <Swords /> {begin.isPending ? 'Starting…' : 'Start encounter'}
             </button>
@@ -506,17 +509,19 @@ export function InitiativePanel({
               <span>
                 <Swords /> {character.name}
               </span>
-              <input
-                aria-label={`Manual initiative for ${character.name}`}
-                type="number"
-                min={-100}
-                max={200}
-                placeholder="Manual"
-                value={manual[character.id] ?? ''}
-                onChange={(event) =>
-                  setManual({ ...manual, [character.id]: event.target.value })
-                }
-              />
+              <label className="play-field">
+                Initiative result
+                <input
+                  type="number"
+                  min={-100}
+                  max={200}
+                  placeholder="Auto roll"
+                  value={manual[character.id] ?? ''}
+                  onChange={(event) =>
+                    setManual({ ...manual, [character.id]: event.target.value })
+                  }
+                />
+              </label>
               <button
                 disabled={roll.isPending}
                 onClick={() => {
@@ -547,61 +552,73 @@ export function InitiativePanel({
             <p className="eyebrow">GM combatant</p>
             <h4>Add monster, NPC, or custom turn</h4>
           </div>
-          <select
-            value={combatant.kind}
-            onChange={(event) =>
-              setCombatant({
-                ...combatant,
-                kind: event.target.value as typeof combatant.kind,
-              })
-            }
-          >
-            <option value="monster">Monster</option>
-            <option value="npc">NPC</option>
-            <option value="custom">Custom</option>
-          </select>
-          <input
-            required
-            maxLength={120}
-            placeholder="Combatant name"
-            value={combatant.name}
-            onChange={(event) =>
-              setCombatant({ ...combatant, name: event.target.value })
-            }
-          />
-          <input
-            aria-label="Initiative"
-            required
-            min={-100}
-            max={200}
-            type="number"
-            value={combatant.initiative}
-            onChange={(event) =>
-              setCombatant({ ...combatant, initiative: event.target.value })
-            }
-          />
-          <input
-            aria-label="Armor class"
-            required
-            min={0}
-            max={99}
-            type="number"
-            value={combatant.armorClass}
-            onChange={(event) =>
-              setCombatant({ ...combatant, armorClass: event.target.value })
-            }
-          />
-          <input
-            aria-label="Hit points"
-            required
-            min={1}
-            max={999999}
-            type="number"
-            value={combatant.hitPoints}
-            onChange={(event) =>
-              setCombatant({ ...combatant, hitPoints: event.target.value })
-            }
-          />
+          <label className="play-field">
+            Combatant type
+            <select
+              value={combatant.kind}
+              onChange={(event) =>
+                setCombatant({
+                  ...combatant,
+                  kind: event.target.value as typeof combatant.kind,
+                })
+              }
+            >
+              <option value="monster">Monster</option>
+              <option value="npc">NPC</option>
+              <option value="custom">Custom</option>
+            </select>
+          </label>
+          <label className="play-field">
+            Combatant name
+            <input
+              required
+              maxLength={120}
+              placeholder="Drowned sentinel"
+              value={combatant.name}
+              onChange={(event) =>
+                setCombatant({ ...combatant, name: event.target.value })
+              }
+            />
+          </label>
+          <label className="play-field">
+            Initiative result
+            <input
+              required
+              min={-100}
+              max={200}
+              type="number"
+              value={combatant.initiative}
+              onChange={(event) =>
+                setCombatant({ ...combatant, initiative: event.target.value })
+              }
+            />
+          </label>
+          <label className="play-field">
+            Armor class
+            <input
+              required
+              min={0}
+              max={99}
+              type="number"
+              value={combatant.armorClass}
+              onChange={(event) =>
+                setCombatant({ ...combatant, armorClass: event.target.value })
+              }
+            />
+          </label>
+          <label className="play-field">
+            Maximum hit points
+            <input
+              required
+              min={1}
+              max={999999}
+              type="number"
+              value={combatant.hitPoints}
+              onChange={(event) =>
+                setCombatant({ ...combatant, hitPoints: event.target.value })
+              }
+            />
+          </label>
           <label className="checkbox-label">
             <input
               type="checkbox"

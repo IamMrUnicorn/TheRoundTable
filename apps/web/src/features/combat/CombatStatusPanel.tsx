@@ -202,30 +202,36 @@ export function CombatStatusPanel({
               </p>
               {canChange && (
                 <div className="status-controls">
-                  <select
-                    value={selected}
-                    onChange={(event) =>
-                      setSelectedConditions((current) => ({
-                        ...current,
-                        [character.id]: event.target.value,
-                      }))
-                    }
-                  >
-                    {conditions.map((condition) => (
-                      <option key={condition}>{condition}</option>
-                    ))}
-                  </select>
-                  <input
-                    maxLength={160}
-                    placeholder="Condition source"
-                    value={conditionSources[character.id] ?? ''}
-                    onChange={(event) =>
-                      setConditionSources((current) => ({
-                        ...current,
-                        [character.id]: event.target.value,
-                      }))
-                    }
-                  />
+                  <label className="play-field">
+                    Condition
+                    <select
+                      value={selected}
+                      onChange={(event) =>
+                        setSelectedConditions((current) => ({
+                          ...current,
+                          [character.id]: event.target.value,
+                        }))
+                      }
+                    >
+                      {conditions.map((condition) => (
+                        <option key={condition}>{condition}</option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="play-field">
+                    Condition source
+                    <input
+                      maxLength={160}
+                      placeholder="Poisoned dart"
+                      value={conditionSources[character.id] ?? ''}
+                      onChange={(event) =>
+                        setConditionSources((current) => ({
+                          ...current,
+                          [character.id]: event.target.value,
+                        }))
+                      }
+                    />
+                  </label>
                   <button
                     type="button"
                     disabled={changeCondition.isPending}
@@ -243,31 +249,36 @@ export function CombatStatusPanel({
                       ? 'Remove condition'
                       : 'Add condition'}
                   </button>
-                  <input
-                    aria-label={`Condition duration in rounds for ${character.name}`}
-                    min={1}
-                    max={999}
-                    type="number"
-                    placeholder="Rounds"
-                    value={conditionRounds[character.id] ?? ''}
-                    onChange={(event) =>
-                      setConditionRounds((current) => ({
-                        ...current,
-                        [character.id]: event.target.value,
-                      }))
-                    }
-                  />
-                  <input
-                    maxLength={160}
-                    placeholder="Concentration source"
-                    value={concentration[character.id] ?? ''}
-                    onChange={(event) =>
-                      setConcentration((current) => ({
-                        ...current,
-                        [character.id]: event.target.value,
-                      }))
-                    }
-                  />
+                  <label className="play-field">
+                    Duration in rounds
+                    <input
+                      min={1}
+                      max={999}
+                      type="number"
+                      placeholder="Until removed"
+                      value={conditionRounds[character.id] ?? ''}
+                      onChange={(event) =>
+                        setConditionRounds((current) => ({
+                          ...current,
+                          [character.id]: event.target.value,
+                        }))
+                      }
+                    />
+                  </label>
+                  <label className="play-field">
+                    Concentration spell or effect
+                    <input
+                      maxLength={160}
+                      placeholder="Bless"
+                      value={concentration[character.id] ?? ''}
+                      onChange={(event) =>
+                        setConcentration((current) => ({
+                          ...current,
+                          [character.id]: event.target.value,
+                        }))
+                      }
+                    />
+                  </label>
                   <button
                     type="button"
                     disabled={!concentration[character.id]?.trim()}

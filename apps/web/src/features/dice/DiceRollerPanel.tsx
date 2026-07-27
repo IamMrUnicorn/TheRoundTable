@@ -173,91 +173,107 @@ export function DiceRollerPanel({
           record.mutate()
         }}
       >
-        <input
-          maxLength={160}
-          placeholder="Roll label"
-          value={label}
-          onChange={(event) => setLabel(event.target.value)}
-        />
-        {manual ? (
+        <label className="play-field">
+          Roll name
           <input
-            required
-            type="number"
-            min={-1_000_000}
-            max={1_000_000}
-            placeholder="Manual total"
-            value={manualResult}
-            onChange={(event) => setManualResult(event.target.value)}
+            maxLength={160}
+            placeholder="Perception check"
+            value={label}
+            onChange={(event) => setLabel(event.target.value)}
           />
-        ) : (
-          <input
-            required
-            maxLength={120}
-            aria-label="Dice formula"
-            placeholder="1d20 + 5"
-            value={formula}
-            onChange={(event) => setFormula(event.target.value)}
-          />
-        )}
-        <select
-          value={mode}
-          disabled={manual}
-          onChange={(event) => setMode(event.target.value as DiceMode)}
-        >
-          <option value="normal">Normal</option>
-          <option value="advantage">Advantage</option>
-          <option value="disadvantage">Disadvantage</option>
-        </select>
-        <select
-          value={characterId}
-          onChange={(event) => {
-            setCharacterId(event.target.value)
-            setShortcut('')
-          }}
-        >
-          <option value="">No linked character</option>
-          {availableCharacters.map((character) => (
-            <option key={character.id} value={character.id}>
-              {character.name}
-            </option>
-          ))}
-        </select>
-        <select
-          aria-label="Character roll shortcut"
-          disabled={!characterId || manual}
-          value={shortcut}
-          onChange={(event) => applyShortcut(event.target.value)}
-        >
-          <option value="">Character roll shortcut</option>
-          <optgroup label="Ability checks">
-            {abilityNames.map((ability) => (
-              <option key={`ability:${ability}`} value={`ability:${ability}`}>
-                {titleCase(ability)}
+        </label>
+        <label className="play-field">
+          {manual ? 'Recorded total' : 'Dice formula'}
+          {manual ? (
+            <input
+              required
+              type="number"
+              min={-1_000_000}
+              max={1_000_000}
+              placeholder="15"
+              value={manualResult}
+              onChange={(event) => setManualResult(event.target.value)}
+            />
+          ) : (
+            <input
+              required
+              maxLength={120}
+              placeholder="1d20 + 5"
+              value={formula}
+              onChange={(event) => setFormula(event.target.value)}
+            />
+          )}
+        </label>
+        <label className="play-field">
+          Roll mode
+          <select
+            value={mode}
+            disabled={manual}
+            onChange={(event) => setMode(event.target.value as DiceMode)}
+          >
+            <option value="normal">Normal</option>
+            <option value="advantage">Advantage</option>
+            <option value="disadvantage">Disadvantage</option>
+          </select>
+        </label>
+        <label className="play-field">
+          Rolling character
+          <select
+            value={characterId}
+            onChange={(event) => {
+              setCharacterId(event.target.value)
+              setShortcut('')
+            }}
+          >
+            <option value="">No linked character</option>
+            {availableCharacters.map((character) => (
+              <option key={character.id} value={character.id}>
+                {character.name}
               </option>
             ))}
-          </optgroup>
-          <optgroup label="Saving throws">
-            {abilityNames.map((ability) => (
-              <option key={`save:${ability}`} value={`save:${ability}`}>
-                {titleCase(ability)} save
-              </option>
-            ))}
-          </optgroup>
-          <optgroup label="Skills">
-            {Object.keys(skillAbilities).map((skill) => (
-              <option key={`skill:${skill}`} value={`skill:${skill}`}>
-                {titleCase(skill)}
-              </option>
-            ))}
-          </optgroup>
-        </select>
-        <select
-          value={visibility}
-          onChange={(event) => setVisibility(event.target.value)}
-        >
-          <option value="party">Public roll</option>
-          {isManager && <option value="gm_only">Private GM roll</option>}
-        </select>
+          </select>
+        </label>
+        <label className="play-field">
+          Character check or save
+          <select
+            disabled={!characterId || manual}
+            value={shortcut}
+            onChange={(event) => applyShortcut(event.target.value)}
+          >
+            <option value="">Choose a shortcut</option>
+            <optgroup label="Ability checks">
+              {abilityNames.map((ability) => (
+                <option key={`ability:${ability}`} value={`ability:${ability}`}>
+                  {titleCase(ability)}
+                </option>
+              ))}
+            </optgroup>
+            <optgroup label="Saving throws">
+              {abilityNames.map((ability) => (
+                <option key={`save:${ability}`} value={`save:${ability}`}>
+                  {titleCase(ability)} save
+                </option>
+              ))}
+            </optgroup>
+            <optgroup label="Skills">
+              {Object.keys(skillAbilities).map((skill) => (
+                <option key={`skill:${skill}`} value={`skill:${skill}`}>
+                  {titleCase(skill)}
+                </option>
+              ))}
+            </optgroup>
+          </select>
+        </label>
+        <label className="play-field">
+          Who can see this roll?
+          <select
+            value={visibility}
+            onChange={(event) => setVisibility(event.target.value)}
+          >
+            <option value="party">Entire party</option>
+            {isManager && <option value="gm_only">Game Master only</option>}
+          </select>
+        </label>
         <label className="manual-roll-toggle">
           <input
             type="checkbox"

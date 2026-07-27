@@ -125,20 +125,22 @@ export function CombatHealthPanel({
               )}
               {canChange && (
                 <div className="health-controls">
-                  <input
-                    type="number"
-                    min={1}
-                    max={100000}
-                    aria-label={`Health amount for ${character.name}`}
-                    placeholder="Amount"
-                    value={amounts[character.id] ?? ''}
-                    onChange={(event) =>
-                      setAmounts((current) => ({
-                        ...current,
-                        [character.id]: event.target.value,
-                      }))
-                    }
-                  />
+                  <label className="play-field">
+                    HP amount
+                    <input
+                      type="number"
+                      min={1}
+                      max={100000}
+                      placeholder="5"
+                      value={amounts[character.id] ?? ''}
+                      onChange={(event) =>
+                        setAmounts((current) => ({
+                          ...current,
+                          [character.id]: event.target.value,
+                        }))
+                      }
+                    />
+                  </label>
                   <button
                     type="button"
                     disabled={change.isPending}

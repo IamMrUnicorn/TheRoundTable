@@ -111,42 +111,57 @@ export function ActionProposalPanel({
           create.mutate()
         }}
       >
-        <select value={kind} onChange={(event) => setKind(event.target.value)}>
-          {kinds.map((value) => (
-            <option key={value}>{value}</option>
-          ))}
-        </select>
-        <select
-          value={characterId}
-          onChange={(event) => setCharacterId(event.target.value)}
-        >
-          <option value="">No character</option>
-          {availableCharacters.map((character) => (
-            <option key={character.id} value={character.id}>
-              {character.name}
-            </option>
-          ))}
-        </select>
-        <input
-          required
-          maxLength={160}
-          placeholder="What do you want to do?"
-          value={title}
-          onChange={(event) => setTitle(event.target.value)}
-        />
-        <textarea
-          rows={2}
-          maxLength={5000}
-          placeholder="Target, method, item, spell, or other useful details"
-          value={details}
-          onChange={(event) => setDetails(event.target.value)}
-        />
-        <label>
+        <label className="play-field">
+          Action type
+          <select
+            value={kind}
+            onChange={(event) => setKind(event.target.value)}
+          >
+            {kinds.map((value) => (
+              <option key={value}>{value}</option>
+            ))}
+          </select>
+        </label>
+        <label className="play-field">
+          Acting character
+          <select
+            value={characterId}
+            onChange={(event) => setCharacterId(event.target.value)}
+          >
+            <option value="">No linked character</option>
+            {availableCharacters.map((character) => (
+              <option key={character.id} value={character.id}>
+                {character.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="play-field">
+          Action summary
+          <input
+            required
+            maxLength={160}
+            placeholder="What do you want to do?"
+            value={title}
+            onChange={(event) => setTitle(event.target.value)}
+          />
+        </label>
+        <label className="play-field action-details-field">
+          Targets, method, or other details
+          <textarea
+            rows={2}
+            maxLength={5000}
+            placeholder="Mention a target, item, spell, route, or intended outcome"
+            value={details}
+            onChange={(event) => setDetails(event.target.value)}
+          />
+        </label>
+        <label className="approval-toggle">
           <input
             type="checkbox"
             checked={requiresApproval}
             onChange={(event) => setRequiresApproval(event.target.checked)}
-          />{' '}
+          />
           Ask the GM before resolving
         </label>
         <button disabled={create.isPending || !title.trim()}>
@@ -186,23 +201,34 @@ export function ActionProposalPanel({
                 <>
                   {editingId === proposal.id ? (
                     <div className="proposal-edit">
-                      <select
-                        value={editKind}
-                        onChange={(event) => setEditKind(event.target.value)}
-                      >
-                        {kinds.map((value) => (
-                          <option key={value}>{value}</option>
-                        ))}
-                      </select>
-                      <input
-                        value={editTitle}
-                        onChange={(event) => setEditTitle(event.target.value)}
-                      />
-                      <textarea
-                        rows={2}
-                        value={editDetails}
-                        onChange={(event) => setEditDetails(event.target.value)}
-                      />
+                      <label className="play-field">
+                        Action type
+                        <select
+                          value={editKind}
+                          onChange={(event) => setEditKind(event.target.value)}
+                        >
+                          {kinds.map((value) => (
+                            <option key={value}>{value}</option>
+                          ))}
+                        </select>
+                      </label>
+                      <label className="play-field">
+                        Action summary
+                        <input
+                          value={editTitle}
+                          onChange={(event) => setEditTitle(event.target.value)}
+                        />
+                      </label>
+                      <label className="play-field proposal-edit-details">
+                        Targets, method, or details
+                        <textarea
+                          rows={2}
+                          value={editDetails}
+                          onChange={(event) =>
+                            setEditDetails(event.target.value)
+                          }
+                        />
+                      </label>
                       <button
                         disabled={!editTitle.trim() || edit.isPending}
                         onClick={() => edit.mutate()}
@@ -230,16 +256,19 @@ export function ActionProposalPanel({
                     </button>
                   )}
                   <div className="proposal-review">
-                    <input
-                      placeholder="Optional ruling or clarification"
-                      value={reviewNotes[proposal.id] ?? ''}
-                      onChange={(event) =>
-                        setReviewNotes({
-                          ...reviewNotes,
-                          [proposal.id]: event.target.value,
-                        })
-                      }
-                    />
+                    <label className="play-field">
+                      GM ruling or clarification
+                      <input
+                        placeholder="Optional response"
+                        value={reviewNotes[proposal.id] ?? ''}
+                        onChange={(event) =>
+                          setReviewNotes({
+                            ...reviewNotes,
+                            [proposal.id]: event.target.value,
+                          })
+                        }
+                      />
+                    </label>
                     <button
                       onClick={() =>
                         review.mutate({

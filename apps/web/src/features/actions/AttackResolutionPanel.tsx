@@ -160,80 +160,99 @@ export function AttackResolutionPanel({
           resolve.mutate()
         }}
       >
-        <select
-          required
-          value={attackerId}
-          onChange={(event) => {
-            setAttackerId(event.target.value)
-            setWeaponId('')
-          }}
-        >
-          <option value="">Attacking character</option>
-          {availableCharacters.map((character) => (
-            <option key={character.id} value={character.id}>
-              {character.name}
-            </option>
-          ))}
-        </select>
-        <select
-          aria-label="Equipped weapon"
-          disabled={!attackerId}
-          value={weaponId}
-          onChange={(event) => chooseWeapon(event.target.value)}
-        >
-          <option value="">Custom / unarmed attack</option>
-          {weapons.data
-            ?.filter((weapon) => weapon.character_id === Number(attackerId))
-            .map((weapon) => (
-              <option key={weapon.id} value={weapon.id}>
-                {weapon.name} · {weapon.damage_formula}{' '}
-                {weapon.damage_type || 'damage'}
+        <label className="play-field">
+          Attacking character
+          <select
+            required
+            value={attackerId}
+            onChange={(event) => {
+              setAttackerId(event.target.value)
+              setWeaponId('')
+            }}
+          >
+            <option value="">Choose a character</option>
+            {availableCharacters.map((character) => (
+              <option key={character.id} value={character.id}>
+                {character.name}
               </option>
             ))}
-        </select>
-        <select
-          required
-          value={targetId}
-          onChange={(event) => setTargetId(event.target.value)}
-        >
-          <option value="">Encounter target</option>
-          {targets.map((target) => (
-            <option key={target.id} value={target.id}>
-              {target.combatant_name} · AC {target.armor_class} ·{' '}
-              {target.current_hp}/{target.max_hp} HP
-            </option>
-          ))}
-        </select>
-        <input
-          required
-          maxLength={160}
-          value={attackName}
-          onChange={(event) => setAttackName(event.target.value)}
-        />
-        <input
-          required
-          aria-label="Attack bonus"
-          min={-100}
-          max={100}
-          type="number"
-          value={attackBonus}
-          onChange={(event) => setAttackBonus(event.target.value)}
-        />
-        <input
-          required
-          aria-label="Damage formula"
-          maxLength={120}
-          value={damageFormula}
-          onChange={(event) => setDamageFormula(event.target.value)}
-        />
-        <select
-          value={mode}
-          onChange={(event) => setMode(event.target.value as DiceMode)}
-        >
-          <option value="normal">Normal</option>
-          <option value="advantage">Advantage</option>
-          <option value="disadvantage">Disadvantage</option>
-        </select>
+          </select>
+        </label>
+        <label className="play-field">
+          Equipped weapon
+          <select
+            disabled={!attackerId}
+            value={weaponId}
+            onChange={(event) => chooseWeapon(event.target.value)}
+          >
+            <option value="">Custom / unarmed attack</option>
+            {weapons.data
+              ?.filter((weapon) => weapon.character_id === Number(attackerId))
+              .map((weapon) => (
+                <option key={weapon.id} value={weapon.id}>
+                  {weapon.name} · {weapon.damage_formula}{' '}
+                  {weapon.damage_type || 'damage'}
+                </option>
+              ))}
+          </select>
+        </label>
+        <label className="play-field">
+          Target
+          <select
+            required
+            value={targetId}
+            onChange={(event) => setTargetId(event.target.value)}
+          >
+            <option value="">Choose an encounter target</option>
+            {targets.map((target) => (
+              <option key={target.id} value={target.id}>
+                {target.combatant_name} · AC {target.armor_class} ·{' '}
+                {target.current_hp}/{target.max_hp} HP
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="play-field">
+          Attack name
+          <input
+            required
+            maxLength={160}
+            value={attackName}
+            onChange={(event) => setAttackName(event.target.value)}
+          />
+        </label>
+        <label className="play-field">
+          Attack bonus
+          <input
+            required
+            min={-100}
+            max={100}
+            type="number"
+            value={attackBonus}
+            onChange={(event) => setAttackBonus(event.target.value)}
+          />
+        </label>
+        <label className="play-field">
+          Damage formula
+          <input
+            required
+            maxLength={120}
+            placeholder="1d8 + 3"
+            value={damageFormula}
+            onChange={(event) => setDamageFormula(event.target.value)}
+          />
+        </label>
+        <label className="play-field">
+          Attack roll mode
+          <select
+            value={mode}
+            onChange={(event) => setMode(event.target.value as DiceMode)}
+          >
+            <option value="normal">Normal</option>
+            <option value="advantage">Advantage</option>
+            <option value="disadvantage">Disadvantage</option>
+          </select>
+        </label>
         <button
           disabled={
             resolve.isPending || !attackerId || !targetId || !attackName.trim()

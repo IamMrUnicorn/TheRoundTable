@@ -428,58 +428,82 @@ export function SessionEventPanel({
                 create.mutate()
               }}
             >
-              <select
-                value={kind}
-                onChange={(event) => setKind(event.target.value as typeof kind)}
-              >
-                {eventKinds.map((value) => (
-                  <option key={value}>{value}</option>
-                ))}
-              </select>
-              <select
-                value={characterId}
-                onChange={(event) => setCharacterId(event.target.value)}
-              >
-                <option value="">No linked character</option>
-                {availableCharacters.map((character) => (
-                  <option key={character.id} value={character.id}>
-                    {character.name}
-                  </option>
-                ))}
-              </select>
-              <select
-                value={visibility}
-                onChange={(event) => setVisibility(event.target.value)}
-              >
-                <option value="party">Party visible</option>
-                {isManager && <option value="gm_only">GM only</option>}
-              </select>
-              <input
-                required
-                maxLength={160}
-                placeholder="Concise event summary"
-                value={title}
-                onChange={(event) => setTitle(event.target.value)}
-              />
-              <input
-                maxLength={160}
-                placeholder="In-world time"
-                value={inWorldTime}
-                onChange={(event) => setInWorldTime(event.target.value)}
-              />
-              <input
-                maxLength={160}
-                placeholder="Location"
-                value={location}
-                onChange={(event) => setLocation(event.target.value)}
-              />
-              <textarea
-                rows={3}
-                maxLength={10000}
-                placeholder="Details, outcome, dialogue, or context"
-                value={body}
-                onChange={(event) => setBody(event.target.value)}
-              />
+              <label className="play-field">
+                Event type
+                <select
+                  value={kind}
+                  onChange={(event) =>
+                    setKind(event.target.value as typeof kind)
+                  }
+                >
+                  {eventKinds.map((value) => (
+                    <option key={value}>{value}</option>
+                  ))}
+                </select>
+              </label>
+              <label className="play-field">
+                Related character
+                <select
+                  value={characterId}
+                  onChange={(event) => setCharacterId(event.target.value)}
+                >
+                  <option value="">No linked character</option>
+                  {availableCharacters.map((character) => (
+                    <option key={character.id} value={character.id}>
+                      {character.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="play-field">
+                Visibility
+                <select
+                  value={visibility}
+                  onChange={(event) => setVisibility(event.target.value)}
+                >
+                  <option value="party">Entire party</option>
+                  {isManager && (
+                    <option value="gm_only">Game Master only</option>
+                  )}
+                </select>
+              </label>
+              <label className="play-field">
+                Event summary
+                <input
+                  required
+                  maxLength={160}
+                  placeholder="The bridge collapsed"
+                  value={title}
+                  onChange={(event) => setTitle(event.target.value)}
+                />
+              </label>
+              <label className="play-field">
+                In-world time
+                <input
+                  maxLength={160}
+                  placeholder="14 Emberfall, midnight"
+                  value={inWorldTime}
+                  onChange={(event) => setInWorldTime(event.target.value)}
+                />
+              </label>
+              <label className="play-field">
+                Location
+                <input
+                  maxLength={160}
+                  placeholder="The Sunken Library"
+                  value={location}
+                  onChange={(event) => setLocation(event.target.value)}
+                />
+              </label>
+              <label className="play-field session-event-details-field">
+                Details, outcome, dialogue, or context
+                <textarea
+                  rows={3}
+                  maxLength={10000}
+                  value={body}
+                  onChange={(event) => setBody(event.target.value)}
+                />
+              </label>
               <button disabled={create.isPending || !title.trim()}>
                 {create.isPending ? 'Recording…' : 'Record event'}
               </button>
@@ -494,35 +518,41 @@ export function SessionEventPanel({
               <p className="muted-copy">Nothing has happened yet.</p>
             )}
             <div className="session-event-filters">
-              <input
-                aria-label="Search session events"
-                placeholder="Search the log…"
-                value={search}
-                onChange={(event) => setSearch(event.target.value)}
-              />
-              <select
-                aria-label="Filter event type"
-                value={filterKind}
-                onChange={(event) => setFilterKind(event.target.value)}
-              >
-                <option value="all">All event types</option>
-                {eventKinds.map((value) => (
-                  <option key={value}>{value}</option>
-                ))}
-              </select>
-              <select
-                aria-label="Filter event character"
-                value={filterCharacter}
-                onChange={(event) => setFilterCharacter(event.target.value)}
-              >
-                <option value="all">All participants</option>
-                <option value="none">No character</option>
-                {characters.map((character) => (
-                  <option key={character.id} value={character.id}>
-                    {character.name}
-                  </option>
-                ))}
-              </select>
+              <label className="play-field">
+                Search events
+                <input
+                  placeholder="Title, detail, actor, or character"
+                  value={search}
+                  onChange={(event) => setSearch(event.target.value)}
+                />
+              </label>
+              <label className="play-field">
+                Event type filter
+                <select
+                  value={filterKind}
+                  onChange={(event) => setFilterKind(event.target.value)}
+                >
+                  <option value="all">All event types</option>
+                  {eventKinds.map((value) => (
+                    <option key={value}>{value}</option>
+                  ))}
+                </select>
+              </label>
+              <label className="play-field">
+                Character filter
+                <select
+                  value={filterCharacter}
+                  onChange={(event) => setFilterCharacter(event.target.value)}
+                >
+                  <option value="all">All participants</option>
+                  <option value="none">No character</option>
+                  {characters.map((character) => (
+                    <option key={character.id} value={character.id}>
+                      {character.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
             </div>
             <div className="session-event-list">
               {shownEvents?.length === 0 &&
