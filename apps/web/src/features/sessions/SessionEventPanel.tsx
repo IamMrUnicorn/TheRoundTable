@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Crosshair, Dices, MessageSquare, ScrollText } from 'lucide-react'
 import { type FormEvent, useEffect, useState } from 'react'
 
 import { supabase } from '../../lib/supabase'
@@ -14,6 +15,7 @@ import { type Character } from '../characters/characters'
 import { PlayCharacterDrawer } from '../characters/PlayCharacterDrawer'
 import { DiceRollerPanel } from '../dice/DiceRollerPanel'
 import { updateSession } from '../scheduling/scheduling'
+import { PlayToolDrawer } from './PlayToolDrawer'
 import { createSessionEvent, listSessionEvents } from './session-events'
 
 const eventKinds = [
@@ -33,6 +35,7 @@ const eventKinds = [
 ] as const
 
 type WorkspaceView = 'actions' | 'combat' | 'log'
+type ActionTool = 'attack' | 'dice' | 'proposal'
 
 export function SessionEventPanel({
   actorId,
@@ -67,6 +70,7 @@ export function SessionEventPanel({
   const [search, setSearch] = useState('')
   const [connection, setConnection] = useState('connecting')
   const [sheetCharacterId, setSheetCharacterId] = useState<number | null>(null)
+  const [actionTool, setActionTool] = useState<ActionTool | null>(null)
   const [activeView, setActiveView] = useState<WorkspaceView>(() => {
     const saved = window.localStorage.getItem('round-table:play-workspace')
     return saved === 'combat' || saved === 'log' ? saved : 'actions'
@@ -308,26 +312,45 @@ export function SessionEventPanel({
         </aside>
         {activeView === 'actions' && (
           <div className="play-workspace-view">
-            <DiceRollerPanel
-              actorId={actorId}
-              campaignId={campaignId}
-              characters={characters}
-              isManager={isManager}
-              sessionId={sessionId}
-            />
-            <AttackResolutionPanel
-              actorId={actorId}
-              characters={characters}
-              isManager={isManager}
-              sessionId={sessionId}
-            />
-            <ActionProposalPanel
-              actorId={actorId}
-              campaignId={campaignId}
-              characters={characters}
-              isManager={isManager}
-              sessionId={sessionId}
-            />
+            <section className="action-palette">
+              <header>
+                <div>
+                  <p className="eyebrow">Action bar</p>
+                  <h3>What do you want to do?</h3>
+                </div>
+                <span>Focused tools open beside the table</span>
+              </header>
+              <div>
+                <button type="button" onClick={() => setActionTool('attack')}>
+                  <Crosshair />
+                  <span>
+                    <strong>Attack</strong>
+                    <small>Equipped weapon or custom strike</small>
+                  </span>
+                </button>
+                <button type="button" onClick={() => setActionTool('dice')}>
+                  <Dices />
+                  <span>
+                    <strong>Roll</strong>
+                    <small>Checks, saves, skills, or any formula</small>
+                  </span>
+                </button>
+                <button type="button" onClick={() => setActionTool('proposal')}>
+                  <MessageSquare />
+                  <span>
+                    <strong>Other action</strong>
+                    <small>Magic, items, movement, speech, or intent</small>
+                  </span>
+                </button>
+                <button type="button" onClick={() => setActiveView('log')}>
+                  <ScrollText />
+                  <span>
+                    <strong>Full log</strong>
+                    <small>Search, filter, and record events</small>
+                  </span>
+                </button>
+              </div>
+            </section>
             <ReactionPromptPanel
               actorId={actorId}
               campaignId={campaignId}
@@ -335,6 +358,38 @@ export function SessionEventPanel({
               isManager={isManager}
               sessionId={sessionId}
             />
+            <section className="central-activity-feed">
+              <header>
+                <div>
+                  <p className="eyebrow">Shared stage</p>
+                  <h3>Recent activity</h3>
+                </div>
+                <button type="button" onClick={() => setActiveView('log')}>
+                  Open complete log
+                </button>
+              </header>
+              <div>
+                {events.data?.slice(0, 6).map((event) => (
+                  <article key={event.id}>
+                    <span>{event.kind}</span>
+                    <div>
+                      <strong>{event.title}</strong>
+                      <small>
+                        {event.character?.name ||
+                          event.actor?.display_name ||
+                          'The table'}{' '}
+                        · {new Date(event.occurred_at).toLocaleTimeString()}
+                      </small>
+                    </div>
+                  </article>
+                ))}
+                {events.data?.length === 0 && (
+                  <p className="muted-copy">
+                    The shared stage is quiet. Choose an action to begin.
+                  </p>
+                )}
+              </div>
+            </section>
           </div>
         )}
         {activeView === 'combat' && (
@@ -529,6 +584,52 @@ export function SessionEventPanel({
           character={sheetCharacter}
           onClose={() => setSheetCharacterId(null)}
         />
+      )}
+      {actionTool && (
+        <PlayToolDrawer
+          title={
+            actionTool === 'attack'
+              ? 'Resolve an attack'
+              : actionTool === 'dice'
+                ? 'Roll dice'
+                : 'Declare an action'
+          }
+          description={
+            actionTool === 'attack'
+              ? 'Choose a character, equipped weapon, and encounter target.'
+              : actionTool === 'dice'
+                ? 'Use character shortcuts or enter a custom dice formula.'
+                : 'Send ordinary or exceptional intent to the shared table.'
+          }
+          onClose={() => setActionTool(null)}
+        >
+          {actionTool === 'dice' && (
+            <DiceRollerPanel
+              actorId={actorId}
+              campaignId={campaignId}
+              characters={characters}
+              isManager={isManager}
+              sessionId={sessionId}
+            />
+          )}
+          {actionTool === 'attack' && (
+            <AttackResolutionPanel
+              actorId={actorId}
+              characters={characters}
+              isManager={isManager}
+              sessionId={sessionId}
+            />
+          )}
+          {actionTool === 'proposal' && (
+            <ActionProposalPanel
+              actorId={actorId}
+              campaignId={campaignId}
+              characters={characters}
+              isManager={isManager}
+              sessionId={sessionId}
+            />
+          )}
+        </PlayToolDrawer>
       )}
     </section>
   )

@@ -28,6 +28,11 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 
 ### Added
 
+- Replaced the vertically stacked live action forms with a compact sketch-aligned action palette for attacks, dice/checks, other actions, and the complete session log.
+- Added a reusable accessible live-tool drawer that hosts the existing dice roller, equipped/custom attack resolver, and player action declaration/approval workflow without duplicating their state or APIs.
+- Added a persistent central recent-activity feed with the six newest shared events, character/actor attribution, timestamps, event kinds, empty state, and a direct path to the searchable complete log.
+- Kept reaction prompts permanently visible in the shared stage so expiring accept/decline decisions and Game Master interrupt controls cannot be missed behind a closed drawer.
+- Added Escape-key and backdrop dismissal, background scroll locking, responsive full-width mobile behavior, and simplified drawer presentation for embedded action tools.
 - Added an accessible responsive character-sheet slide-over to live play so party members can be inspected without navigating away from the shared session.
 - Added drawer tabs for Quick View, inventory/equipment, features/resources, and spellcasting by reusing the existing authoritative character tools rather than creating duplicate play-only data.
 - Added an at-a-glance rules view with identity, level, ancestry, class/subclass, HP, temporary HP, AC, speed, proficiency bonus, all abilities, saving throws, skills, expertise, passive Perception, conditions, concentration, exhaustion, inspiration, senses, and languages.

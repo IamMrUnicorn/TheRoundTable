@@ -165,7 +165,7 @@ This is the source-of-truth checklist for the entire application. Completed work
 - [x] Player action proposals and Game Master approve/deny/edit/clarify flow with exactly-once projection into the structured session log.
 - [x] Targeted reaction prompts with accept/decline, countdown expiration, restricted visibility, and structured event history.
 - [x] HP, temporary HP, healing, damage, death saves, concentration, and conditions.
-- [ ] Character, spell, inventory, monster, and action overlays. *(The responsive character overlay now includes Quick View, inventory, features, spells, ownership-aware editing, and full-sheet navigation; standalone monster/action overlays remain.)*
+- [ ] Character, spell, inventory, monster, and action overlays. *(The responsive character overlay includes Quick View, inventory, features, and spells; dice, attack, and declaration tools now use a shared action drawer; the standalone monster overlay remains.)*
 - [ ] Complete Phase 3 theater-of-the-mind milestone described in `ROADMAP.md`.
 
 ## 11. Inventory, equipment, spells, and reusable actions

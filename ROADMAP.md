@@ -77,7 +77,7 @@ This roadmap translates the play-screen sketch and the proven V5 foundations int
 - [x] Party/initiative rail on the right. *(The desktop rail now shows character identity, level, ancestry, class, AC, speed, HP, temporary HP, conditions, concentration, and direct sheet access.)*
 - [x] Bottom action bar. *(The persistent responsive bar exposes exploration shortcuts or the active combatant's action, bonus action, reaction, interaction, movement, and action workspace.)*
 - [x] Slide-over character sheet.
-- [ ] Modal/drawer system for spells, inventory, monsters, and actions. *(Character quick view, inventory, features, and spellcasting now share the play-screen drawer; dedicated monster and action drawers remain.)*
+- [ ] Modal/drawer system for spells, inventory, monsters, and actions. *(Character quick view, inventory, features, spellcasting, dice, attacks, and action declarations now use focused play-screen drawers; the dedicated monster drawer remains.)*
 - [ ] Persist each user’s panel sizes and visibility preferences. *(Selected live workspace persists per browser; panel sizes/visibility pending.)*
 - [ ] Focus mode for maps, logs, sheets, or notes.
 - [ ] Player layout and Game Master layout derived from shared primitives.
@@ -88,7 +88,7 @@ This roadmap translates the play-screen sketch and the proven V5 foundations int
 - [ ] Human-readable events for joins, rolls, speech, attacks, spells, damage, healing, conditions, and turn changes. *(Manual structured capture and character-memory projection are complete; automatic subsystem events remain.)*
 - [x] Filter by event type or participant.
 - [ ] Mentions for characters, creatures, and the party.
-- [ ] Expand the log into the central stage.
+- [x] Expand the log into the central stage. *(The action stage keeps the six newest shared events visible and links to the complete searchable/filterable log workspace.)*
 - [x] Game Master corrections represented as new audit events rather than destructive history edits.
 
 **Phase 2 exit:** multiple users can enter a resilient live session, see presence, use the modular screen, and share a persistent event stream.
