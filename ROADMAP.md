@@ -76,8 +76,8 @@ This roadmap translates the play-screen sketch and the proven V5 foundations int
 - [ ] Central stage with switchable scene, map, camera, and expanded log modes. *(Working action, combat, and log modes now occupy the central stage; maps, camera, and focus expansion remain.)*
 - [x] Party/initiative rail on the right. *(The desktop rail now shows character identity, level, ancestry, class, AC, speed, HP, temporary HP, conditions, concentration, and direct sheet access.)*
 - [x] Bottom action bar. *(The persistent responsive bar exposes exploration shortcuts or the active combatant's action, bonus action, reaction, interaction, movement, and action workspace.)*
-- [ ] Slide-over character sheet.
-- [ ] Modal/drawer system for spells, inventory, monsters, and actions.
+- [x] Slide-over character sheet.
+- [ ] Modal/drawer system for spells, inventory, monsters, and actions. *(Character quick view, inventory, features, and spellcasting now share the play-screen drawer; dedicated monster and action drawers remain.)*
 - [ ] Persist each user’s panel sizes and visibility preferences. *(Selected live workspace persists per browser; panel sizes/visibility pending.)*
 - [ ] Focus mode for maps, logs, sheets, or notes.
 - [ ] Player layout and Game Master layout derived from shared primitives.
@@ -144,7 +144,7 @@ This roadmap translates the play-screen sketch and the proven V5 foundations int
 - [ ] Four-tab character workspace: Quick View, Details, Abilities & Spells, and Memory.
 - [ ] Desktop Quick View fits the most important play information into one dense, readable viewport with minimal scrolling.
 - [ ] Responsive layouts preserve readability by turning dense regions into collapsible cards rather than shrinking controls.
-- [ ] Quick View includes portrait and identity, class summary, HP/temporary HP, AC, speed, initiative, proficiency, abilities, saves, skills, passive senses, inspiration, exhaustion, death saves, conditions, equipped actions, resources, languages, and proficiencies.
+- [ ] Quick View includes portrait and identity, class summary, HP/temporary HP, AC, speed, initiative, proficiency, abilities, saves, skills, passive senses, inspiration, exhaustion, death saves, conditions, equipped actions, resources, languages, and proficiencies. *(The live-play drawer now covers identity, class, HP, AC, speed, proficiency, abilities, saves, skills, passive Perception, inspiration, exhaustion, conditions, concentration, senses, languages, inventory, features, and spells; portrait, death saves, and broader proficiency presentation remain.)*
 - [ ] Details includes physical description, age, height, weight, eyes, hair, skin, size, alignment, pronouns, biography, personality traits, ideals, bonds, flaws, allies, organizations, enemies, relationships, senses, movement modes, languages, and long-form descriptions.
 - [ ] Carry, push, drag, and lift descriptions derive from Strength, size, configured rules/version, optional encumbrance, and character traits; class must not be treated as a carrying-capacity input.
 - [ ] Abilities & Spells adapts to each character and groups ancestry/species, background, class/subclass, feat, passive, and limited-use features without showing empty spell UI to non-spellcasters. *(Features and the manual spellbook/slot foundation are complete; advanced spell metadata editing and rules automation remain.)*

@@ -1,6 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { type FormEvent, useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
 
 import { supabase } from '../../lib/supabase'
 import { ActionProposalPanel } from '../actions/ActionProposalPanel'
@@ -11,6 +10,8 @@ import { CombatStatusPanel } from '../combat/CombatStatusPanel'
 import { InitiativePanel } from '../combat/InitiativePanel'
 import { TurnActionBar } from '../combat/TurnActionBar'
 import { TurnOrderStrip } from '../combat/TurnOrderStrip'
+import { type Character } from '../characters/characters'
+import { PlayCharacterDrawer } from '../characters/PlayCharacterDrawer'
 import { DiceRollerPanel } from '../dice/DiceRollerPanel'
 import { updateSession } from '../scheduling/scheduling'
 import { createSessionEvent, listSessionEvents } from './session-events'
@@ -43,33 +44,7 @@ export function SessionEventPanel({
 }: {
   actorId: string
   campaignId: number
-  characters: {
-    ancestry: string
-    armor_class: number
-    charisma: number
-    class_name: string
-    combat_state: string
-    concentration: string
-    conditions: string[]
-    constitution: number
-    current_hp: number
-    death_save_failures: number
-    death_save_successes: number
-    dexterity: number
-    id: number
-    intelligence: number
-    level: number
-    max_hp: number
-    name: string
-    owner_id: string
-    saving_throw_proficiencies: string[]
-    speed: number
-    skill_expertise: string[]
-    skill_proficiencies: string[]
-    strength: number
-    temporary_hp: number
-    wisdom: number
-  }[]
+  characters: Character[]
   isManager: boolean
   sessionId: number
   sessionStatus: string
@@ -91,6 +66,7 @@ export function SessionEventPanel({
   const [filterCharacter, setFilterCharacter] = useState('all')
   const [search, setSearch] = useState('')
   const [connection, setConnection] = useState('connecting')
+  const [sheetCharacterId, setSheetCharacterId] = useState<number | null>(null)
   const [activeView, setActiveView] = useState<WorkspaceView>(() => {
     const saved = window.localStorage.getItem('round-table:play-workspace')
     return saved === 'combat' || saved === 'log' ? saved : 'actions'
@@ -174,6 +150,9 @@ export function SessionEventPanel({
       `${event.title} ${event.body} ${event.actor?.display_name ?? ''} ${event.character?.name ?? ''}`
         .toLowerCase()
         .includes(search.toLowerCase()),
+  )
+  const sheetCharacter = characters.find(
+    (character) => character.id === sheetCharacterId,
   )
 
   return (
@@ -289,7 +268,12 @@ export function SessionEventPanel({
             <h3>Party status</h3>
           </header>
           {characters.map((character) => (
-            <Link key={character.id} to={`/characters/${character.id}`}>
+            <button
+              type="button"
+              className="live-party-card"
+              key={character.id}
+              onClick={() => setSheetCharacterId(character.id)}
+            >
               <span className="member-avatar">
                 {character.name.slice(0, 1).toUpperCase()}
               </span>
@@ -319,7 +303,7 @@ export function SessionEventPanel({
                 max={character.max_hp || 1}
                 value={character.current_hp}
               />
-            </Link>
+            </button>
           ))}
         </aside>
         {activeView === 'actions' && (
@@ -539,6 +523,13 @@ export function SessionEventPanel({
           sessionId={sessionId}
         />
       </div>
+      {sheetCharacter && (
+        <PlayCharacterDrawer
+          actorId={actorId}
+          character={sheetCharacter}
+          onClose={() => setSheetCharacterId(null)}
+        />
+      )}
     </section>
   )
 }

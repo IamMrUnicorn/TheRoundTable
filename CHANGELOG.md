@@ -28,6 +28,11 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 
 ### Added
 
+- Added an accessible responsive character-sheet slide-over to live play so party members can be inspected without navigating away from the shared session.
+- Added drawer tabs for Quick View, inventory/equipment, features/resources, and spellcasting by reusing the existing authoritative character tools rather than creating duplicate play-only data.
+- Added an at-a-glance rules view with identity, level, ancestry, class/subclass, HP, temporary HP, AC, speed, proficiency bonus, all abilities, saving throws, skills, expertise, passive Perception, conditions, concentration, exhaustion, inspiration, senses, and languages.
+- Added ownership-aware drawer behavior: character owners retain normal editing controls, other campaign members receive a read-only party view, and everyone can deliberately open the full sheet when deeper work is needed.
+- Added Escape-key and backdrop dismissal, background scroll locking, dialog semantics, responsive mobile presentation, and compact desktop animation for the character overlay.
 - Added structured character weapons to inventory with attack ability, proficiency, damage dice, damage type, range/reach, and optional attack/damage overrides while retaining quantity, equipment, weight, value, and memory history.
 - Added automatic equipped-weapon attacks in live play: selecting a weapon now derives its attack bonus from the character's ability and level proficiency, derives its damage modifier, and fills the existing authoritative attack resolver.
 - Added a persistent responsive bottom action bar with exploration shortcuts and combat-aware action, bonus action, reaction, object interaction, movement, active combatant, and round state.
