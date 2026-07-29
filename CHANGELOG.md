@@ -33,6 +33,11 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 
 ### Added
 
+- Added a searchable SRD 5.1 monster library to the GM combat console using Open5e's source-filtered API, covering 325 openly licensed creatures without copying non-SRD Wikidot content.
+- Added expandable creature stat blocks with identity, challenge rating, armor, hit points, speed, abilities, traits, and actions plus the complete required SRD 5.1 Creative Commons attribution.
+- Added one-click import from the open compendium into an active encounter with automatic initiative rolls and authoritative AC/HP values.
+- Persisted source provenance and structured stat-block data on imported encounter combatants so actions remain available after refresh.
+- Added one-click monster action publication to the shared session log with automatic action/reaction resource consumption and multi-user persistence coverage.
 - Added a Game Master monster combat console directly to the play-screen action palette with quick HP damage/healing, visibility, initiative/AC/HP context, and action, bonus-action, and reaction tracking.
 - Replaced the vertically stacked live action forms with a compact sketch-aligned action palette for attacks, dice/checks, other actions, and the complete session log.
 - Added a reusable accessible live-tool drawer that hosts the existing dice roller, equipped/custom attack resolver, and player action declaration/approval workflow without duplicating their state or APIs.

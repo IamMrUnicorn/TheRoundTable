@@ -1655,6 +1655,8 @@ export type Database = {
           object_interaction_used: boolean
           reaction_used: boolean
           session_id: number
+          source_reference: string
+          stat_block: Json
           temporary_hp: number | null
           updated_at: string
         }
@@ -1677,6 +1679,8 @@ export type Database = {
           object_interaction_used?: boolean
           reaction_used?: boolean
           session_id: number
+          source_reference?: string
+          stat_block?: Json
           temporary_hp?: number | null
           updated_at?: string
         }
@@ -1699,6 +1703,8 @@ export type Database = {
           object_interaction_used?: boolean
           reaction_used?: boolean
           session_id?: number
+          source_reference?: string
+          stat_block?: Json
           temporary_hp?: number | null
           updated_at?: string
         }

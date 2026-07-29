@@ -324,6 +324,8 @@ create table public.session_initiative_entries (
   current_hp integer check (current_hp between 0 and 999999),
   max_hp integer check (max_hp between 1 and 999999),
   temporary_hp integer check (temporary_hp between 0 and 999999),
+  source_reference text not null default '' check (char_length(source_reference) <= 500),
+  stat_block jsonb not null default '{}'::jsonb check (jsonb_typeof(stat_block) = 'object'),
   is_hidden boolean not null default false,
   action_used boolean not null default false,
   bonus_action_used boolean not null default false,

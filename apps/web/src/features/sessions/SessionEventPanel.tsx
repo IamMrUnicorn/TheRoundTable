@@ -683,7 +683,11 @@ export function SessionEventPanel({
             />
           )}
           {actionTool === 'monsters' && (
-            <MonsterCombatDrawer sessionId={sessionId} />
+            <MonsterCombatDrawer
+              actorId={actorId}
+              campaignId={campaignId}
+              sessionId={sessionId}
+            />
           )}
         </PlayToolDrawer>
       )}

@@ -109,6 +109,8 @@ This roadmap translates the play-screen sketch and the proven V5 foundations int
 - [x] Start/end named encounters within a session with lifecycle events retained in the session log.
 - [x] Add party characters, monsters, NPCs, and custom combatants.
 - [x] Quick GM monster console for HP, visibility, initiative context, and action-economy controls.
+- [x] Searchable, attributed SRD 5.1 monster catalog with expandable stat blocks and one-click encounter import.
+- [x] Persist imported monster sources/stat blocks and publish their actions into the shared session history.
 - [ ] Initiative rolls, manual ordering, ties, and reorder controls. *(Dexterity-aware rolls, manual values, and deterministic tie ordering complete; drag/reorder pending.)*
 - [x] Active-turn indicator, round counter, and next-turn preview.
 - [x] Game Master advance, rewind, and direct turn-jump controls.
@@ -257,7 +259,7 @@ This roadmap translates the play-screen sketch and the proven V5 foundations int
 
 - [ ] Monster/NPC library with search and filters.
 - [ ] Create, duplicate, edit, and archive custom creatures.
-- [ ] Stat blocks, actions, reactions, legendary actions, traits, spells, and loot.
+- [ ] Stat blocks, actions, reactions, legendary actions, traits, spells, and loot. *(SRD monster identity, defenses, abilities, traits, actions, reactions, and legendary actions are now imported and persisted; automated resolution, spellcasting, and loot remain.)*
 - [ ] Private Game Master values and player-safe revealed summaries.
 - [ ] Encounter builder and difficulty estimation.
 - [ ] Add creatures to initiative and maps from the compendium.

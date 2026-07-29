@@ -2,13 +2,24 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Eye, EyeOff, HeartPulse, Skull } from 'lucide-react'
 import { useState } from 'react'
 
+import { MonsterLibraryPanel } from '../compendium/MonsterLibraryPanel'
+import type { Open5eAction, Open5eMonster } from '../compendium/open5e'
+import { createSessionEvent } from '../sessions/session-events'
 import {
   getSessionInitiative,
   updateCustomCombatant,
   updateTurnResources,
 } from './initiative'
 
-export function MonsterCombatDrawer({ sessionId }: { sessionId: number }) {
+export function MonsterCombatDrawer({
+  actorId,
+  campaignId,
+  sessionId,
+}: {
+  actorId: string
+  campaignId: number
+  sessionId: number
+}) {
   const client = useQueryClient()
   const key = ['session-initiative', sessionId]
   const initiative = useQuery({
@@ -37,6 +48,45 @@ export function MonsterCombatDrawer({ sessionId }: { sessionId: number }) {
       updates: Parameters<typeof updateTurnResources>[1]
     }) => updateTurnResources(entryId, updates),
     onSuccess: refresh,
+  })
+  const useMonsterAction = useMutation({
+    mutationFn: async ({
+      action,
+      entryId,
+      monsterName,
+      sourceReference,
+    }: {
+      action: Open5eAction
+      entryId: number
+      monsterName: string
+      sourceReference: string
+    }) => {
+      await createSessionEvent({
+        actor_id: actorId,
+        campaign_id: campaignId,
+        kind: 'action',
+        metadata: {
+          action_type: action.action_type,
+          combatant_entry_id: entryId,
+          monster_action: action.name,
+          source_reference: sourceReference,
+        },
+        session_id: sessionId,
+        title: `${monsterName} uses ${action.name}`,
+        body: action.desc,
+        visibility: 'party',
+      })
+      if (action.action_type === 'ACTION')
+        await updateTurnResources(entryId, { action_used: true })
+      if (action.action_type === 'REACTION')
+        await updateTurnResources(entryId, { reaction_used: true })
+    },
+    onSuccess: async () => {
+      await Promise.all([
+        refresh(),
+        client.invalidateQueries({ queryKey: ['session-events', sessionId] }),
+      ])
+    },
   })
   const combatants =
     initiative.data?.entries.filter(
@@ -190,14 +240,58 @@ export function MonsterCombatDrawer({ sessionId }: { sessionId: number }) {
                 Reaction {entry.reaction_used ? 'spent' : 'ready'}
               </button>
             </div>
+            {entry.source_reference && (
+              <small className="monster-source-reference">
+                {entry.source_reference}
+              </small>
+            )}
+            {Array.isArray(
+              (entry.stat_block as unknown as Partial<Open5eMonster>).actions,
+            ) && (
+              <details className="monster-saved-actions">
+                <summary>Stat-block actions</summary>
+                {(
+                  (entry.stat_block as unknown as Partial<Open5eMonster>)
+                    .actions ?? []
+                ).map((action) => (
+                  <article key={`${action.action_type}-${action.name}`}>
+                    <header>
+                      <strong>{action.name}</strong>
+                      <span>{action.action_type.replaceAll('_', ' ')}</span>
+                    </header>
+                    <p>{action.desc}</p>
+                    <button
+                      type="button"
+                      disabled={useMonsterAction.isPending}
+                      onClick={() =>
+                        useMonsterAction.mutate({
+                          action,
+                          entryId: entry.id,
+                          monsterName: entry.combatant_name,
+                          sourceReference: entry.source_reference,
+                        })
+                      }
+                    >
+                      Send action to the table
+                    </button>
+                  </article>
+                ))}
+              </details>
+            )}
           </article>
         ))}
       </div>
-      {(update.error || resource.error) && (
+      {(update.error || resource.error || useMonsterAction.error) && (
         <p className="form-error">
-          {(update.error || resource.error)?.message}
+          {(update.error || resource.error || useMonsterAction.error)?.message}
         </p>
       )}
+      <MonsterLibraryPanel
+        actorId={actorId}
+        campaignId={campaignId}
+        encounterActive={initiative.data?.encounter?.status === 'active'}
+        sessionId={sessionId}
+      />
     </section>
   )
 }

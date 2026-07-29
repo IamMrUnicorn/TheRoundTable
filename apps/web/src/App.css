@@ -3086,6 +3086,32 @@ button:disabled {
   background: rgb(133 69 65 / 22%);
   color: #e7b7b3;
 }
+.monster-source-reference {
+  color: var(--muted);
+}
+.monster-saved-actions {
+  border-top: 1px solid var(--line);
+  padding-top: 0.65rem;
+}
+.monster-saved-actions > summary {
+  cursor: pointer;
+  color: var(--gold);
+  font-weight: 800;
+}
+.monster-console-list .monster-saved-actions > article {
+  margin-top: 0.55rem;
+  border: 1px solid rgb(212 164 92 / 20%);
+  padding: 0.65rem;
+  background: #0c1413;
+}
+.monster-saved-actions p {
+  margin: 0;
+  color: var(--muted);
+  white-space: pre-line;
+}
+.monster-saved-actions button {
+  justify-self: start;
+}
 .monster-console-empty {
   display: grid;
   justify-items: center;
@@ -3097,6 +3123,109 @@ button:disabled {
   text-align: center;
 }
 .monster-console-empty svg {
+  color: var(--gold);
+}
+.monster-library-panel {
+  display: grid;
+  gap: 0.8rem;
+  border-top: 1px solid var(--line);
+  padding-top: 1rem;
+}
+.monster-library-panel > header,
+.monster-library-search,
+.monster-result-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.7rem;
+}
+.monster-library-panel > header svg {
+  color: var(--gold);
+}
+.monster-library-search {
+  align-items: flex-end;
+}
+.monster-library-search .play-field {
+  flex: 1;
+}
+.monster-library-search button,
+.monster-stat-block > button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.monster-library-results {
+  display: grid;
+  gap: 0.45rem;
+}
+.monster-library-results > article {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 0.65rem;
+  background: rgb(255 255 255 / 2%);
+}
+.monster-result-summary {
+  width: 100%;
+  border: 0;
+  border-radius: 0;
+  padding: 0.7rem;
+  background: transparent;
+  color: var(--ink);
+  text-align: left;
+}
+.monster-result-summary > span:first-child {
+  display: grid;
+}
+.monster-result-summary small,
+.monster-result-summary > span:last-child {
+  color: var(--muted);
+  font-size: 0.68rem;
+}
+.monster-stat-block {
+  display: grid;
+  gap: 0.6rem;
+  border-top: 1px solid var(--line);
+  padding: 0.8rem;
+  background: #f0e5c9;
+  color: #251d18;
+}
+.monster-stat-block p,
+.monster-stat-block h4 {
+  margin: 0;
+  white-space: pre-line;
+}
+.monster-stat-block dl {
+  display: grid;
+  gap: 0.3rem;
+  margin: 0;
+}
+.monster-stat-block dl div {
+  display: flex;
+  gap: 0.35rem;
+}
+.monster-stat-block dt {
+  font-weight: 800;
+}
+.monster-stat-block dd {
+  margin: 0;
+}
+.monster-abilities {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0.3rem;
+}
+.monster-abilities span {
+  display: grid;
+  justify-items: center;
+  border-block: 1px solid #8c443b;
+  padding: 0.3rem;
+}
+.monster-library-panel > footer {
+  color: var(--muted);
+  font-size: 0.62rem;
+  line-height: 1.5;
+}
+.monster-library-panel > footer a {
   color: var(--gold);
 }
 .character-drawer-backdrop {

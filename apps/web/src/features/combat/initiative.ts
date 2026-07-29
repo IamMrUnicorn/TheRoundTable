@@ -1,4 +1,5 @@
 import { supabase } from '../../lib/supabase'
+import type { Json } from '../../types/database'
 import { createSessionEvent } from '../sessions/session-events'
 
 export async function getSessionInitiative(sessionId: number) {
@@ -124,6 +125,8 @@ export async function addCustomCombatant(input: {
   kind: 'custom' | 'monster' | 'npc'
   name: string
   sessionId: number
+  sourceReference?: string
+  statBlock?: Json
 }) {
   const { error } = await supabase.from('session_initiative_entries').insert({
     armor_class: input.armorClass,
@@ -137,6 +140,8 @@ export async function addCustomCombatant(input: {
     is_hidden: input.isHidden,
     max_hp: input.hitPoints,
     session_id: input.sessionId,
+    source_reference: input.sourceReference ?? '',
+    stat_block: input.statBlock ?? {},
     temporary_hp: 0,
   })
   if (error) throw error

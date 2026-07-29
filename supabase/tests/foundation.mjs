@@ -617,9 +617,10 @@ assert.equal(encounterResponse.status, 201)
 const { data: publicCombatantRows, response: publicCombatantResponse } = await request('/rest/v1/session_initiative_entries', {
   token: owner.token,
   method: 'POST',
-  body: { session_id: sessionId, campaign_id: campaignId, character_id: null, combatant_name: 'Drowned sentinel', combatant_kind: 'monster', initiative: 13, armor_class: 15, current_hp: 22, max_hp: 22, temporary_hp: 0, created_by: owner.id },
+  body: { session_id: sessionId, campaign_id: campaignId, character_id: null, combatant_name: 'Drowned sentinel', combatant_kind: 'monster', initiative: 13, armor_class: 15, current_hp: 22, max_hp: 22, temporary_hp: 0, created_by: owner.id, source_reference: 'SRD 5.1 test fixture', stat_block: { key: 'drowned-sentinel', actions: [{ name: 'Slam', action_type: 'ACTION', desc: 'The sentinel attacks.' }] } },
 })
 assert.equal(publicCombatantResponse.status, 201)
+assert.equal(publicCombatantRows[0].stat_block.actions[0].name, 'Slam')
 const { response: hiddenCombatantResponse } = await request('/rest/v1/session_initiative_entries', {
   token: owner.token,
   method: 'POST',

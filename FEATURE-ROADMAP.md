@@ -202,8 +202,8 @@ This is the source-of-truth checklist for the entire application. Completed work
 
 ## 14. Monster, NPC, and encounter tools
 
-- [ ] Searchable monster/NPC library and custom stat blocks.
-- [ ] Traits, actions, reactions, legendary actions, spells, loot, and private values.
+- [ ] Searchable monster/NPC library and custom stat blocks. *(The searchable SRD 5.1 monster library, expandable licensed stat blocks, and encounter imports are complete; campaign-authored custom library records remain.)*
+- [ ] Traits, actions, reactions, legendary actions, spells, loot, and private values. *(Imported SRD traits/actions/reactions/legendary actions persist and can be published to the shared log; automated resolution, spells, loot, and private overrides remain.)*
 - [ ] Add creatures to encounters, maps, and initiative.
 - [ ] Batch/individual HP and condition controls.
 - [ ] NPC relationships and location tracking.
