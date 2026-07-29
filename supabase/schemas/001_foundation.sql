@@ -1,5 +1,7 @@
 create schema if not exists private;
 
+create extension if not exists pg_cron with schema pg_catalog;
+
 revoke all on schema private from public, anon, authenticated;
 
 create table public.profiles (
@@ -265,9 +267,19 @@ create table public.sessions (
   ends_at timestamptz not null,
   status text not null default 'proposed'
     check (status in ('proposed', 'scheduled', 'active', 'paused', 'completed', 'cancelled')),
+  overtime_prompted_at timestamptz,
+  overtime_expires_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  check (ends_at > starts_at)
+  check (ends_at > starts_at),
+  check (
+    (overtime_prompted_at is null and overtime_expires_at is null)
+    or (
+      overtime_prompted_at is not null
+      and overtime_expires_at is not null
+      and overtime_expires_at > overtime_prompted_at
+    )
+  )
 );
 
 create table public.session_attendance (
@@ -835,12 +847,155 @@ begin
 end;
 $$;
 
+create function public.start_session(
+  requested_session_id bigint,
+  replace_existing boolean default false
+)
+returns public.sessions
+language plpgsql
+security invoker
+set search_path = ''
+as $$
+declare
+  target public.sessions;
+  conflicting public.sessions;
+begin
+  select * into target
+  from public.sessions
+  where id = requested_session_id;
+
+  if target.id is null then
+    raise exception 'Session not found.' using errcode = 'P0002';
+  end if;
+  if not (select private.is_campaign_manager(target.campaign_id)) then
+    raise exception 'Only a campaign manager can start a session.' using errcode = '42501';
+  end if;
+  if target.status in ('completed', 'cancelled') then
+    raise exception 'A completed or cancelled session cannot be started.' using errcode = '22023';
+  end if;
+  if target.status in ('active', 'paused') then
+    return target;
+  end if;
+
+  perform 1
+  from public.campaigns
+  where id = target.campaign_id
+  for update;
+
+  select * into conflicting
+  from public.sessions
+  where campaign_id = target.campaign_id
+    and id <> target.id
+    and status in ('active', 'paused')
+  for update;
+
+  if conflicting.id is not null and not replace_existing then
+    raise exception 'Another session is already active: %', conflicting.title
+      using errcode = 'P0001',
+      detail = conflicting.id::text,
+      hint = 'Complete the existing session before starting this one, or explicitly replace it.';
+  end if;
+
+  if conflicting.id is not null then
+    update public.sessions
+    set status = 'completed'
+    where id = conflicting.id;
+  end if;
+
+  update public.sessions
+  set status = 'active'
+  where id = target.id
+  returning * into target;
+
+  return target;
+end;
+$$;
+
+create function private.process_session_overtime()
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  update public.sessions
+  set
+    status = 'completed',
+    overtime_prompted_at = null,
+    overtime_expires_at = null
+  where status in ('active', 'paused')
+    and overtime_expires_at <= statement_timestamp();
+
+  update public.sessions
+  set
+    overtime_prompted_at = statement_timestamp(),
+    overtime_expires_at = statement_timestamp() + interval '30 minutes'
+  where status in ('active', 'paused')
+    and ends_at <= statement_timestamp()
+    and overtime_prompted_at is null;
+end;
+$$;
+
+create function public.respond_session_overtime(
+  requested_session_id bigint,
+  continue_session boolean
+)
+returns public.sessions
+language plpgsql
+security invoker
+set search_path = ''
+as $$
+declare target public.sessions;
+begin
+  select * into target from public.sessions where id = requested_session_id;
+
+  if target.id is null then
+    raise exception 'Session not found.' using errcode = 'P0002';
+  end if;
+  if not (select private.is_campaign_manager(target.campaign_id)) then
+    raise exception 'Only a campaign manager can respond to this prompt.' using errcode = '42501';
+  end if;
+  select * into target
+  from public.sessions
+  where id = requested_session_id
+  for update;
+  if target.status not in ('active', 'paused') or target.overtime_expires_at is null then
+    raise exception 'This session does not have an active overtime prompt.' using errcode = 'P0001';
+  end if;
+
+  if continue_session then
+    update public.sessions
+    set
+      ends_at = greatest(ends_at, statement_timestamp()) + interval '1 hour',
+      overtime_prompted_at = null,
+      overtime_expires_at = null
+    where id = target.id
+    returning * into target;
+  else
+    update public.sessions
+    set
+      status = 'completed',
+      overtime_prompted_at = null,
+      overtime_expires_at = null
+    where id = target.id
+    returning * into target;
+  end if;
+
+  return target;
+end;
+$$;
+
 create function public.respond_reaction_prompt(prompt_id bigint, should_accept boolean)
 returns public.session_reaction_prompts language sql security invoker set search_path = '' as $$ select private.respond_reaction_prompt(prompt_id, should_accept); $$;
 revoke execute on function public.create_reaction_prompt(bigint, bigint, bigint, uuid, text, integer) from public, anon;
+revoke execute on function public.start_session(bigint, boolean) from public, anon;
+revoke execute on function private.process_session_overtime() from public, anon, authenticated;
+revoke execute on function public.respond_session_overtime(bigint, boolean) from public, anon;
 revoke execute on function private.respond_reaction_prompt(bigint, boolean) from public, anon;
 revoke execute on function public.respond_reaction_prompt(bigint, boolean) from public, anon;
 grant execute on function public.create_reaction_prompt(bigint, bigint, bigint, uuid, text, integer) to authenticated;
+grant execute on function public.start_session(bigint, boolean) to authenticated;
+grant execute on function public.respond_session_overtime(bigint, boolean) to authenticated;
 grant execute on function private.respond_reaction_prompt(bigint, boolean) to authenticated;
 grant execute on function public.respond_reaction_prompt(bigint, boolean) to authenticated;
 

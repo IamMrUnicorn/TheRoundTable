@@ -881,6 +881,71 @@
   color: #b7e8b0;
   border-left: 3px solid #64b85b;
 }
+.lobby-ready-action {
+  align-items: center;
+  justify-content: center;
+}
+.lobby-ready-action > span {
+  max-width: 28rem;
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+.session-conflict-notice {
+  display: grid;
+  gap: 0.65rem;
+  width: min(42rem, 100%);
+  border: 1px solid rgb(212 164 92 / 45%);
+  border-radius: 0.75rem;
+  padding: 0.85rem;
+  background: rgb(212 164 92 / 9%);
+  text-align: left;
+}
+.session-conflict-notice p {
+  margin: 0;
+  color: var(--muted);
+}
+.session-overtime-backdrop {
+  position: fixed;
+  z-index: 120;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgb(0 0 0 / 72%);
+  backdrop-filter: blur(5px);
+}
+.session-overtime-dialog {
+  display: grid;
+  width: min(34rem, 100%);
+  justify-items: center;
+  gap: 0.8rem;
+  border: 1px solid rgb(212 164 92 / 60%);
+  border-radius: 0.9rem;
+  padding: 1.4rem;
+  background: #111a18;
+  box-shadow: 0 1.4rem 5rem rgb(0 0 0 / 60%);
+  text-align: center;
+}
+.session-overtime-dialog > svg {
+  width: 2rem;
+  height: 2rem;
+  color: var(--gold);
+}
+.session-overtime-dialog h2,
+.session-overtime-dialog p {
+  margin: 0;
+}
+.session-overtime-dialog > strong {
+  color: var(--gold);
+  font-size: 1.1rem;
+  font-variant-numeric: tabular-nums;
+}
+.session-overtime-dialog > div {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.55rem;
+}
 .session-paused-banner {
   max-width: 92rem;
   margin: 0 auto 1rem;
@@ -1504,6 +1569,12 @@ button:disabled {
 .flow-checklist li.current strong {
   border-color: var(--gold);
   color: var(--gold);
+}
+.historical-session-notice {
+  border-left: 3px solid var(--line);
+  padding: 0.6rem 0.75rem;
+  color: var(--muted);
+  font-size: 0.75rem;
 }
 .flow-breadcrumbs {
   display: flex;

@@ -1064,6 +1064,75 @@ assert.equal(banApplicantResponse.status, 200)
 const { response: bannedRejoinResponse } = await request('/rest/v1/rpc/join_campaign', { token: applicant.token, method: 'POST', body: { campaign_code: campaignRows[0].invite_code } })
 assert.equal(bannedRejoinResponse.status, 403)
 
+const { data: replacementSessionRows, response: replacementSessionResponse } = await request('/rest/v1/sessions', {
+  token: outsider.token,
+  method: 'POST',
+  body: { campaign_id: campaignId, created_by: outsider.id, title: 'Replacement session', starts_at: secondStart.toISOString(), ends_at: secondEnd.toISOString(), status: 'proposed' },
+})
+assert.equal(replacementSessionResponse.status, 201)
+const replacementSessionId = replacementSessionRows[0].id
+const { response: conflictingStartResponse } = await request('/rest/v1/rpc/start_session', {
+  token: outsider.token,
+  method: 'POST',
+  body: { requested_session_id: replacementSessionId, replace_existing: false },
+})
+assert.equal(conflictingStartResponse.status, 400)
+const { response: forbiddenStartResponse } = await request('/rest/v1/rpc/start_session', {
+  token: invitee.token,
+  method: 'POST',
+  body: { requested_session_id: replacementSessionId, replace_existing: true },
+})
+assert.equal(forbiddenStartResponse.status, 403)
+const { data: startedReplacement, response: replaceStartResponse } = await request('/rest/v1/rpc/start_session', {
+  token: outsider.token,
+  method: 'POST',
+  body: { requested_session_id: replacementSessionId, replace_existing: true },
+})
+assert.equal(replaceStartResponse.status, 200)
+assert.equal(startedReplacement.status, 'active')
+const { data: replacedSessionStatuses } = await request(`/rest/v1/sessions?id=in.(${sessionId},${replacementSessionId})&select=id,status&order=id.asc`, { token: owner.token })
+assert.deepEqual(replacedSessionStatuses, [
+  { id: sessionId, status: 'completed' },
+  { id: replacementSessionId, status: 'active' },
+])
+const overtimeStart = new Date(Date.now() - 2 * 60 * 60 * 1000)
+const overtimeEnd = new Date(Date.now() - 60 * 60 * 1000)
+const { response: makeSessionOvertimeResponse } = await request(`/rest/v1/sessions?id=eq.${replacementSessionId}`, {
+  token: outsider.token,
+  method: 'PATCH',
+  body: { starts_at: overtimeStart.toISOString(), ends_at: overtimeEnd.toISOString() },
+})
+assert.equal(makeSessionOvertimeResponse.status, 200)
+execFileSync('psql', [status.DB_URL, '-v', 'ON_ERROR_STOP=1', '-c', 'select private.process_session_overtime();'])
+const { data: overtimePromptRows } = await request(`/rest/v1/sessions?id=eq.${replacementSessionId}&select=overtime_prompted_at,overtime_expires_at`, { token: owner.token })
+assert.ok(overtimePromptRows[0].overtime_prompted_at)
+assert.ok(Date.parse(overtimePromptRows[0].overtime_expires_at) > Date.now())
+const { response: forbiddenOvertimeResponse } = await request('/rest/v1/rpc/respond_session_overtime', {
+  token: invitee.token,
+  method: 'POST',
+  body: { requested_session_id: replacementSessionId, continue_session: true },
+})
+assert.equal(forbiddenOvertimeResponse.status, 403)
+const { data: continuedSession, response: continueOvertimeResponse } = await request('/rest/v1/rpc/respond_session_overtime', {
+  token: outsider.token,
+  method: 'POST',
+  body: { requested_session_id: replacementSessionId, continue_session: true },
+})
+assert.equal(continueOvertimeResponse.status, 200)
+assert.equal(continuedSession.overtime_expires_at, null)
+assert.ok(Date.parse(continuedSession.ends_at) > Date.now())
+const expiredPromptAt = new Date(Date.now() - 31 * 60 * 1000).toISOString()
+const expiredPromptEnd = new Date(Date.now() - 60 * 1000).toISOString()
+const { response: expirePromptResponse } = await request(`/rest/v1/sessions?id=eq.${replacementSessionId}`, {
+  token: outsider.token,
+  method: 'PATCH',
+  body: { overtime_prompted_at: expiredPromptAt, overtime_expires_at: expiredPromptEnd },
+})
+assert.equal(expirePromptResponse.status, 200)
+execFileSync('psql', [status.DB_URL, '-v', 'ON_ERROR_STOP=1', '-c', 'select private.process_session_overtime();'])
+const { data: autoCompletedSession } = await request(`/rest/v1/sessions?id=eq.${replacementSessionId}&select=status,overtime_expires_at`, { token: owner.token })
+assert.deepEqual(autoCompletedSession, [{ status: 'completed', overtime_expires_at: null }])
+
 const { response: anonymousProfileResponse } = await request(
   '/rest/v1/profiles?select=id',
 )

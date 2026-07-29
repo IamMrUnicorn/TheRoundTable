@@ -8,6 +8,10 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 
 ### Fixed
 
+- Restored the personal ready/not-ready control for every active campaign member instead of rendering it only in the DM preparation branch.
+- Replaced unexplained session-start 409 conflicts with the title/status of the existing active session, a direct link to it, and an explicit atomic option to complete it and start the selected session.
+- Added realtime waiting-room synchronization for readiness and session status with polling retained as a reconnect fallback.
+- Locked attendance, status, and rescheduling controls on completed, cancelled, and time-expired session cards so historical proposals are no longer presented as editable.
 - Fixed short reaction prompts failing the `expires_at > created_at` constraint when the browser and database clocks differed; prompt creation now calculates creation and expiration from the same authoritative database clock.
 - Added database validation and integration coverage for the complete five-to-300-second reaction duration range.
 - Fixed reaction prompts failing to interrupt the targeted player's browser by publishing prompt changes through Supabase Realtime and subscribing each live session to its own prompt stream.
@@ -33,6 +37,8 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 
 ### Added
 
+- Added a DM-only overtime confirmation dialog after an active session's scheduled end, with a visible 30-minute countdown, one-hour continuation, and immediate completion controls.
+- Added a server-side Supabase Cron lifecycle job that creates overtime prompts and automatically completes unanswered sessions after 30 minutes even when no browser remains open.
 - Added a searchable SRD 5.1 monster library to the GM combat console using Open5e's source-filtered API, covering 325 openly licensed creatures without copying non-SRD Wikidot content.
 - Added expandable creature stat blocks with identity, challenge rating, armor, hit points, speed, abilities, traits, and actions plus the complete required SRD 5.1 Creative Commons attribution.
 - Added one-click import from the open compendium into an active encounter with automatic initiative rolls and authoritative AC/HP values.

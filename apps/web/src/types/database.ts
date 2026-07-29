@@ -1849,6 +1849,8 @@ export type Database = {
           created_by: string
           ends_at: string
           id: number
+          overtime_expires_at: string | null
+          overtime_prompted_at: string | null
           starts_at: string
           status: string
           title: string
@@ -1861,6 +1863,8 @@ export type Database = {
           created_by: string
           ends_at: string
           id?: never
+          overtime_expires_at?: string | null
+          overtime_prompted_at?: string | null
           starts_at: string
           status?: string
           title: string
@@ -1873,6 +1877,8 @@ export type Database = {
           created_by?: string
           ends_at?: string
           id?: never
+          overtime_expires_at?: string | null
+          overtime_prompted_at?: string | null
           starts_at?: string
           status?: string
           title?: string
@@ -1948,6 +1954,20 @@ export type Database = {
       respond_reaction_prompt: {
         Args: { prompt_id: number; should_accept: boolean }
         Returns: Database['public']['Tables']['session_reaction_prompts']['Row']
+      }
+      respond_session_overtime: {
+        Args: {
+          continue_session: boolean
+          requested_session_id: number
+        }
+        Returns: Database['public']['Tables']['sessions']['Row']
+      }
+      start_session: {
+        Args: {
+          replace_existing?: boolean
+          requested_session_id: number
+        }
+        Returns: Database['public']['Tables']['sessions']['Row']
       }
       resolve_session_attack: {
         Args: {

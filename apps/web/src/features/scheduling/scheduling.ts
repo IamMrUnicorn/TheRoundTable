@@ -65,6 +65,42 @@ export async function getSession(sessionId: number) {
   return data
 }
 
+export async function getActiveCampaignSession(
+  campaignId: number,
+  exceptSessionId: number,
+) {
+  const { data, error } = await supabase
+    .from('sessions')
+    .select('id, status, title')
+    .eq('campaign_id', campaignId)
+    .in('status', ['active', 'paused'])
+    .neq('id', exceptSessionId)
+    .maybeSingle()
+  if (error) throw error
+  return data
+}
+
+export async function startSession(sessionId: number, replaceExisting = false) {
+  const { data, error } = await supabase.rpc('start_session', {
+    replace_existing: replaceExisting,
+    requested_session_id: sessionId,
+  })
+  if (error) throw error
+  return data
+}
+
+export async function respondSessionOvertime(
+  sessionId: number,
+  continueSession: boolean,
+) {
+  const { data, error } = await supabase.rpc('respond_session_overtime', {
+    continue_session: continueSession,
+    requested_session_id: sessionId,
+  })
+  if (error) throw error
+  return data
+}
+
 export async function getCampaignAvailabilitySummary(campaignId: number) {
   const [membersResult, rulesResult, exceptionsResult] = await Promise.all([
     supabase

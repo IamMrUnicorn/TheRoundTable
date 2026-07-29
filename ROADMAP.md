@@ -12,6 +12,8 @@ This roadmap translates the play-screen sketch and the proven V5 foundations int
 - Desktop is the primary play surface; smaller screens receive a focused companion layout.
 - Accessibility, keyboard navigation, loading feedback, and clear errors are requirements, even when visual polish is deferred.
 - [x] A consistent Party → Schedule → Waiting/Prep → Play workflow breadcrumb and contextual dashboard entry point.
+- [x] Multi-user waiting-room readiness with realtime roster updates and conflict-safe session starting.
+- [x] Post-session overtime confirmation, one-hour extension, and unattended 30-minute server-side auto-completion.
 
 ## Completed foundation
 

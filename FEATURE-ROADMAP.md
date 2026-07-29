@@ -34,6 +34,8 @@ This is the source-of-truth checklist for the entire application. Completed work
 - [x] Persistent navigation for Characters, Parties, Calendar, role-aware Current Session, and Profile.
 - [x] Focused character and campaign-calendar hubs outside the dashboard feature stack.
 - [x] Contextual next-step guidance and a visible end-to-end campaign-to-play checklist.
+- [x] Realtime player/DM ready-up controls and an atomic recovery flow when an older session is still active.
+- [x] Expiring DM overtime prompts, server-side automatic completion, and locked historical session cards.
 - [x] Active campaign list.
 - [x] Personal character collection.
 - [x] Upcoming-session overview.

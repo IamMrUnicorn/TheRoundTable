@@ -522,6 +522,16 @@ export function SchedulePage() {
           </div>
           <div className="campaign-grid">
             {schedule.data?.sessions.map((item) => {
+              const timePassed = Date.parse(item.ends_at) <= Date.now()
+              const locked =
+                timePassed ||
+                item.status === 'completed' ||
+                item.status === 'cancelled'
+              const displayStatus =
+                timePassed &&
+                (item.status === 'proposed' || item.status === 'scheduled')
+                  ? 'expired'
+                  : item.status
               const answer =
                 schedule.data.attendance.find(
                   (entry) =>
@@ -534,7 +544,7 @@ export function SchedulePage() {
               return (
                 <article className="campaign-card" key={item.id}>
                   <div className="campaign-card-meta">
-                    <span>{item.status}</span>
+                    <span>{displayStatus}</span>
                     <span>{answer}</span>
                   </div>
                   <h3>{item.title}</h3>
@@ -567,22 +577,30 @@ export function SchedulePage() {
                       absent
                     </span>
                   </div>
-                  <div className="response-buttons">
-                    {['attending', 'tentative', 'absent'].map((response) => (
-                      <button
-                        className={
-                          answer === response ? '' : 'secondary-button'
-                        }
-                        key={response}
-                        onClick={() =>
-                          respond.mutate({ sessionId: item.id, response })
-                        }
-                      >
-                        {response}
-                      </button>
-                    ))}
-                  </div>
-                  {isManager && (
+                  {!locked ? (
+                    <div className="response-buttons">
+                      {['attending', 'tentative', 'absent'].map((response) => (
+                        <button
+                          className={
+                            answer === response ? '' : 'secondary-button'
+                          }
+                          key={response}
+                          onClick={() =>
+                            respond.mutate({ sessionId: item.id, response })
+                          }
+                        >
+                          {response}
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="historical-session-notice">
+                      {['active', 'paused'].includes(item.status)
+                        ? 'The scheduled end time passed. The DM must respond from the play screen.'
+                        : 'This session is historical. Attendance and status controls are locked.'}
+                    </p>
+                  )}
+                  {isManager && !locked && (
                     <div className="manager-session-actions">
                       {item.status !== 'scheduled' && (
                         <button
@@ -624,7 +642,7 @@ export function SchedulePage() {
                       )}
                     </div>
                   )}
-                  {isManager && (
+                  {isManager && !locked && (
                     <details className="reschedule-panel">
                       <summary>Reschedule</summary>
                       <form
