@@ -1981,6 +1981,16 @@ export type Database = {
         }
         Returns: Json
       }
+      resolve_monster_attack: {
+        Args: {
+          attack_name: string
+          attacker_entry_id: number
+          roll_mode: string
+          session_id: number
+          target_character_id: number
+        }
+        Returns: Json
+      }
     }
     Enums: {
       [_ in never]: never

@@ -3183,6 +3183,36 @@ button:disabled {
 .monster-saved-actions button {
   justify-self: start;
 }
+.monster-attack-controls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+.monster-attack-controls > span,
+.monster-attack-controls > button {
+  grid-column: 1 / -1;
+}
+.monster-attack-controls > span {
+  color: var(--gold);
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+.monster-attack-controls > button {
+  justify-self: stretch;
+}
+.monster-attack-result {
+  position: sticky;
+  z-index: 2;
+  bottom: 0;
+  border: 1px solid rgb(212 164 92 / 45%);
+  border-radius: 0.65rem;
+  padding: 0.75rem;
+  background: #18231f;
+  color: var(--muted);
+}
+.monster-attack-result strong {
+  color: var(--gold);
+}
 .monster-console-empty {
   display: grid;
   justify-items: center;

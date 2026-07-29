@@ -1,5 +1,12 @@
 export type Open5eAction = {
   action_type: string
+  automation?: {
+    attack_bonus: number
+    damage_bonus: number
+    damage_dice_count: number
+    damage_die_size: number
+    damage_type: string
+  }
   attacks: {
     damage_bonus: number | null
     damage_die_count: number | null
@@ -10,6 +17,29 @@ export type Open5eAction = {
   }[]
   desc: string
   name: string
+}
+
+export function normalizeMonsterAttacks(monster: Open5eMonster) {
+  return {
+    ...monster,
+    actions: monster.actions.map((action) => {
+      const attack = action.attacks[0]
+      const hit = action.desc.match(
+        /Hit:\s*\d+\s*\((\d+)d(\d+)\s*([+-]\s*\d+)?\)\s*([a-z]+)\s+damage/i,
+      )
+      if (!attack || attack.to_hit_mod === null || !hit) return action
+      return {
+        ...action,
+        automation: {
+          attack_bonus: attack.to_hit_mod,
+          damage_bonus: Number((hit[3] ?? '0').replaceAll(' ', '')),
+          damage_dice_count: Number(hit[1]),
+          damage_die_size: Number(hit[2]),
+          damage_type: hit[4].toLowerCase(),
+        },
+      }
+    }),
+  }
 }
 
 export type Open5eMonster = {

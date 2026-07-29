@@ -42,12 +42,6 @@ export async function startEncounter(input: {
     })
   if (encounterError) throw encounterError
 
-  const { error: entriesError } = await supabase
-    .from('session_initiative_entries')
-    .delete()
-    .eq('session_id', input.sessionId)
-  if (entriesError) throw entriesError
-
   await createSessionEvent({
     actor_id: input.actorId,
     campaign_id: input.campaignId,

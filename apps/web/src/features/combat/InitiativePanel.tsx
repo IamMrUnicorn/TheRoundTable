@@ -107,8 +107,8 @@ export function InitiativePanel({
         name: encounterName,
         sessionId,
       })
-      await Promise.all(
-        characters.map((character) =>
+      await Promise.all([
+        ...characters.map((character) =>
           setCharacterInitiative({
             campaignId,
             characterId: character.id,
@@ -120,7 +120,28 @@ export function InitiativePanel({
             userId: actorId,
           }),
         ),
-      )
+        ...(initiative.data?.entries ?? [])
+          .filter((entry) => {
+            const statBlock = entry.stat_block as {
+              initiative_bonus?: number
+            }
+            return (
+              entry.character_id === null &&
+              typeof statBlock.initiative_bonus === 'number'
+            )
+          })
+          .map((entry) => {
+            const statBlock = entry.stat_block as {
+              initiative_bonus?: number
+            }
+            return updateCustomCombatant(entry.id, {
+              initiative:
+                Math.floor(Math.random() * 20) +
+                1 +
+                (statBlock.initiative_bonus ?? 0),
+            })
+          }),
+      ])
     },
     onSuccess: refresh,
   })

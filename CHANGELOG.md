@@ -6,6 +6,13 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 
 ## [Unreleased]
 
+### Added
+
+- Added monsters and NPCs to the live session roster before combat begins; starting an encounter now preserves those prepared creatures and rolls their stored initiative bonuses.
+- Autofilled imported SRD creatures with name, source, armor class, hit points, initiative bonus, traits, and stat-block actions as soon as they are added to a session.
+- Normalized attack bonuses and damage formulas from licensed stat-block text so incomplete upstream structured fields do not produce missing or incorrect monster attacks.
+- Added authoritative Game Master monster attacks with target selection, normal/advantage/disadvantage rolls, critical hits, temporary-hit-point absorption, HP and unconscious-state updates, concentration checks, action/reaction consumption, and shared structured logs.
+
 ### Fixed
 
 - Restored the personal ready/not-ready control for every active campaign member instead of rendering it only in the DM preparation branch.

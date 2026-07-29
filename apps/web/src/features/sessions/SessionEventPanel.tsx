@@ -686,6 +686,7 @@ export function SessionEventPanel({
             <MonsterCombatDrawer
               actorId={actorId}
               campaignId={campaignId}
+              characters={characters}
               sessionId={sessionId}
             />
           )}

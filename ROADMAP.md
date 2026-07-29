@@ -113,6 +113,8 @@ This roadmap translates the play-screen sketch and the proven V5 foundations int
 - [x] Quick GM monster console for HP, visibility, initiative context, and action-economy controls.
 - [x] Searchable, attributed SRD 5.1 monster catalog with expandable stat blocks and one-click encounter import.
 - [x] Persist imported monster sources/stat blocks and publish their actions into the shared session history.
+- [x] Prepare monsters and NPCs in the session roster before combat, preserve them when encounters begin, and autofill their licensed stat-block data.
+- [x] Resolve imported monster attacks authoritatively with targets, roll modes, critical damage, character health/conditions, concentration checks, action economy, and shared logs.
 - [ ] Initiative rolls, manual ordering, ties, and reorder controls. *(Dexterity-aware rolls, manual values, and deterministic tie ordering complete; drag/reorder pending.)*
 - [x] Active-turn indicator, round counter, and next-turn preview.
 - [x] Game Master advance, rewind, and direct turn-jump controls.
@@ -261,10 +263,10 @@ This roadmap translates the play-screen sketch and the proven V5 foundations int
 
 - [ ] Monster/NPC library with search and filters.
 - [ ] Create, duplicate, edit, and archive custom creatures.
-- [ ] Stat blocks, actions, reactions, legendary actions, traits, spells, and loot. *(SRD monster identity, defenses, abilities, traits, actions, reactions, and legendary actions are now imported and persisted; automated resolution, spellcasting, and loot remain.)*
+- [ ] Stat blocks, actions, reactions, legendary actions, traits, spells, and loot. *(SRD monster identity, defenses, abilities, traits, actions, reactions, and legendary actions are imported and persisted; standard attack resolution is automated while spellcasting and loot remain.)*
 - [ ] Private Game Master values and player-safe revealed summaries.
 - [ ] Encounter builder and difficulty estimation.
-- [ ] Add creatures to initiative and maps from the compendium.
+- [ ] Add creatures to initiative and maps from the compendium. *(Pre-combat session-roster and initiative import are complete; map placement remains.)*
 - [ ] Batch/individual monster HP and condition controls.
 - [ ] NPC relationship and location tracking.
 - [ ] Reusable encounter templates.

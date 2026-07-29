@@ -617,7 +617,7 @@ assert.equal(encounterResponse.status, 201)
 const { data: publicCombatantRows, response: publicCombatantResponse } = await request('/rest/v1/session_initiative_entries', {
   token: owner.token,
   method: 'POST',
-  body: { session_id: sessionId, campaign_id: campaignId, character_id: null, combatant_name: 'Drowned sentinel', combatant_kind: 'monster', initiative: 13, armor_class: 15, current_hp: 22, max_hp: 22, temporary_hp: 0, created_by: owner.id, source_reference: 'SRD 5.1 test fixture', stat_block: { key: 'drowned-sentinel', actions: [{ name: 'Slam', action_type: 'ACTION', desc: 'The sentinel attacks.' }] } },
+  body: { session_id: sessionId, campaign_id: campaignId, character_id: null, combatant_name: 'Drowned sentinel', combatant_kind: 'monster', initiative: 13, armor_class: 15, current_hp: 22, max_hp: 22, temporary_hp: 0, created_by: owner.id, source_reference: 'SRD 5.1 test fixture', stat_block: { key: 'drowned-sentinel', actions: [{ name: 'Slam', action_type: 'ACTION', desc: 'Melee Weapon Attack: +100 to hit. Hit: 5 (1d6 + 2) bludgeoning damage.', automation: { attack_bonus: 100, damage_dice_count: 1, damage_die_size: 6, damage_bonus: 2, damage_type: 'bludgeoning' } }] } },
 })
 assert.equal(publicCombatantResponse.status, 201)
 assert.equal(publicCombatantRows[0].stat_block.actions[0].name, 'Slam')
@@ -668,6 +668,37 @@ const { response: forgedAttackResponse } = await request('/rest/v1/rpc/resolve_s
   body: { session_id: sessionId, attacker_character_id: characterId, target_entry_id: publicCombatantRows[0].id, attack_name: 'Forged attack', natural_roll: 20, attack_total: 20, damage: 1000 },
 })
 assert.equal(forgedAttackResponse.status, 403)
+const { response: monsterTurnResponse } = await request(`/rest/v1/session_encounters?session_id=eq.${sessionId}`, {
+  token: outsider.token,
+  method: 'PATCH',
+  body: { active_character_id: null, active_entry_id: publicCombatantRows[0].id },
+})
+assert.equal(monsterTurnResponse.status, 200)
+const { data: monsterAttack, response: monsterAttackResponse } = await request('/rest/v1/rpc/resolve_monster_attack', {
+  token: outsider.token,
+  method: 'POST',
+  body: { session_id: sessionId, attacker_entry_id: publicCombatantRows[0].id, target_character_id: characterId, attack_name: 'Slam', roll_mode: 'advantage' },
+})
+assert.equal(monsterAttackResponse.status, 200)
+assert.equal(monsterAttack.damage_type, 'bludgeoning')
+assert.ok(monsterAttack.natural_roll >= 1 && monsterAttack.natural_roll <= 20)
+const { response: spentMonsterActionResponse } = await request('/rest/v1/rpc/resolve_monster_attack', {
+  token: outsider.token,
+  method: 'POST',
+  body: { session_id: sessionId, attacker_entry_id: publicCombatantRows[0].id, target_character_id: characterId, attack_name: 'Slam', roll_mode: 'normal' },
+})
+assert.equal(spentMonsterActionResponse.status, 400)
+const { response: forgedMonsterAttackResponse } = await request('/rest/v1/rpc/resolve_monster_attack', {
+  token: invitee.token,
+  method: 'POST',
+  body: { session_id: sessionId, attacker_entry_id: publicCombatantRows[0].id, target_character_id: characterId, attack_name: 'Slam', roll_mode: 'normal' },
+})
+assert.equal(forgedMonsterAttackResponse.status, 403)
+await request(`/rest/v1/characters?id=eq.${characterId}`, {
+  token: owner.token,
+  method: 'PATCH',
+  body: { current_hp: 27, temporary_hp: 7, combat_state: 'conscious', conditions: [] },
+})
 const { data: attackEvents } = await request(`/rest/v1/session_events?metadata->>resolution=eq.attack&select=title,metadata&order=created_at.asc`, { token: owner.token })
 assert.equal(attackEvents.length, 2)
 assert.equal(attackEvents[0].metadata.critical, true)
@@ -693,7 +724,7 @@ const { data: damagedHealth, response: damageHealthResponse } = await request('/
   body: { session_id: sessionId, character_id: characterId, change_kind: 'damage', amount: 10 },
 })
 assert.equal(damageHealthResponse.status, 200)
-assert.equal(damagedHealth.current_hp, 17)
+assert.equal(damagedHealth.current_hp, 24)
 assert.equal(damagedHealth.temporary_hp, 0)
 const { data: healedHealth, response: healingHealthResponse } = await request('/rest/v1/rpc/apply_character_health_change', {
   token: outsider.token,
@@ -701,19 +732,19 @@ const { data: healedHealth, response: healingHealthResponse } = await request('/
   body: { session_id: sessionId, character_id: characterId, change_kind: 'healing', amount: 5 },
 })
 assert.equal(healingHealthResponse.status, 200)
-assert.equal(healedHealth.current_hp, 22)
+assert.equal(healedHealth.current_hp, 29)
 const { response: forbiddenHealthResponse } = await request('/rest/v1/rpc/apply_character_health_change', {
   token: invitee.token,
   method: 'POST',
   body: { session_id: sessionId, character_id: characterId, change_kind: 'damage', amount: 1 },
 })
 assert.equal(forbiddenHealthResponse.status, 403)
-const { data: healthEvents } = await request(`/rest/v1/session_events?session_id=eq.${sessionId}&kind=in.(damage,healing)&select=kind,metadata&order=created_at.asc`, { token: owner.token })
+const { data: healthEvents } = await request(`/rest/v1/session_events?session_id=eq.${sessionId}&metadata->>change_kind=in.(damage,healing)&select=kind,metadata&order=created_at.asc`, { token: owner.token })
 assert.equal(healthEvents.length, 2)
 assert.equal(healthEvents[0].kind, 'damage')
 assert.equal(healthEvents[0].metadata.absorbed_by_temporary_hp, 7)
 assert.equal(healthEvents[1].kind, 'healing')
-assert.equal(healthEvents[1].metadata.current_hp, 22)
+assert.equal(healthEvents[1].metadata.current_hp, 29)
 const { data: conditionStatus, response: conditionStatusResponse } = await request('/rest/v1/rpc/apply_character_status_change', {
   token: owner.token,
   method: 'POST',

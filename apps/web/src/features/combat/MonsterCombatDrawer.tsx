@@ -10,14 +10,26 @@ import {
   updateCustomCombatant,
   updateTurnResources,
 } from './initiative'
+import {
+  type MonsterAttackResolution,
+  resolveMonsterAttack,
+} from './monster-attacks'
 
 export function MonsterCombatDrawer({
   actorId,
   campaignId,
+  characters,
   sessionId,
 }: {
   actorId: string
   campaignId: number
+  characters: {
+    armor_class: number
+    current_hp: number
+    id: number
+    max_hp: number
+    name: string
+  }[]
   sessionId: number
 }) {
   const client = useQueryClient()
@@ -28,6 +40,12 @@ export function MonsterCombatDrawer({
     refetchInterval: 2_000,
   })
   const [amounts, setAmounts] = useState<Record<number, string>>({})
+  const [attackTargets, setAttackTargets] = useState<Record<string, string>>({})
+  const [rollModes, setRollModes] = useState<
+    Record<string, 'advantage' | 'disadvantage' | 'normal'>
+  >({})
+  const [attackResult, setAttackResult] =
+    useState<MonsterAttackResolution | null>(null)
   const refresh = () => client.invalidateQueries({ queryKey: key })
   const update = useMutation({
     mutationFn: ({
@@ -84,6 +102,39 @@ export function MonsterCombatDrawer({
     onSuccess: async () => {
       await Promise.all([
         refresh(),
+        client.invalidateQueries({ queryKey: ['session-events', sessionId] }),
+      ])
+    },
+  })
+  const monsterAttack = useMutation({
+    mutationFn: ({
+      action,
+      entryId,
+      key,
+    }: {
+      action: Open5eAction
+      entryId: number
+      key: string
+    }) => {
+      const targetCharacterId = Number(attackTargets[key])
+      if (!Number.isSafeInteger(targetCharacterId))
+        throw new Error('Choose a target character.')
+      return resolveMonsterAttack({
+        actionName: action.name,
+        attackerEntryId: entryId,
+        rollMode: rollModes[key] ?? 'normal',
+        sessionId,
+        targetCharacterId,
+      })
+    },
+    onMutate: () => setAttackResult(null),
+    onSuccess: async (result) => {
+      setAttackResult(result)
+      await Promise.all([
+        refresh(),
+        client.invalidateQueries({
+          queryKey: ['campaign-characters', campaignId],
+        }),
         client.invalidateQueries({ queryKey: ['session-events', sessionId] }),
       ])
     },
@@ -260,20 +311,100 @@ export function MonsterCombatDrawer({
                       <span>{action.action_type.replaceAll('_', ' ')}</span>
                     </header>
                     <p>{action.desc}</p>
-                    <button
-                      type="button"
-                      disabled={useMonsterAction.isPending}
-                      onClick={() =>
-                        useMonsterAction.mutate({
-                          action,
-                          entryId: entry.id,
-                          monsterName: entry.combatant_name,
-                          sourceReference: entry.source_reference,
-                        })
-                      }
-                    >
-                      Send action to the table
-                    </button>
+                    {action.automation ? (
+                      <div className="monster-attack-controls">
+                        <span>
+                          {action.automation.attack_bonus >= 0 ? '+' : ''}
+                          {action.automation.attack_bonus} to hit ·{' '}
+                          {action.automation.damage_dice_count}d
+                          {action.automation.damage_die_size}
+                          {action.automation.damage_bonus >= 0 ? '+' : ''}
+                          {action.automation.damage_bonus}{' '}
+                          {action.automation.damage_type}
+                        </span>
+                        <label className="play-field">
+                          Target character
+                          <select
+                            value={
+                              attackTargets[`${entry.id}:${action.name}`] ?? ''
+                            }
+                            onChange={(event) =>
+                              setAttackTargets((current) => ({
+                                ...current,
+                                [`${entry.id}:${action.name}`]:
+                                  event.target.value,
+                              }))
+                            }
+                          >
+                            <option value="">Choose target</option>
+                            {characters.map((character) => (
+                              <option key={character.id} value={character.id}>
+                                {character.name} · AC {character.armor_class} ·{' '}
+                                {character.current_hp}/{character.max_hp} HP
+                              </option>
+                            ))}
+                          </select>
+                        </label>
+                        <label className="play-field">
+                          Attack roll
+                          <select
+                            value={
+                              rollModes[`${entry.id}:${action.name}`] ??
+                              'normal'
+                            }
+                            onChange={(event) =>
+                              setRollModes((current) => ({
+                                ...current,
+                                [`${entry.id}:${action.name}`]: event.target
+                                  .value as
+                                  'advantage' | 'disadvantage' | 'normal',
+                              }))
+                            }
+                          >
+                            <option value="normal">Normal</option>
+                            <option value="advantage">Advantage</option>
+                            <option value="disadvantage">Disadvantage</option>
+                          </select>
+                        </label>
+                        <button
+                          type="button"
+                          disabled={
+                            monsterAttack.isPending ||
+                            (action.action_type === 'ACTION' &&
+                              initiative.data?.encounter?.active_entry_id !==
+                                entry.id)
+                          }
+                          onClick={() =>
+                            monsterAttack.mutate({
+                              action,
+                              entryId: entry.id,
+                              key: `${entry.id}:${action.name}`,
+                            })
+                          }
+                        >
+                          {action.action_type === 'ACTION' &&
+                          initiative.data?.encounter?.active_entry_id !==
+                            entry.id
+                            ? 'Available on this combatant’s turn'
+                            : 'Roll attack and damage'}
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        disabled={useMonsterAction.isPending}
+                        onClick={() =>
+                          useMonsterAction.mutate({
+                            action,
+                            entryId: entry.id,
+                            monsterName: entry.combatant_name,
+                            sourceReference: entry.source_reference,
+                          })
+                        }
+                      >
+                        Send action to the table
+                      </button>
+                    )}
                   </article>
                 ))}
               </details>
@@ -281,15 +412,40 @@ export function MonsterCombatDrawer({
           </article>
         ))}
       </div>
-      {(update.error || resource.error || useMonsterAction.error) && (
+      {attackResult && (
+        <p className="monster-attack-result">
+          <strong>
+            {attackResult.hit
+              ? attackResult.critical
+                ? 'Critical hit'
+                : 'Hit'
+              : 'Miss'}
+          </strong>{' '}
+          · attack {attackResult.attack_total}
+          {attackResult.hit &&
+            ` · ${attackResult.damage} ${attackResult.damage_type} damage · ${attackResult.target_name} ${attackResult.target_hp}/${attackResult.target_max_hp} HP`}
+          {attackResult.concentration_check_dc &&
+            ` · concentration save DC ${attackResult.concentration_check_dc}`}
+        </p>
+      )}
+      {(update.error ||
+        resource.error ||
+        useMonsterAction.error ||
+        monsterAttack.error) && (
         <p className="form-error">
-          {(update.error || resource.error || useMonsterAction.error)?.message}
+          {
+            (
+              update.error ||
+              resource.error ||
+              useMonsterAction.error ||
+              monsterAttack.error
+            )?.message
+          }
         </p>
       )}
       <MonsterLibraryPanel
         actorId={actorId}
         campaignId={campaignId}
-        encounterActive={initiative.data?.encounter?.status === 'active'}
         sessionId={sessionId}
       />
     </section>

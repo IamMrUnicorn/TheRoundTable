@@ -4,17 +4,20 @@ import { type FormEvent, useState } from 'react'
 
 import type { Json } from '../../types/database'
 import { addCustomCombatant } from '../combat/initiative'
-import { monsterSpeed, type Open5eMonster, searchSrdMonsters } from './open5e'
+import {
+  monsterSpeed,
+  normalizeMonsterAttacks,
+  type Open5eMonster,
+  searchSrdMonsters,
+} from './open5e'
 
 export function MonsterLibraryPanel({
   actorId,
   campaignId,
-  encounterActive,
   sessionId,
 }: {
   actorId: string
   campaignId: number
-  encounterActive: boolean
   sessionId: number
 }) {
   const client = useQueryClient()
@@ -27,8 +30,9 @@ export function MonsterLibraryPanel({
     staleTime: 60 * 60 * 1000,
   })
   const add = useMutation({
-    mutationFn: (monster: Open5eMonster) =>
-      addCustomCombatant({
+    mutationFn: (monster: Open5eMonster) => {
+      const normalized = normalizeMonsterAttacks(monster)
+      return addCustomCombatant({
         actorId,
         armorClass: monster.armor_class,
         campaignId,
@@ -40,8 +44,9 @@ export function MonsterLibraryPanel({
         name: monster.name,
         sessionId,
         sourceReference: `${monster.document.name} · Open5e:${monster.key}`,
-        statBlock: JSON.parse(JSON.stringify(monster)) as Json,
-      }),
+        statBlock: JSON.parse(JSON.stringify(normalized)) as Json,
+      })
+    },
     onSuccess: () =>
       client.invalidateQueries({
         queryKey: ['session-initiative', sessionId],
@@ -154,13 +159,11 @@ export function MonsterLibraryPanel({
                   ))}
                 <button
                   type="button"
-                  disabled={!encounterActive || add.isPending}
+                  disabled={add.isPending}
                   onClick={() => add.mutate(monster)}
                 >
                   <Plus />
-                  {encounterActive
-                    ? `Add ${monster.name} to initiative`
-                    : 'Start an encounter before adding'}
+                  Add {monster.name} to session
                 </button>
               </div>
             )}
